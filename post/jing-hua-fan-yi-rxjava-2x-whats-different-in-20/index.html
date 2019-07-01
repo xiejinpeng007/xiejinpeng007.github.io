@@ -1,0 +1,335 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>[精华翻译] Rxjava 2.x : What&#39;s different in 2.0 | xiejinpeng &#39;s Blog</title>
+<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1561973285882">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://xiejinpeng007.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://xiejinpeng007.github.io">
+  <img class="avatar" src="https://xiejinpeng007.github.io/images/avatar.png?v=1561973285882" alt="">
+  </a>
+  <h1 class="site-title">
+    xiejinpeng &#39;s Blog
+  </h1>
+  <p class="site-description">
+    
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              [精华翻译] Rxjava 2.x : What&#39;s different in 2.0
+            </h2>
+            <div class="post-info">
+              <time class="post-time">
+                · 2017-04-19 ·
+              </time>
+              
+                <a href="https://xiejinpeng007.github.io/tag/xr6hxpBT6" class="post-tag">
+                  # Rxjava
+                </a>
+              
+                <a href="https://xiejinpeng007.github.io/tag/bbMgJRT1Y" class="post-tag">
+                  # Android
+                </a>
+              
+            </div>
+            
+            <div class="post-content">
+              <p><a href="https://juejin.im/entry/58f82cf48d6d81005875c0e0/detail"><img src="https://badge.juejin.im/entry/58f82cf48d6d81005875c0e0/likes.svg?style=flat-square" alt=""></a></p>
+<p>读完了 <code>RxJava 2.x</code> ：<a href="https://github.com/ReactiveX/RxJava/wiki/What's-different-in-2.0">What's different in 2.0</a> 后，将值得重点注意的变化进行了翻译和归纳。</p>
+<h2 id="maven仓库依赖地址和包名的变更">Maven仓库依赖地址和包名的变更 ：</h2>
+<ul>
+<li>Maven 仓库地址在 <code>io.reactivex.rxjava2:rxjava:2.x.y</code> 下</li>
+<li>类在包名为 <code>io.reactivex</code> 下</li>
+<li>JavaDoc 在 <a href="http://reactivex.io/RxJava/2.x/javadoc/">http://reactivex.io/RxJava/2.x/javadoc/</a></li>
+</ul>
+<h2 id="nulls">Nulls</h2>
+<p>Rxjava 2.x 不再接受 null，下面的情况会立即抛出 <code>NullPointerException</code></p>
+<pre><code class="language-java">Observable.just(null);
+
+Single.just(null);
+
+Observable.fromCallable(() -&gt; null)
+    .subscribe(System.out::println, Throwable::printStackTrace);
+
+Observable.just(1).map(v -&gt; null)
+    .subscribe(System.out::println, Throwable::printStackTrace);
+</code></pre>
+<p>也就是说 <code>Observable&lt;Null&gt;</code> 也不被允许，作为代替，我们可以定义一个<code>Observable&lt;Object&gt;</code>传入一个不相关的值，如下：</p>
+<pre><code class="language-java">enum Irrelevant { INSTANCE; }
+
+Observable&lt;Object&gt; source = Observable.create((ObservableEmitter&lt;Object&gt; emitter) -&gt; {
+   System.out.println(&quot;Side-effect 1&quot;);
+   emitter.onNext(Irrelevant.INSTANCE);
+
+   System.out.println(&quot;Side-effect 2&quot;);
+   emitter.onNext(Irrelevant.INSTANCE);
+
+   System.out.println(&quot;Side-effect 3&quot;);
+   emitter.onNext(Irrelevant.INSTANCE);
+});
+
+source.subscribe(e -&gt; { /* Ignored. */ }, Throwable::printStackTrace);
+</code></pre>
+<h2 id="observable-and-flowable">Observable and Flowable</h2>
+<p>Rxjava 2.x 一个大的改进就是解决了 1.x 中不支持 <code>backpressure</code> 问题<br>
+解决方案是将过去的 <code>Observable</code> 重新设计为：</p>
+<ul>
+<li>不支持 backpressure 的 <code>io.reactivex.Observable</code>  :
+现在 <code>Observable</code>会将没有消费的数据保存在内存中直到<code>OutOfMemoryError</code>而不会抛出<code>MissBackpressureException</code></li>
+<li>支持 backpressure 的 <code>io.reactivex.Flowable</code><br>
+在 <code>Flowable.create()</code>创建时指定背压策略 : 如<code>BackpressureStrategy.DROP</code></li>
+</ul>
+<h4 id="两种类型的使用场景">两种类型的使用场景</h4>
+<h4 id="observable">Observable:</h4>
+<ul>
+<li>流需要处理的元素不超过1K 或者不会产生 OOME</li>
+<li>响应 Mouse Touch 相关GUI操作的事件</li>
+</ul>
+<h4 id="flowable">Flowable:</h4>
+<ul>
+<li>流的超过10K个元素的流</li>
+<li>一系列可能阻塞消费的操作（解析文件、网络请求、数据库操作...）</li>
+</ul>
+<h2 id="single-completable-maybe">Single Completable Maybe</h2>
+<p>2.x 整个架构都按照 Reactive-Streams 规范设计, 所以现在的基本消费者类型改为了接口</p>
+<h4 id="single-只关心调用成功后对数据的处理">Single:  只关心调用成功后对数据的处理</h4>
+<p><code>onSubscribe (onSuccess | onError)?</code></p>
+<h4 id="completable只关心是否调用成功">Completable：只关心是否调用成功</h4>
+<p><code>onSubscribe (onComplete | onError)?.</code></p>
+<h4 id="maybe可能出现无数据或只有一个数据的情况所以onsuccess和oncomplete只会调用其中一个">Maybe：可能出现无数据或只有一个数据的情况，所以onSuccess()和onComplete()只会调用其中一个</h4>
+<p><code>onSubscribe (onSuccess | onError | onComplete)?</code></p>
+<h2 id="base-reactive-interfaces">Base reactive interfaces</h2>
+<p>与 Reactive-Streams 中 <code>Flowable</code> extends <code>Publisher&lt;T&gt;</code> 风格一样，其他基本响应类也有类似的基础接口</p>
+<pre><code class="language-java">interface ObservableSource&lt;T&gt; {
+    void subscribe(Observer&lt;? super T&gt; observer);
+}
+
+interface SingleSource&lt;T&gt; {
+    void subscribe(SingleObserver&lt;? super T&gt; observer);
+}
+
+interface CompletableSource {
+    void subscribe(CompletableObserver observer);
+}
+
+interface MaybeSource&lt;T&gt; {
+    void subscribe(MaybeObserver&lt;? super T&gt; observer);
+}
+</code></pre>
+<p>所以现在的操作符也接受 <code>Publisher</code> 和 <code>XSource</code>:</p>
+<pre><code class="language-java">Flowable&lt;R&gt; flatMap(Function&lt;? super T, ? extends Publisher&lt;? extends R&gt;&gt; mapper);
+
+Observable&lt;R&gt; flatMap(Function&lt;? super T, ? extends ObservableSource&lt;? extends R&gt;&gt; mapper);
+</code></pre>
+<h2 id="subjects-and-processors">Subjects and Processors</h2>
+<p>同样是为了解决 <code>backpressure</code> 问题把 <code>Subjects</code> 分为了 <code>Subjects</code> 和 <code>Processors</code></p>
+<p><code>io.reactivex.subjects.AsyncSubject</code><br>
+<code>io.reactivex.subjects.BehaviorSubject</code><br>
+<code>io.reactivex.subjects.PublishSubject</code><br>
+<code>io.reactivex.subjects.ReplaySubject</code>   <code>io.reactivex.subjects.UnicastSubject</code><br>
+不支持 backpressure , 属于 Observable 系列</p>
+<p><code>io.reactivex.processors.AsyncProcessor</code>
+<code>io.reactivex.processors.BehaviorProcessor</code> <code>io.reactivex.processors.PublishProcessor</code> <code>io.reactivex.processors.ReplayProcessor</code> <code>io.reactivex.processors.UnicastProcessor</code><br>
+支持 backpressure ，属于 Flowable 系列</p>
+<h2 id="testsubject">TestSubject</h2>
+<p>1.x 的 <code>TestSubject</code> 已被丢弃，现在通过 <code>TestScheduler</code> , <code>PublishProcessor</code>/<code>PublishSubject</code> 和 <code>observeOn(TestScheduler)</code>代替</p>
+<h2 id="serializedsubject">SerializedSubject</h2>
+<p><code>SerializedSubject</code><br>
+由 <code>Subject.toSerialized()</code> 和 <code>FlowableProcessor.toSerialized()</code> 代替</p>
+<h2 id="other-classes">Other classes</h2>
+<p><code>rx.observables.GroupedObservable</code> 由<code>io.reactivex.observables.GroupedObservable&lt;T&gt;</code> 和<code>io.reactivex.flowables.GroupedFlowable&lt;T&gt;</code>代替</p>
+<h2 id="functional-interfaces">Functional interfaces</h2>
+<p>functional 接口 默认定义了 <code>throws Exception</code><br>
+不需要再内部<code>try-catch</code></p>
+<h2 id="actions-functions">Actions Functions</h2>
+<p>符合 java8 命名规范</p>
+<ul>
+<li><code>Func</code> -&gt; <code>Function</code> , <code>Action0</code>/<code>Action1</code>/<code>Action2</code> -&gt; <code>Action</code>/<code>Consumer</code>/<code>BiConsumer</code></li>
+<li>删除了 <code>Action3-9</code>/<code>Func3-9</code><br>
+由 <code>Action&lt;Object[]&gt;</code>/<code>Function&lt;Object[],R&gt;</code>代替</li>
+</ul>
+<h2 id="subscriber-subscription">Subscriber Subscription</h2>
+<ul>
+<li>Reactive-Streams 规范中已经定义了 <code>Subscriber</code> 接口<br>
+所以以前的 <code>Subscriber</code> 类的职能现在由 <code>Subscriber</code> 接口的实现类代替:<br>
+<code>DefaultSubscriber</code>, <code>ResourceSubscriber</code>,<code>DisposableSubscriber</code>（以及它们的<code>XObserver</code> 变体）<br>
+因为以上继承了<code>Disposable</code> 所以也支持通过 <code>dispose()</code> 来断开对信号的监听</li>
+</ul>
+<pre><code>ResourceSubscriber&lt;Integer&gt; subscriber = new ResourceSubscriber&lt;Integer&gt;() {
+    @Override
+    public void onStart() {
+        request(Long.MAX_VALUE);
+    }
+
+    @Override
+    public void onNext(Integer t) {
+        System.out.println(t);
+    }
+
+    @Override
+    public void onError(Throwable t) {
+        t.printStackTrace();
+    }
+
+    @Override
+    public void onComplete() {
+        System.out.println(&quot;Done&quot;);
+    }
+};
+
+Flowable.range(1, 10).delay(1, TimeUnit.SECONDS).subscribe(subscriber);
+
+subscriber.dispose();
+</code></pre>
+<ul>
+<li><code>CompositeSubscription</code> -&gt; <code>CompositeDisposable</code></li>
+<li><code>subscribe()</code> 不返回值</li>
+<li><code>subscribWith()</code> 返回 <code>CompositeDisposable</code></li>
+<li><code>onCompleted()</code> -&gt; <code>onComplete()</code></li>
+<li><code>request()</code> 决定 <code>subscriber</code>最大接受多少个事件</li>
+</ul>
+<h2 id="schedulers">Schedulers</h2>
+<ul>
+<li>默认不变的线程:<code>computation</code> <code>io</code> <code>newThread</code> <code>trampoline</code></li>
+<li>移除:<code>immediate</code> -&gt; <code>tranmpoline</code></li>
+<li>移除: <code>test()</code> -&gt; <code>new TestScheduler()</code></li>
+<li>启动 <code>Scheduler</code> 无需再 <code>createWorker</code></li>
+<li><code>new()</code> 现在接受 <code>TimeUnit</code> 参数</li>
+</ul>
+<h2 id="entering-the-reactive-world">Entering the reactive world</h2>
+<p>现在调用 <code>Observalble.create()</code> 更安全</p>
+<h2 id="leaving-the-reactive-world">Leaving the reactive world</h2>
+<p>从响应式流中离开的方式：</p>
+<pre><code>List&lt;Integer&gt; list = Flowable.range(1, 100).toList().blockingGet(); // toList() returns Single
+
+Integer i = Flowable.range(100, 100).blockingLast();
+</code></pre>
+<p>另一个关于 <code>rx.Subscriber</code> 和 <code>org.reactivestreams.Subscriber</code>的重大变化是
+<code>Subscribers</code> 和 <code>Observers</code> 内部不在允许 throws 任何东西除了致命异常（参见 <code>Exceptions.throwIfFatal()</code>）,所以下面的代码现在不合法：</p>
+<pre><code>Subscriber&lt;Integer&gt; subscriber = new Subscriber&lt;Integer&gt;() {
+    @Override
+    public void onSubscribe(Subscription s) {
+        s.request(Long.MAX_VALUE);
+    }
+
+    public void onNext(Integer t) {
+        if (t == 1) {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    public void onError(Throwable e) {
+        if (e instanceof IllegalArgumentException) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    public void onComplete() {
+        throw new NoSuchElementException();
+    }
+};
+
+Flowable.just(1).subscribe(subscriber);
+</code></pre>
+<p>(Observer, SingleObserver, MaybeObserver and CompletableObserver 同理)</p>
+<p>如果必须要这样 throws 可以选择使用 <code>safeSubscribe()</code>或 <code>subscribe(Consumer&lt;T&gt;, Consumer&lt;Throwable&gt;, Action)</code>的相关 Consumer 重载</p>
+<h2 id="operator-differences">Operator differences</h2>
+<p>关于操作符的调整主要是为了适配以上的变化，调整命名/参数/返回值<br>
+详见官方 <a href="https://github.com/ReactiveX/RxJava/wiki/What's-different-in-2.0#operator-differences">Wiki</a> 表格</p>
+<h2 id="总结">总结</h2>
+<p>总的来说，我认为RxJava 2.x 主要做了三点更新</p>
+<ul>
+<li>对 <code>backpressure</code> 问题进行了修正（产生了大量关联的修正）</li>
+<li>按照 <code>Reactive-Streams</code> 规范对整个架构进行了重新设计</li>
+<li>一些的其它零散更新</li>
+</ul>
+<p>所以说虽然基本思想没有变化但还是需要重新理解学习的</p>
+
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://xiejinpeng007.github.io/post/firebase-notification-pei-zhi">
+              <h3 class="post-title">
+                Firebase Notification配置
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | 
+  <a class="rss" href="https://xiejinpeng007.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>

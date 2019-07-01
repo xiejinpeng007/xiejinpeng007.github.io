@@ -1,0 +1,292 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Firebase Notification配置 | xiejinpeng &#39;s Blog</title>
+<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1561973285882">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://xiejinpeng007.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://xiejinpeng007.github.io">
+  <img class="avatar" src="https://xiejinpeng007.github.io/images/avatar.png?v=1561973285882" alt="">
+  </a>
+  <h1 class="site-title">
+    xiejinpeng &#39;s Blog
+  </h1>
+  <p class="site-description">
+    
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              Firebase Notification配置
+            </h2>
+            <div class="post-info">
+              <time class="post-time">
+                · 2017-03-27 ·
+              </time>
+              
+            </div>
+            
+            <div class="post-content">
+              <h2 id="firebase-notification配置">Firebase Notification配置</h2>
+<h4 id="前言">前言：</h4>
+<p>以前项目中用过GCM，现在Google收购了FireBase之后现在需要用到推送,看了下文档发现GCM并入了FCM,相关API和用法基本一致，趁此机会整理一下基本配置方法。</p>
+<h3 id="基本配置">基本配置</h3>
+<h5 id="官方doc"><a href="https://firebase.google.cn/docs/android/setup">官方Doc</a></h5>
+<h5 id="官方sample"><a href="https://github.com/firebase/quickstart-android/tree/master/messaging">官方Sample</a></h5>
+<h5 id="运行要求android23以上及google-play-service-961版本以上的设备">运行要求：android2.3以上及google play service 9.6.1版本以上的设备</h5>
+<h5 id="1-在firebase中创建项目后创建android子项目填写相关信息-包括package-id">1. 在firebase中创建项目后创建android子项目填写相关信息 包括：package id</h5>
+<h5 id="2-复制生成的文件放到module目录下">2. 复制生成的文件放到module目录下</h5>
+<h5 id="3-在project目录的buildgradle下添加依赖">3. 在project目录的build.gradle下添加依赖</h5>
+<pre><code> dependencies {
+ classpath 'com.google.gms:google-services:3.0.0' 
+ }
+</code></pre>
+<h5 id="4-在module目录的buildgradle下添加依赖">4. 在module目录的build.gradle下添加依赖</h5>
+<pre><code> dependencies {
+    compile 'com.google.firebase:firebase-messaging:9.6.1'
+    compile 'com.google.android.gms:play-services:9.6.1'
+}
+//底部添加plugin   
+apply plugin: 'com.google.gms.google-services'
+</code></pre>
+<h5 id="5-在baseavtivity中检查googleservice是否可用">5. 在BaseAvtivity中检查GoogleService是否可用：</h5>
+<pre><code>@Override
+protected void onResume() {
+    super.onResume();
+    isGooglePlayServicesAvailable();
+    handleFcmDataExtras();
+}
+
+public void isGooglePlayServicesAvailable() {
+    int state = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this);
+    if (state != SUCCESS)
+        GoogleApiAvailability.getInstance().getErrorDialog(this, state, 0).show();
+}
+</code></pre>
+<h5 id="6-继承firebaseinstanceidservice注册token">6.  继承FirebaseInstanceIdservice注册token</h5>
+<pre><code>@Override
+public void onTokenRefresh() {
+    // 获取 InstanceID
+    String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+    Log.d(TAG, &quot;Refreshed token: &quot; + refreshedToken);
+
+    sendRegistrationToServer(refreshedToken);
+}
+
+private void sendRegistrationToServer(String refreshedToken) {
+    // 在此方法中将InstanceID发送给app的服务器，用于定向发送推送消息。
+}
+</code></pre>
+<h5 id="7继承firebasemessagingservice以及在luncher-activity进行接收消息数据的配置">7.继承FirebaseMessagingService以及在Luncher Activity进行接收消息/数据的配置。</h5>
+<ul>
+<li>FireBaseMessagingService中</li>
+</ul>
+<pre><code>   private final String TAG = &quot;MyFirebaseMsgService&quot;;
+
+@Override
+    public void onMessageReceived(RemoteMessage remoteMessage) {
+
+        //用于处理主题消息
+        //并不是所有的消息都在这里处理，如果APP处在后台接收带数据的通知，那么数据会放在启动activity的Intent中
+        if ((remoteMessage.getFrom().startsWith(&quot;/topics/&quot;))) {
+            String topic = remoteMessage.getFrom().replace(&quot;/topics/&quot;, &quot;&quot;);
+            Log.d(TAG, &quot;From: &quot; + remoteMessage.getFrom());
+            Log.d(TAG, &quot;From: &quot; + topic);
+        }
+        // 检查是否包含数据
+        if (remoteMessage.getData().size() &gt; 0) {
+            Log.d(TAG, &quot;Message data payload: &quot; + remoteMessage.getData());
+        }
+
+        // 检查是否包含通知
+        if (remoteMessage.getNotification() != null) {
+            Log.d(TAG, &quot;Message Notification Body: &quot; + remoteMessage.getNotification().getBody());
+            sendNotification(remoteMessage.getNotification().getTitle(), remoteMessage.getNotification().getBody());
+        }
+        //如果有其它相关自定义操作，在这里完成
+    }
+
+    /**
+     *  创建Notification发送给
+     */
+    private void sendNotification(String title, String messageBody) {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
+                PendingIntent.FLAG_ONE_SHOT);
+
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.ic_media_play)
+                .setContentTitle(&quot;FCM Message&quot;)
+                .setContentTitle(title)
+                .setContentText(messageBody)
+                .setAutoCancel(true)
+                .setSound(defaultSoundUri)
+                .setContentIntent(pendingIntent);
+
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+    }
+</code></pre>
+<ul>
+<li>在Launcher Activity中</li>
+</ul>
+<pre><code>    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // 当Notification的类型是message+data时，data在此处理
+        if (getIntent().getExtras() != null) {
+            for (String key : getIntent().getExtras().keySet()) {
+                Object value = getIntent().getExtras().get(key);
+                Log.d(TAG, &quot;Key: &quot; + key + &quot; Value: &quot; + value);
+            }
+        }}
+</code></pre>
+<hr>
+<h5 id="官方doc-2"><a href="https://firebase.google.cn/docs/notifications/android/console-audience">官方Doc</a></h5>
+<h3 id="推送方式">推送方式</h3>
+<ol>
+<li>根据app id推送</li>
+<li>根据设备的fcm Id推送</li>
+<li>根据用户订阅的topic推送</li>
+</ol>
+<h3 id="消息类型">消息类型</h3>
+<ol>
+<li>通知</li>
+<li>数据</li>
+<li>通知+数据</li>
+</ol>
+<h3 id="app接收消息时的行为">app接收消息时的行为</h3>
+<p>根据app在前台/后台、消息类型的不同分别作出不同的行为。</p>
+<table>
+<thead>
+<tr>
+<th>应用状态</th>
+<th style="text-align:center">通知</th>
+<th style="text-align:center">数据</th>
+<th style="text-align:center">两者</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>前台</td>
+<td style="text-align:center">onMessageReceived</td>
+<td style="text-align:center">onMessageReceived</td>
+<td style="text-align:center">onMessageReceived</td>
+</tr>
+<tr>
+<td>后台</td>
+<td style="text-align:center">系统托盘</td>
+<td style="text-align:center">onMessageReceived</td>
+<td style="text-align:center">通知：系统托盘;数据：Intent的extra中</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>实测即使app处于后台未kill的状态，通知也会交由系统处理。</li>
+</ul>
+<h3 id="icon-color-相关设定">icon / color 相关设定</h3>
+<p>在5.0以后app的small_icon只能带有aplha图层，不支持rgb图层。<br>
+APP处于前台时：可以在onMessageReceived（）全权处理消息如自定义notification : large_icon , small_icon , color .<br>
+APP处于后台时：由系统通知处理这部分显示，只可以在Manifest定义 : icon、color</p>
+<pre><code>      &lt;meta-data
+android:name=&quot;com.google.firebase.messaging.default_notification_icon&quot;
+          android:resource=&quot;@drawable/ic_stat_ic_notification&quot; /&gt;
+      &lt;meta-data
+android:name=&quot;com.google.firebase.messaging.default_notification_color&quot;
+          android:resource=&quot;@color/colorAccent&quot; /&gt;
+          
+</code></pre>
+
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://xiejinpeng007.github.io/post/kotlin-chu-yin-xiang-he-xue-xi-zi-yuan-zheng-li">
+              <h3 class="post-title">
+                Kotlin 初印象和学习资源整理
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | 
+  <a class="rss" href="https://xiejinpeng007.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>

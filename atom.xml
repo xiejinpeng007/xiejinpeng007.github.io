@@ -1,44 +1,2225 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://xiejinpeng007.github.io</id>
-    <title>Checkout My Ass</title>
-    <updated>2019-07-01T09:04:50.424Z</updated>
+    <title>xiejinpeng &apos;s Blog</title>
+    <updated>2019-07-01T09:28:31.996Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://xiejinpeng007.github.io"/>
     <link rel="self" href="https://xiejinpeng007.github.io/atom.xml"/>
     <logo>https://xiejinpeng007.github.io/images/avatar.png</logo>
     <icon>https://xiejinpeng007.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2019, Checkout My Ass</rights>
+    <rights>All rights reserved 2019, xiejinpeng &apos;s Blog</rights>
     <entry>
-        <title type="html"><![CDATA[Hello Gridea]]></title>
-        <id>https://xiejinpeng007.github.io/post/hello-gridea</id>
-        <link href="https://xiejinpeng007.github.io/post/hello-gridea">
+        <title type="html"><![CDATA[使用 XDslPagerAdapter 快速创建 ViewPager]]></title>
+        <id>https://xiejinpeng007.github.io/post/shi-yong-xdslpageradapter-kuai-su-chuang-jian-viewpager</id>
+        <link href="https://xiejinpeng007.github.io/post/shi-yong-xdslpageradapter-kuai-su-chuang-jian-viewpager">
         </link>
-        <updated>2018-12-11T16:00:00.000Z</updated>
-        <summary type="html"><![CDATA[<p>👏  欢迎使用 <strong>Gridea</strong> ！<br>
-✍️  <strong>Gridea</strong> 一个静态博客写作客户端。你可以用它来记录你的生活、心情、知识、笔记、创意... ...</p>
-]]></summary>
-        <content type="html"><![CDATA[<p>👏  欢迎使用 <strong>Gridea</strong> ！<br>
-✍️  <strong>Gridea</strong> 一个静态博客写作客户端。你可以用它来记录你的生活、心情、知识、笔记、创意... ...</p>
-<!-- more -->
-<p><a href="https://github.com/getgridea/gridea">Github</a><br>
-<a href="http://hvenotes.fehey.com/">Gridea 主页</a><br>
-<a href="http://fehey.com/">示例网站</a></p>
-<h2 id="特性">特性👇</h2>
-<p>📝  你可以使用最酷的 <strong>Markdown</strong> 语法，进行快速创作</p>
-<p>🌉  你可以给文章配上精美的封面图和在文章任意位置插入图片</p>
-<p>🏷️  你可以对文章进行标签分组</p>
-<p>📋  你可以自定义菜单，甚至可以创建外部链接菜单</p>
-<p>💻  你可以在 <strong>𝖶𝗂𝗇𝖽𝗈𝗐𝗌</strong> 或 <strong>𝖬𝖺𝖼𝖮𝖲</strong> 设备上使用此客户端</p>
-<p>🌎  你可以使用 <strong>𝖦𝗂𝗍𝗁𝗎𝖻 𝖯𝖺𝗀𝖾𝗌</strong> 或 <strong>Coding Pages</strong> 向世界展示，未来将支持更多平台</p>
-<p>💬  你可以进行简单的配置，接入 <a href="https://github.com/gitalk/gitalk">Gitalk</a> 或 <a href="https://github.com/SukkaW/DisqusJS">DisqusJS</a> 评论系统</p>
-<p>🇬🇧  你可以使用<strong>中文简体</strong>或<strong>英语</strong></p>
-<p>🌁  你可以任意使用应用内默认主题或任意第三方主题，强大的主题自定义能力</p>
-<p>🖥  你可以自定义源文件夹，利用 OneDrive、百度网盘、iCloud、Dropbox 等进行多设备同步</p>
-<p>🌱 当然 <strong>Gridea</strong> 还很年轻，有很多不足，但请相信，它会不停向前🏃</p>
-<p>未来，它一定会成为你离不开的伙伴</p>
-<p>尽情发挥你的才华吧！</p>
-<p>😘 Enjoy~</p>
+        <updated>2019-04-09T09:24:56.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="使用-xdslpageradapter-快速创建-viewpager">使用 XDslPagerAdapter 快速创建 ViewPager</h2>
+<p>在 Android 开发中经常需要使用 ViewPager ，大多数的功能类似但每次都需要写 Adapter 和一堆模板代码。<br>
+目前我们很多项目都使用了 Kotlin 和 Databinding,为了简洁快速地构建 ViewPager，我使用 DSL 和 Databinding 的特性写了一个用于快速创建 PagerAdapter 的工具<code>XDslPagerAdapter</code>。</p>
+<p>下面通过创建一个欢迎画面举例说明：</p>
+<pre><code>        binding.guideViewPager.run {
+            xDslPagerAdapter {
+                item(R.layout.pager_guide) {
+                    model(BR.model to Page(0, R.drawable.img_tutorial01, &quot;下一页&quot;))
+                    click(BR.click to { _: Page -&gt; currentItem = 1 })
+                    action { binding -&gt;
+                        (binding as? PagerGuideBinding)?.run {
+                            (nextPageButton.layoutParams as? ViewGroup.MarginLayoutParams)?.run {
+                                marginStart = dp2px(30F)
+                                marginEnd = dp2px(30F)
+                            }
+                        }
+                    }
+                }
+                item(R.layout.pager_guide) {
+                    model(BR.model to Page(1, R.drawable.img_tutorial02, &quot;下一页&quot;))
+                    click(BR.click to { _: Page -&gt; currentItem = 2 })
+                }
+                item(R.layout.pager_guide) {
+                    model(BR.model to Page(2, R.drawable.img_tutorial03, &quot;下一页&quot;))
+                    click(BR.click to { _: Page -&gt; currentItem = 3 })
+                }
+                item(R.layout.pager_guide) {
+                    model(BR.model to Page(3, R.drawable.img_tutorial04, &quot;开始使用&quot;))
+                    click(BR.click to { _: Page -&gt;
+                        SharedPrefModel.isFistTime = false
+                        startActivity(Intent(context, MainActivity::class.java))
+                        finish()
+                    })
+                }
+            }
+        }
+</code></pre>
+<ol>
+<li>首先调用 ViewPager 的拓展方法<code>xDslPagerAdapter()</code>开始创建<code>PagerAdapter</code></li>
+<li>在<code>PagerAdapter</code>内部使用 <code>item()</code>开始创建<code>Item</code>，其中<code>layout</code>是必须的参数。</li>
+<li>在<code>Item</code>内部可以使用的方法有<code>model()``click()``action</code>
+<ul>
+<li><code>model()</code>传入包含 DataBinding 的 <code>BR.Id</code> 和对应的 <code>Model</code>（类型为你 ViewModel 的类型，用来绑定显示相关数据）</li>
+<li><code>click()</code>传入包含 DataBinding 的 <code>BR.Id</code> 和对应的 <code>Click</code>（类型为<code>Function&lt;Any&gt;</code>用来绑定点击事件），多个点击事件可多次调用。</li>
+<li><code>action()</code>可用来获取 Databinding 为 layout 的 ViewDataBinding 类,用来处理其它的内容，例如动态改变布局等。</li>
+</ul>
+</li>
+</ol>
+<p>源码也很简单 源码地址 <a href="https://github.com/xiejinpeng007/XDslPagerAdapter">https://github.com/xiejinpeng007/XDslPagerAdapter</a></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[RxJava2.x 从源码分析原理]]></title>
+        <id>https://xiejinpeng007.github.io/post/rxjava2x-cong-yuan-ma-fen-xi-yuan-li</id>
+        <link href="https://xiejinpeng007.github.io/post/rxjava2x-cong-yuan-ma-fen-xi-yuan-li">
+        </link>
+        <updated>2019-02-11T09:24:07.000Z</updated>
+        <content type="html"><![CDATA[<p>RxJava 相信各位已经使用了很久，大部分人在刚学习 RxJava 感叹切换线程的方便，调用逻辑清晰的同时，并不知道其中的原理，主要是靠记住运行的顺序。
+随着我们设计出的 RxJava流 越来越复杂，一些复杂的问题并不能靠着记住的运行顺序就能解决。<br>
+下面，就通过最常用的操作符的源码来看看所谓的<code>流</code>是什么运行的。</p>
+<p>首先我们用<code>Single</code>举例，设计一个最基本的 RxJava 流，只有一个 <code>Observable(ColdObservable)</code> 和<code>Obsever</code>：</p>
+<pre><code>Disposable disposable = Single.just(&quot;wtf&quot;)
+              			.subscribe(it -&gt; Log.i(&quot;subscribe&quot;, it));
+</code></pre>
+<p>上游发送一个<code>&quot;wtf&quot;</code> ，下游接受时将其打印出来。上游发送端使用 <code>Single.just</code> 作为创建方法,
+看一下 <code>just()</code> 方法里做了什么。</p>
+<pre><code>    public static &lt;T&gt; Single&lt;T&gt; just(final T item) {
+        ObjectHelper.requireNonNull(item, &quot;value is null&quot;);
+        return RxJavaPlugins.onAssembly(new SingleJust&lt;T&gt;(item));
+    }
+    
+    public static &lt;T&gt; Single&lt;T&gt; onAssembly(@NonNull Single&lt;T&gt; source) {
+    Function&lt;? super Single, ? extends Single&gt; f = onSingleAssembly;
+    if (f != null) {
+        return apply(f, source);
+    }
+    return source;
+}
+</code></pre>
+<p>其中 <code>ObjectHelper.requireNonNull</code> 只是空检查。<br>
+<code>RxJavaPlugins.onAssembly</code> 方法，这个方法其实就是通过一个全局的变量 <code>onSingleAssembly</code> 来对方法进行 Hook ，这一系列<code>xxxAssembly</code>全局变量默认为空，所以实际上当我们没有设置的时候其实 <code>just</code> 方法是直接返回了一个 新实例化的<code>SingleJust</code>对象。</p>
+<p>再看看<code>SingleJust</code>内部：</p>
+<pre><code>public final class SingleJust&lt;T&gt; extends Single&lt;T&gt; {
+
+    final T value;
+    public SingleJust(T value) {
+        this.value = value;
+    }
+
+    @Override
+    protected void subscribeActual(SingleObserver&lt;? super T&gt; observer) {
+        observer.onSubscribe(Disposables.disposed());
+        observer.onSuccess(value);
+    }
+
+}
+
+</code></pre>
+<p>实例化的时候只是将值保存了下来，没有其它操作。<br>
+下一步调用<code>subscribe()</code>来启动这个流<code>(ColdObservable)</code>，然后看看<code>subscribe</code>中做了什么：</p>
+<pre><code>    public final void subscribe(SingleObserver&lt;? super T&gt; subscriber) {
+        ObjectHelper.requireNonNull(subscriber, &quot;subscriber is null&quot;);
+        subscriber = RxJavaPlugins.onSubscribe(this, subscriber);
+        ObjectHelper.requireNonNull(subscriber, &quot;subscriber returned by the RxJavaPlugins hook is null&quot;);
+
+        try {
+ 	         //核心逻辑
+            subscribeActual(subscriber);
+        } catch (NullPointerException ex) {
+            throw ex;
+        } catch (Throwable ex) {
+            Exceptions.throwIfFatal(ex);
+            NullPointerException npe = new NullPointerException(&quot;subscribeActual failed&quot;);
+            npe.initCause(ex);
+            throw npe;
+        }
+    }
+</code></pre>
+<p>同样 <code>RxJavaPlugins.onSubscribe</code>  默认没有作用,实际的核心逻辑是调用了<code>subscribeActual(SingleObserver)</code>。<br>
+对于我们上面设计的流，则是调用了 SingleJust 中的 <code>subscribeActual(SingleObserver)</code></p>
+<p>回顾上面 <code>SingleJust</code> 中 <code>subscribeActual(SingleObserver)</code> 的实现：</p>
+<pre><code>        observer.onSubscribe(Disposables.disposed());
+        observer.onSuccess(value);
+</code></pre>
+<p>得到两个信息</p>
+<ul>
+<li>首先调用下游观察者 <code>SingleObserver</code> 的 <code>OnSubscribe</code> 方法并传递用于取消操作的 <code>Disposable</code></li>
+<li>调用<code>OnSuccess</code> 方法并传递之前保存下来的 <code>value</code></li>
+</ul>
+<h3 id="map-操作符">Map 操作符</h3>
+<p>现在我们加入一个常用且重要的<code>Map</code>操作到流中</p>
+<pre><code>Disposable disposable = Single.just(&quot;wtf&quot;)
+				 .map(it-&gt; 0)
+                 .subscribe(it -&gt; Log.i(&quot;subscribe&quot;, String.of(it)));
+</code></pre>
+<p>上面这个流包括了三种典型的操作 创建<code>Creation</code> 操作符<code>Transformation</code>和 订阅<code>Subscribe</code>。</p>
+<p>依然先检查<code>map()</code> 方法，可以看到其中实例化了一个<code>SingleMap</code></p>
+<pre><code>    public final &lt;R&gt; Single&lt;R&gt; map(Function&lt;? super T, ? extends R&gt; mapper) {
+        ObjectHelper.requireNonNull(mapper, &quot;mapper is null&quot;);
+        return RxJavaPlugins.onAssembly(new SingleMap&lt;T, R&gt;(this, mapper));
+    }
+</code></pre>
+<p>再看看 <code>SingleMap</code></p>
+<pre><code>public final class SingleMap&lt;T, R&gt; extends Single&lt;R&gt; {
+    final SingleSource&lt;? extends T&gt; source;
+    final Function&lt;? super T, ? extends R&gt; mapper;
+
+    public SingleMap(SingleSource&lt;? extends T&gt; source, Function&lt;? super T, ? extends R&gt; mapper) {
+        this.source = source;
+        this.mapper = mapper;
+    }
+
+    @Override
+    protected void subscribeActual(final SingleObserver&lt;? super R&gt; t) {
+        source.subscribe(new MapSingleObserver&lt;T, R&gt;(t, mapper));
+    }
+
+    static final class MapSingleObserver&lt;T, R&gt; implements SingleObserver&lt;T&gt; {
+
+        final SingleObserver&lt;? super R&gt; t;
+        final Function&lt;? super T, ? extends R&gt; mapper;
+
+        MapSingleObserver(SingleObserver&lt;? super R&gt; t, Function&lt;? super T, ? extends R&gt; mapper) {
+            this.t = t;
+            this.mapper = mapper;
+        }
+
+        @Override
+        public void onSubscribe(Disposable d) {
+            t.onSubscribe(d);
+        }
+
+        @Override
+        public void onSuccess(T value) {
+            R v;
+            try {
+                v = ObjectHelper.requireNonNull(mapper.apply(value), &quot;The mapper function returned a null value.&quot;);
+            } catch (Throwable e) {
+                Exceptions.throwIfFatal(e);
+                onError(e);
+                return;
+            }
+
+            t.onSuccess(v);
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            t.onError(e);
+        }
+    }
+}
+</code></pre>
+<p>类中信息稍微复杂一些：</p>
+<ol>
+<li>首先我们关注在<code>SingleMap</code>实例化的时候也是只做了保存数据的操作，而没有实际逻辑：将流的上游保存为 <code>source</code> 将数据转换的方法保存为 <code>mapper</code></li>
+<li>第二步我们知道下游观察者 <code>SingleObserver</code> 会调用核心逻辑 <code>subscribeActual</code>方法来启动流</li>
+<li>在这里的<code>subscribeActual</code>方法中可以看到几个重要的信息
+<ul>
+<li><code>MapSingleObserver</code>是一个观察者</li>
+<li><code>MapSingleObserver</code> 保存了下游的观察者 <code>SingleObserver</code> 以及 <code>mapper</code></li>
+<li>上游 <code>source</code> 被 <code>MapSingleObserver</code> 订阅</li>
+</ul>
+</li>
+</ol>
+<p>由此可以看出在<code>SingleMap</code>被下游观察者订阅了之后，实例化了一个新的观察者<code>MapSingleObserver</code>并保存下游观察者<code>SingleObserver</code>的信息，再去订阅上游<code>SingleJust</code>。<br>
+这种模式创建了一个装饰类，用来包装原有的类，并在保持类方法签名完整性的前提下，提供了额外的功能的设计模式称为<code>装饰者模式</code>。</p>
+<p>总结上面的执行顺序：</p>
+<ol>
+<li>在<code>Rx流</code>的最后一步调用 <code>subscribe</code>启动流<code>(ColdObservable)</code></li>
+<li>首先执行<code>SingleMap</code>中的<code>subscribeActual</code>方法，其中包括生成新的<code>MapSingleObserver</code>并订阅 <code>SingleJust</code></li>
+<li>执行<code>SingleJust</code>中的<code>subscribeActual</code>：调用下游<code>MapSingleObserver</code>的<code>onSubscribe</code> <code>onSuccess</code>方法</li>
+<li><code>MapSingleObserver</code>中的<code>onSubsribe</code> <code>onSuccess</code>方法也很简单，分别调用下游 <code>Observer</code>的 <code>onSubsribe``onSuccess(异常时 onError)</code>方法</li>
+</ol>
+<h3 id="observeon-操作符">observeOn 操作符</h3>
+<p>Rxjava首先被大家津津乐道之处是可以方便的切换线程，避免<code>Callback Hell</code>，现在来看看线程切换操作符。<br>
+我们加入线程切换操作符 <code>observeOn</code></p>
+<pre><code>Disposable disposable = Single.just(&quot;wtf&quot;)
+				 .map(it-&gt; 0)
+				 .observeOn(Schedulers.io())
+                 .subscribe(it -&gt; Log.i(&quot;subscribe&quot;, String.of(it)));
+</code></pre>
+<p>同样的，在 <code>observeOn</code>方法中实例化了一个<code>SingleObserveOn</code></p>
+<pre><code>    public final Single&lt;T&gt; observeOn(final Scheduler scheduler) {
+        ObjectHelper.requireNonNull(scheduler, &quot;scheduler is null&quot;);
+        return RxJavaPlugins.onAssembly(new SingleObserveOn&lt;T&gt;(this, scheduler));
+    }
+</code></pre>
+<p>继续看<code>SingleObserveOn</code>类中信息</p>
+<pre><code>public final class SingleObserveOn&lt;T&gt; extends Single&lt;T&gt; {
+
+    final SingleSource&lt;T&gt; source;
+    final Scheduler scheduler;
+
+    public SingleObserveOn(SingleSource&lt;T&gt; source, Scheduler scheduler) {
+        this.source = source;
+        this.scheduler = scheduler;
+    }
+
+    @Override
+    protected void subscribeActual(final SingleObserver&lt;? super T&gt; s) {
+        source.subscribe(new ObserveOnSingleObserver&lt;T&gt;(s, scheduler));
+    }
+
+    static final class ObserveOnSingleObserver&lt;T&gt; extends AtomicReference&lt;Disposable&gt;
+    implements SingleObserver&lt;T&gt;, Disposable, Runnable {
+        private static final long serialVersionUID = 3528003840217436037L;
+
+        final SingleObserver&lt;? super T&gt; actual;
+        final Scheduler scheduler;
+
+        T value;
+        Throwable error;
+
+        ObserveOnSingleObserver(SingleObserver&lt;? super T&gt; actual, Scheduler scheduler) {
+            this.actual = actual;
+            this.scheduler = scheduler;
+        }
+
+        @Override
+        public void onSubscribe(Disposable d) {
+            if (DisposableHelper.setOnce(this, d)) {
+                actual.onSubscribe(this);
+            }
+        }
+
+        @Override
+        public void onSuccess(T value) {
+            this.value = value;
+            Disposable d = scheduler.scheduleDirect(this);
+            DisposableHelper.replace(this, d);
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            this.error = e;
+            Disposable d = scheduler.scheduleDirect(this);
+            DisposableHelper.replace(this, d);
+        }
+
+        @Override
+        public void run() {
+            Throwable ex = error;
+            if (ex != null) {
+                actual.onError(ex);
+            } else {
+                actual.onSuccess(value);
+            }
+        }
+
+        @Override
+        public void dispose() {
+            DisposableHelper.dispose(this);
+        }
+
+        @Override
+        public boolean isDisposed() {
+            return DisposableHelper.isDisposed(get());
+        }
+    }
+}
+
+
+</code></pre>
+<p>类似的</p>
+<ul>
+<li>构造函数中保存了上游和线程切换的信息</li>
+<li><code>subscribeActual</code> 实例化了一个新的观察者<code>ObserveOnSingleObserver</code></li>
+</ul>
+<p>不同的</p>
+<ul>
+<li><code>ObserveOnSingleObserver</code> 还继承了<code>AtomicReference&lt;Disposable&gt;</code>、实现了<code>Disposable``Runnable</code>接口</li>
+<li><code>onSuccess``onError</code>中都没有直接调用下游的<code>onSuccess</code> <code>onError</code>方法，而是调用了<code>Disposable d = scheduler.scheduleDirect(this);</code>来执行<code>run</code>方法中的逻辑，而<code>run</code>方法中的逻辑则是调用下游的<code>onSuccess</code> <code>onError</code>方法</li>
+</ul>
+<p>查看<code>schedulerDirect</code>内部信息</p>
+<pre><code>    public Disposable scheduleDirect(@NonNull Runnable run, long delay, @NonNull TimeUnit unit) {
+        final Worker w = createWorker();
+        final Runnable decoratedRun = RxJavaPlugins.onSchedule(run);
+        DisposeTask task = new DisposeTask(decoratedRun, w);
+        w.schedule(task, delay, unit);
+        return task;
+    }
+</code></pre>
+<p>创建了一个对应线程的<code>Worker</code>和一个可用于取消的<code>DisposeTask</code>并执行，对于<code>IoScheduler</code>则是创建了<code>EventLoopWorker</code>，再看看<code>EventLoopWorker</code>中的信息。</p>
+<pre><code>    @Override
+    public Worker createWorker() {
+        return new EventLoopWorker(pool.get());
+    }
+</code></pre>
+<pre><code>    static final class EventLoopWorker extends Scheduler.Worker {
+        private final CompositeDisposable tasks;
+        private final CachedWorkerPool pool;
+        private final ThreadWorker threadWorker;
+
+        final AtomicBoolean once = new AtomicBoolean();
+
+        EventLoopWorker(CachedWorkerPool pool) {
+            this.pool = pool;
+            this.tasks = new CompositeDisposable();
+            this.threadWorker = pool.get();
+        }
+
+        @Override
+        public void dispose() {
+            if (once.compareAndSet(false, true)) {
+                tasks.dispose();
+
+                // releasing the pool should be the last action
+                pool.release(threadWorker);
+            }
+        }
+
+        @Override
+        public boolean isDisposed() {
+            return once.get();
+        }
+
+        @NonNull
+        @Override
+        public Disposable schedule(@NonNull Runnable action, long delayTime, @NonNull TimeUnit unit) {
+            if (tasks.isDisposed()) {
+                // don't schedule, we are unsubscribed
+                return EmptyDisposable.INSTANCE;
+            }
+
+            return threadWorker.scheduleActual(action, delayTime, unit, tasks);
+        }
+    }
+</code></pre>
+<p><code>EventLoopWorker</code>中则是维护了一套包含相应的<code>线程池</code>、可取消的<code>CompositeDisposable</code>、以及用于运行<code>Runable</code>的<code>ThreadWorker</code>。总的来说就是一套可以在相应线程运行且可取消的类和逻辑。</p>
+<ul>
+<li>上面则解释了为什么<code>observeOn</code>可以切换下游的线程(<code>onSuccess</code> <code>onError</code>)</li>
+<li>同样解释了为什么不会改变<code>onSubsribe</code>的调用线程，因为可以看到<code>onSubscribe</code>方法中直接调用了下游的<code>onSucsribe</code>，并没有受到线程切换的影响。</li>
+</ul>
+<h3 id="subscribeon">SubscribeOn</h3>
+<p>实际上，<code>subsribeOn</code> 是 RxJava2.x 中比较复杂也是相较于 RxJava1.x 改动比较大的一个操作符,它甚至会影响流的执行顺序。（可以参见唐雪茂写的 <a href="https://lexiangla.com/teams/k100002/docs/d00dcc362b2311e8a1c75254004b6d18?company_from=1656b36e07d011e8b7a85254005b9a60">Rxjava流的设计</a> 中的<code>1</code> <code>2</code>两个流）</p>
+<p>我们现在设计两个<code>Rx流</code></p>
+<pre><code>Disposable disposable = Single.just(&quot;wtf&quot;)
+				 .doOnSubsribe(it-&gt; Log.i(&quot;doOnSubsribe&quot;, 0)
+				 .doOnSubsribe(it-&gt; Log.i(&quot;doOnSubsribe&quot;, 1)
+				 .doOnSubsribe(it-&gt; Log.i(&quot;doOnSubsribe&quot;, 2)
+				 .doOnSubsribe(it-&gt; Log.i(&quot;doOnSubsribe&quot;, 3)
+                 .subscribe(it -&gt; Log.i(&quot;subscribe&quot;, 4);
+</code></pre>
+<pre><code>Disposable disposable2 = Single.just(&quot;wtf&quot;)
+				 .doOnSubsribe(it-&gt; Log.i(&quot;doOnSubsribe&quot;, 0)
+				 .doOnSubsribe(it-&gt; Log.i(&quot;doOnSubsribe&quot;, 1)
+				 .subscribeOn(Schedulers.io())
+				 .doOnSubsribe(it-&gt; Log.i(&quot;doOnSubsribe&quot;, 2)
+				 .doOnSubsribe(it-&gt; Log.i(&quot;doOnSubsribe&quot;, 3)
+                 .subscribe(it -&gt; Log.i(&quot;subscribe&quot;, 4);
+</code></pre>
+<p>你可能已经知道并记住了两个流的打印的顺序分别是 <code>01234</code> <code>23014</code>，但是为什么<code>doOnSubsribe</code>方法和<code>RxJava1</code>中调用顺序完全不一样，为什么通过<code>subscribeOn</code>切换线程会影响执行顺序？</p>
+<p>先找到 <code>SingleSubscribeOn</code> 类</p>
+<pre><code>public final class SingleSubscribeOn&lt;T&gt; extends Single&lt;T&gt; {
+    final SingleSource&lt;? extends T&gt; source;
+    final Scheduler scheduler;
+    
+    public SingleSubscribeOn(SingleSource&lt;? extends T&gt; source, Scheduler scheduler) {
+        this.source = source;
+        this.scheduler = scheduler;
+    }
+
+    @Override
+    protected void subscribeActual(final SingleObserver&lt;? super T&gt; s) {
+        final SubscribeOnObserver&lt;T&gt; parent = new SubscribeOnObserver&lt;T&gt;(s, source);
+        //直接调用下游 onSubscribe
+        s.onSubscribe(parent);
+        //再执行订阅上游的方法
+        Disposable f = scheduler.scheduleDirect(parent);
+        parent.task.replace(f);
+    }
+
+    static final class SubscribeOnObserver&lt;T&gt;
+    extends AtomicReference&lt;Disposable&gt;
+    implements SingleObserver&lt;T&gt;, Disposable, Runnable {
+
+        private static final long serialVersionUID = 7000911171163930287L;
+        final SingleObserver&lt;? super T&gt; actual;
+        final SequentialDisposable task;
+        final SingleSource&lt;? extends T&gt; source;
+        
+        SubscribeOnObserver(SingleObserver&lt;? super T&gt; actual, SingleSource&lt;? extends T&gt; source) {
+            this.actual = actual;
+            this.source = source;
+            this.task = new SequentialDisposable();
+        }
+
+        @Override
+        public void onSubscribe(Disposable d) {
+        	  //没有继续调用下游的 onSubscribe 方法
+            DisposableHelper.setOnce(this, d);
+        }
+
+        @Override
+        public void onSuccess(T value) {
+            actual.onSuccess(value);
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            actual.onError(e);
+        }
+
+        @Override
+        public void dispose() {
+            DisposableHelper.dispose(this);
+            task.dispose();
+        }
+
+        @Override
+        public boolean isDisposed() {
+            return DisposableHelper.isDisposed(get());
+        }
+
+        @Override
+        public void run() {
+            source.subscribe(this);
+        }
+    }
+
+}
+</code></pre>
+<p>同样的直接看<code>subscribeActual</code>方法及<code>onSubscribe</code>方法，发现事情并没有那么简单，和之前的操作符的逻辑区别很大：</p>
+<ul>
+<li><code>SubscribeOnObserver</code>同样还继承了<code>AtomicReference&lt;Disposable&gt;</code>，实现了<code>Disposable``Runnable</code>接口</li>
+<li>并没有直接调用<code>subscribe</code>订阅上游，而是执行了其它操作符在 <code>onSubscribe</code>中订阅下游的操作</li>
+<li>然后再结合<code>Disposable f = scheduler.scheduleDirect(parent);</code>和<code>run</code>方法可以知道在新的线程中执行了订阅上游的操作 <code>source.subscribe(this);</code></li>
+<li><code>onSubsribe</code>中并没有再继续调用下游的 <code>onSubsribe</code></li>
+</ul>
+<p>综合起来可以知道，本来应该在整个流从下至上订阅完成后按照从上至下的顺序执行 <code>onSubscribe</code>的流，在使用<code>subsribeOn</code>操作符的后，在订阅的时(执行<code>subscribeActual</code>)，就开始执行下游的<code>onSubscribe</code>且在当前线程！然后才在指定的<code>io</code>线程执行之下而上的操作，这也是为什么<code>subsribeOn</code>影响的是上游的线程。</p>
+<h3 id="小结">小结：</h3>
+<p>我认为实际上 Rx 使用了很多优秀的设计将我们各种常用的操作进行了封装，让我们自由组合使用，其本身并没有用什么黑科技。例如切换线程本质上则是帮我们启用了一个新的线程并把接下来的代码放进去执行。<br>
+当然，其中还有很多更深入的内容需要我们继续发现和学习。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Kotlin 中的依赖注入 KODEIN]]></title>
+        <id>https://xiejinpeng007.github.io/post/kotlin-zhong-de-yi-lai-zhu-ru-kodein</id>
+        <link href="https://xiejinpeng007.github.io/post/kotlin-zhong-de-yi-lai-zhu-ru-kodein">
+        </link>
+        <updated>2018-06-08T09:23:31.000Z</updated>
+        <content type="html"><![CDATA[<p>用 Java 进行 Android 开发的话，依赖注入这一块一般使用 Dagger ,转用 Kotlin 之后有更多的选择，Kodein 是个不错的库， 4.0 5.0 都使用过了，相对于 Dagger 有很多好处。</p>
+<ul>
+<li>用 Kotlin 编写利用了更优秀的语言特性 比如类型推断，Dagger 在编写 Component 的时候需要知道注入类的类型</li>
+<li>无需像 Dagger 一样编写大量模板代码</li>
+<li>不会像 Dagger 一样在编译期因为其它的编译错误导致无法生成所需文件从而报一堆错。</li>
+<li>...</li>
+</ul>
+<h3 id="最基本的使用步骤">最基本的使用步骤</h3>
+<ol>
+<li>在 Application 继承 <code>KodeinAware</code> 并绑定依赖</li>
+</ol>
+<pre><code>class MyApp : Application(), KodeinAware {
+	override val kodein = Kodein.lazy { 
+	    /* bindings */
+	}
+}
+</code></pre>
+<ol start="2">
+<li>在 context aware 的 Android 类中通过 <code>closestKodein</code> 方法获取</li>
+<li>加载依赖</li>
+</ol>
+<pre><code>class MyApp : Application(), KodeinAware {
+
+    //实例化 Application 级的 kodein 通过 DSL 绑定 module
+	override val kodein = Kodein.lazy { 
+        //导入预设的 android 组件
+        import(androidModule(this@MainApplication))
+        //绑定或者导入自定义依赖
+	}
+}
+</code></pre>
+<h3 id="相关基本概念">相关基本概念</h3>
+<h4 id="在-application-定义-application-级的-kodein">在 Application 定义 Application 级的 <code>Kodein</code></h4>
+<pre><code>class MyApp : Application(), KodeinAware {
+
+    //实例化 Application 级的 kodein 通过 DSL 绑定 module
+	override val kodein = Kodein.lazy { 
+        //导入预设的 android 组件
+        import(androidModule(this@MainApplication))
+        //绑定或者导入自定义依赖
+	}
+}
+</code></pre>
+<h4 id="通过-closestkodein-恢复-application-级的-kodein-然后通过-kodein-加载依赖">通过 closestKodein 恢复 Application 级的 <code>Kodein</code>  然后通过 <code>Kodein</code> 加载依赖</h4>
+<p>#####kodein &amp; ds 默认都是懒加载</p>
+<pre><code>class MyActivity : Activity(), KodeinAware {
+    override val kodein by closestKodein()
+    val ds: DataSource by instance()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        ds.connect() 
+        /* ... */
+    }
+}
+</code></pre>
+<h4 id="使用-trigger-在-oncreate-中手动触发加载依赖取消懒加载">使用 Trigger 在 onCreate() 中手动触发加载依赖（取消懒加载）</h4>
+<p>同样可以避免依赖死循环（除非加载依赖的方式只有 instance）</p>
+<pre><code>class MyActivity : Activity(), KodeinAware {
+    override val kodein by closestKodein()
+    override val kodeinTrigger = KodeinTrigger()
+    val ds: DataSource by instance()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        kodeinTrigger.trigger() 
+        /* ... */
+    }
+}
+</code></pre>
+<h4 id="在没有-non-context-aware-的类中加载-kodein">在没有 Non-Context-Aware 的类中加载 Kodein</h4>
+<pre><code>class MyController(androidContext: Context) : KodeinAware {
+    override val kodein by androidContext.closestKodein()
+    override val kodeinContext = kcontext(androidContext)
+    val inflater: LayoutInflater by instance()
+}
+</code></pre>
+<h4 id="多级-kodin-依赖">多级 Kodin 依赖</h4>
+<h5 id="定义-activity-级的-kodein-继承自-application-级">定义 Activity 级的 <code>Kodein</code> 继承自 Application 级</h5>
+<pre><code>class MyActivity : Activity(), KodeinAware {
+    private val _parentKodein by closestKodein() 
+    override val kodein: Kodein = Kodein {
+        extend(_parentKodein) 
+        /* activity specific bindings */
+    }
+}
+</code></pre>
+<h4 id="activity-retained-kodein">Activity Retained Kodein</h4>
+<h5 id="使用-retainedkodein-在-activity-重启的时候不会重新创建-kodein">使用 retainedKodein 在 Activity 重启的时候不会重新创建 Kodein</h5>
+<pre><code>class MyActivity : Activity(), KodeinAware {
+    private val _parentKodein by closestKodein()
+    override val kodein: Kodein by retainedKodein { 
+        extend(_parentKodein)
+        /* activity specific bindings */
+    }
+}
+</code></pre>
+<h4 id="android-scopes-作用域">Android scopes 作用域</h4>
+<pre><code>//每个 Activity 一个单例
+val kodein = Kodein {
+    bind&lt;Controller&gt;() with scoped(androidScope&lt;Activity&gt;()).singleton { ControllerImpl(context) } 
+}
+</code></pre>
+<h4 id="activity-retained-scope">Activity retained scope</h4>
+<h4 id="同样-activityretainedscope-在-activity-重启时不会重新创建依赖">同样 activityRetainedScope 在 Activity 重启时不会重新创建依赖</h4>
+<pre><code>val kodein = Kodein {
+    bind&lt;Controller&gt;() with scoped(activityRetainedScope).singleton { ControllerImpl() } 
+}
+</code></pre>
+<h4 id="bindings-declaring-dependencies-申明依赖的一些重要的参数">Bindings: Declaring dependencies 申明依赖的一些重要的参数</h4>
+<h5 id="绑定的方式">绑定的方式</h5>
+<ul>
+<li>Provider binding : 每次加载都生成新的实例，无参， 传入<code>() -&gt; T</code></li>
+<li>Singleton binding : 单例 传入 <code>() → T</code></li>
+<li>Eager singleton : 单例 创建了 Kodein 实例后立即实例化 传入 <code>() -&gt; T</code></li>
+<li>Factory binding : 每次加载都生成新的实例，需要参数，传入<code>(A) -&gt; T</code></li>
+<li>Multiton binding : 有参的单例，同样参数同样实例，传入 <code>(A) -&gt; T</code></li>
+<li>Tagged bindings : 通过 tag 来区分同类型不同的实例 例如</li>
+</ul>
+<pre><code>val kodein = Kodein {
+    bind&lt;Die&gt;() with ... 
+    bind&lt;Die&gt;(tag = &quot;DnD10&quot;) with ... 
+    bind&lt;Die&gt;(tag = &quot;DnD20&quot;) with ... 
+}
+</code></pre>
+<h5 id="基本上以上的参数涵盖了大部分的通用使用场景kodein-还有很多复杂的高级用法">基本上以上的参数涵盖了大部分的通用使用场景，Kodein 还有很多复杂的高级用法</h5>
+<h4 id="jvm-soft-weak-两种引用回收机制">JVM: Soft &amp; Weak 两种引用回收机制</h4>
+<ol>
+<li>使用 WeakReference 在<code>OutOfMemoryException</code>之前 JVM 执行 GC</li>
+<li>使用 SoftReference 在没有引用的时候就 JVM 执行 GC</li>
+</ol>
+<pre><code>val kodein = Kodein {
+    bind&lt;Map&gt;() with refSingleton(ref = softReference) { WorldMap() } 
+    bind&lt;Client&gt;() with refSingleton(ref = weakReference) { id -&gt; clientFromDB(id) } 
+}
+</code></pre>
+<h4 id="transitive-dependencies-依赖传递">Transitive dependencies 依赖传递</h4>
+<h5 id="依赖中使用依赖的情况kotlin-的类型推断系统可以很简单的实现">依赖中使用依赖的情况，Kotlin 的类型推断系统可以很简单的实现。</h5>
+<pre><code>class Die(private val random: Random, private val sides: Int) {
+/*...*/
+}
+
+val kodein = Kodein {
+    bind&lt;Die&gt;() with singleton { Die(instance(), instance(tag = &quot;max&quot;)) } 
+
+    bind&lt;Random&gt;() with provider { SecureRandom() } 
+    constant(tag &quot;max&quot;) with 5 
+}
+</code></pre>
+<h5 id="更多高级用法">更多高级用法...</h5>
+<ul>
+<li><a href="http://kodein.org/Kodein-DI/?5.0">KODEIN DI: KOtlin DEpendency INjection: 5.0.0</a></li>
+<li><a href="http://kodein.org/Kodein-DI/?5.0/android">Kodein on Android</a></li>
+<li><a href="http://kodein.org/Kodein-DI/?5.0/getting-started">Getting started</a></li>
+<li><a href="http://kodein.org/Kodein-DI/?5.0/core">Core documentation</a></li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[SQLite 笔记]]></title>
+        <id>https://xiejinpeng007.github.io/post/sqlite-bi-ji</id>
+        <link href="https://xiejinpeng007.github.io/post/sqlite-bi-ji">
+        </link>
+        <updated>2018-03-01T09:22:49.000Z</updated>
+        <content type="html"><![CDATA[<p>一些笔记</p>
+<ul>
+<li>
+<p>ROWID :
+隐藏的 Column 用于作为行的唯一标识。<br>
+ROWID 可以看做一个隐式的 INTEGER PRIMARY KEY ,实际上这才是真正的主键，如果创建了一个 INTEGER PRIMARY KEY 的话，
+它会作为 ROWID 的别名(alias) ,而非 INTEGER PRIMARY KEY 实际上只是建立了一个索引。
+算法是单调递增，如果达到最大整型(9223372036854775807) 那么会重新查找前面已经删除的 ROWID。</p>
+</li>
+<li>
+<p>Index 索引:<br>
+Index 是一种特殊的查找表，数据库搜索引擎用来加快数据检索。简单地说，索引是一个指向表中数据的指针。
+索引有助于加快 SELECT 查询和 WHERE 子句，但它会减慢使用 UPDATE 和 INSERT 语句时的数据输入。
+索引可以创建或删除，但不会影响数据。
+每个主键会自动生成一个 Index</p>
+</li>
+<li>
+<p>AUTOINCREMENT ：<br>
+作用于主键，算法是单调递增,算法上和 ROWID 的区别是达到最大整型了之后不会重新查找前面没使用的值。
+如果 AUTOINCREMENT 关键字出现在 INTEGER PRIMARY KEY后面，则会更改自动 ROWID 分配算法(因为INTEGER PRIMARY KEY 就是 ROWID 别名)，
+以防止在数据库的整个生命周期内重用 ROWID。</p>
+</li>
+<li>
+<p>WITHOUT ROWID:<br>
+实际上可以指定不生成 ROWID ,那么必须要指定主键。
+关于是否需要 ROWID 的问题，总的来说是空间时间的影响，大概是这样的逻辑：
+在普通的SQLite表中，PRIMARY KEY实际上只是一个 UNIQUE索引。用于在磁盘上查找记录的键是 ROWID。
+普通SQLite表中的特殊“ INTEGER PRIMARY KEY ”列类型使该列成为 ROWID 的别名，因此 INTEGER PRIMARY KEY 是真正的 PRIMARY KEY。</p>
+</li>
+<li>
+<p>SQLite 的表是以 B-Tree 实现的， 在 ROWID 表中如果有 非INTEGER PRIMARY KEY 实际上会建立两个 B-Tree ,
+一个是以 ROWID 为主键其余 column 为数据的 B-Tree;另一个 是以 非INTEGER PRIMARY KEY 为主键 ROWID 为数据的索引。
+查询的时候 首先在索引中根据找到匹配的 ROWID 然后再在主表中根据 ROWID 查找数据，所以进行了两次独立的二进制搜索。</p>
+</li>
+<li>
+<p>关于 SQLite 查询的结果的顺序：
+首先如果要保证查询结果的顺序最好就使用 ORDER BY ，否则会按照 Index 进行，没有或关闭 Index 的话会按照 ROWID 顺序查询。</p>
+</li>
+</ul>
+<p>https://www.sqlite.org/lang_createindex.html<br>
+https://www.sqlite.org/lang_createtable.html<br>
+https://www.sqlite.org/withoutrowid.html<br>
+https://sqlite.org/autoinc.html</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Swagger (YAML OpenAPI) 从放弃到入门]]></title>
+        <id>https://xiejinpeng007.github.io/post/swagger-yaml-openapi-cong-fang-qi-dao-ru-men</id>
+        <link href="https://xiejinpeng007.github.io/post/swagger-yaml-openapi-cong-fang-qi-dao-ru-men">
+        </link>
+        <updated>2017-10-12T09:22:03.000Z</updated>
+        <content type="html"><![CDATA[<blockquote>
+<p>Swagger 是一个统一前后端用于生成文档和代码的工具，它使用 yaml / json 作为描述语言 通过 <a href="https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#exampleObject">OpenAPI Specification</a> 来描述 API，最后使用 Codegen 根据不同的配置来生成各种 language、library 的 Code、Docs.</p>
+</blockquote>
+<h5 id="其最理想的情况则是只需一份描述文件yamljson-生成-后端-前端android-ios-web的代码和文档这样的话保证了前后端的统一且需要升级改动也只需要修改-yaml-文件">其最理想的情况则是只需一份描述文件(yaml/json) 生成 后端、前端（android ios web...）的代码和文档，这样的话保证了前后端的统一，且需要升级改动也只需要修改 yaml 文件。</h5>
+<h3 id="yaml">YAML</h3>
+<p>JSON 都已经很熟悉了，虽然 Swagger 可以使用 JSON 作为描述语言，但是因为 YAML 更为简洁直观，所以更推荐 YAML。
+YAML 的基本语法并不复杂，这里介绍一些基本语法：</p>
+<ul>
+<li>
+<p>yaml 文件 以<code>---</code>开始 <code>...</code>结尾</p>
+</li>
+<li>
+<p>同一级别的成员（如 list 成员）可以通过<code>&quot;- &quot;</code>来辨识</p>
+</li>
+<li>
+<p>注释以<code>#</code>开头的一行</p>
+</li>
+<li>
+<p>list:</p>
+</li>
+</ul>
+<pre><code>fruits:
+    - Apple
+    - Orange
+    - Strawberry
+    - Mango
+</code></pre>
+<ul>
+<li>key / value</li>
+</ul>
+<pre><code>martin:
+    name: Martin D'vloper
+    job: Developer
+    skill: Elite
+</code></pre>
+<ul>
+<li>list / map 混合使用</li>
+</ul>
+<pre><code>-  martin:
+    name: Martin D'vloper
+    job: Developer
+    skills:
+      - python
+      - perl
+      - pascal
+-  tabitha:
+    name: Tabitha Bitumen
+    job: Developer
+    skills:
+      - lisp
+      - fortran
+      - erlang
+</code></pre>
+<ul>
+<li>list / map 的简写</li>
+</ul>
+<pre><code>martin: {name: Martin D'vloper, job: Developer, skill: Elite}
+fruits: ['Apple', 'Orange', 'Strawberry', 'Mango']
+</code></pre>
+<ul>
+<li>boolean 值的写法没有严格限制</li>
+</ul>
+<pre><code>create_key: yes
+needs_agent: no
+knows_oop: True
+likes_emacs: TRUE
+uses_cvs: false
+</code></pre>
+<ul>
+<li><code>|</code>使用换行 <code>&gt;</code>忽略换行</li>
+</ul>
+<pre><code>include_newlines: |
+            exactly as you see
+            will appear these three
+            lines of poetry
+
+ignore_newlines: &gt;
+            this is really a
+            single line of text
+            despite appearances
+</code></pre>
+<h3 id="openapi-specification">OpenAPI-Specification</h3>
+<blockquote>
+<p>OpenAPI 是一套用于描述 RESTful APIs 的规范。</p>
+<p>The OpenAPI Specification (OAS) defines a standard, language-agnostic interface to RESTful APIs which allows both humans and computers to discover and understand the capabilities of the service without access to source code, documentation, or through network traffic inspection. When properly defined, a consumer can understand and interact with the remote service with a minimal amount of implementation logic.</p>
+<p>An OpenAPI definition can then be used by documentation generation tools to display the API, code generation tools to generate servers and clients in various programming languages, testing tools, and many other use cases.</p>
+</blockquote>
+<p>只要符合 OpenAPI 规范的都可以生成各类代码、文档、工具。
+目前 OpenAPI 最新 3.0.0 ,对比 2.0 对 API 结构进行了调整。<br>
+文档内容繁多请参考 <a href="https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md">OpenAPI-Specification 3.0.0</a></p>
+<p>下面是 Uber API 的 example</p>
+<pre><code># this is an example of the Uber API
+# as a demonstration of an API spec in YAML
+openapi: &quot;3.0.0&quot;
+info:
+  title: Uber API
+  description: Move your app forward with the Uber API
+  version: &quot;1.0.0&quot;
+servers:
+  - url: https://api.uber.com/v1
+paths:
+  /products:
+    get:
+      summary: Product Types
+      description: The Products endpoint returns information about the Uber products offered at a given location. The response includes the display name and other details about each product, and lists the products in the proper display order.
+      parameters:
+        - name: latitude
+          in: query
+          description: Latitude component of location.
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: longitude
+          in: query
+          description: Longitude component of location.
+          required: true
+          schema:
+            type: number
+            format: double
+      security: 
+        - apikey: []
+      tags: 
+        - Products
+      responses:  
+        '200':
+          description: An array of products
+          content:
+            application/json:
+              schema:
+                $ref: &quot;#/components/schemas/ProductList&quot;
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: &quot;#/components/schemas/Error&quot;
+  /estimates/price:
+    get:
+      summary: Price Estimates
+      description: The Price Estimates endpoint returns an estimated price range for each product offered at a given location. The price estimate is provided as a formatted string with the full price range and the localized currency symbol.&lt;br&gt;&lt;br&gt;The response also includes low and high estimates, and the [ISO 4217](http://en.wikipedia.org/wiki/ISO_4217) currency code for situations requiring currency conversion. When surge is active for a particular product, its surge_multiplier will be greater than 1, but the price estimate already factors in this multiplier.
+      parameters:
+        - name: start_latitude
+          in: query
+          description: Latitude component of start location.
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: start_longitude
+          in: query
+          description: Longitude component of start location.
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: end_latitude
+          in: query
+          description: Latitude component of end location.
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: end_longitude
+          in: query
+          description: Longitude component of end location.
+          required: true
+          schema:
+            type: number
+            format: double
+      tags: 
+        - Estimates
+      responses:  
+        '200':
+          description: An array of price estimates by product
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: &quot;#/components/schemas/PriceEstimate&quot;
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: &quot;#/components/schemas/Error&quot;
+  /estimates/time:
+    get:
+      summary: Time Estimates
+      description: The Time Estimates endpoint returns ETAs for all products offered at a given location, with the responses expressed as integers in seconds. We recommend that this endpoint be called every minute to provide the most accurate, up-to-date ETAs.
+      parameters:
+        - name: start_latitude
+          in: query
+          description: Latitude component of start location.
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: start_longitude
+          in: query
+          description: Longitude component of start location.
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: customer_uuid
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Unique customer identifier to be used for experience customization.
+        - name: product_id
+          in: query
+          schema:
+            type: string
+          description: Unique identifier representing a specific product for a given latitude &amp; longitude.
+      tags: 
+        - Estimates
+      responses:  
+        '200':
+          description: An array of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: &quot;#/components/schemas/Product&quot;
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: &quot;#/components/schemas/Error&quot;
+  /me:
+    get:
+      summary: User Profile
+      description: The User Profile endpoint returns information about the Uber user that has authorized with the application.
+      tags: 
+        - User
+      responses:
+        '200':
+          description: Profile information for a user
+          content:
+            application/json:
+              schema:
+                $ref: &quot;#/components/schemas/Profile&quot;
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: &quot;#/components/schemas/Error&quot;
+  /history:
+    get:
+      summary: User Activity
+      description: The User Activity endpoint returns data about a user's lifetime activity with Uber. The response will include pickup locations and times, dropoff locations and times, the distance of past requests, and information about which products were requested.&lt;br&gt;&lt;br&gt;The history array in the response will have a maximum length based on the limit parameter. The response value count may exceed limit, therefore subsequent API requests may be necessary.
+      parameters:
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            format: int32
+          description: Offset the list of returned results by this amount. Default is zero.
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            format: int32 
+          description: Number of items to retrieve. Default is 5, maximum is 100.
+      tags: 
+        - User
+      responses:
+        '200':
+          description: History information for the given user
+          content:
+            application/json:
+              schema:
+                $ref: &quot;#/components/schemas/Activities&quot;
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: &quot;#/components/schemas/Error&quot;
+components:
+  securitySchemes:
+    apikey:
+      type: apiKey
+      name: server_token
+      in: query
+  schemas:
+    Product:
+      properties:
+        product_id:
+          type: string
+          description: Unique identifier representing a specific product for a given latitude &amp; longitude. For example, uberX in San Francisco will have a different product_id than uberX in Los Angeles.
+        description:
+          type: string
+          description: Description of product.
+        display_name:
+          type: string
+          description: Display name of product.
+        capacity:
+          type: integer
+          description: Capacity of product. For example, 4 people.
+        image:
+          type: string
+          description: Image URL representing the product.
+    ProductList:
+      properties:
+        products:
+          description: Contains the list of products
+          type: array
+          items: 
+            $ref: &quot;#/components/schemas/Product&quot;
+    PriceEstimate:
+      properties:
+        product_id:
+          type: string
+          description: Unique identifier representing a specific product for a given latitude &amp; longitude. For example, uberX in San Francisco will have a different product_id than uberX in Los Angeles
+        currency_code:
+          type: string
+          description: &quot;[ISO 4217](http://en.wikipedia.org/wiki/ISO_4217) currency code.&quot;
+        display_name:
+          type: string
+          description: Display name of product.
+        estimate: 
+          type: string
+          description: Formatted string of estimate in local currency of the start location. Estimate could be a range, a single number (flat rate) or &quot;Metered&quot; for TAXI.
+        low_estimate:
+          type: number
+          description: Lower bound of the estimated price.
+        high_estimate:
+          type: number
+          description: Upper bound of the estimated price.
+        surge_multiplier:
+          type: number
+          description: Expected surge multiplier. Surge is active if surge_multiplier is greater than 1. Price estimate already factors in the surge multiplier.
+    Profile:
+      properties:
+        first_name:
+          type: string
+          description: First name of the Uber user.
+        last_name:
+          type: string
+          description: Last name of the Uber user.
+        email:
+          type: string
+          description: Email address of the Uber user
+        picture:
+          type: string
+          description: Image URL of the Uber user.
+        promo_code:
+          type: string
+          description: Promo code of the Uber user.   
+    Activity:
+      properties:
+        uuid:
+          type: string
+          description: Unique identifier for the activity
+    Activities:
+      properties:
+        offset:
+          type: integer
+          format: int32
+          description: Position in pagination.
+        limit:
+          type: integer
+          format: int32
+          description: Number of items to retrieve (100 max).
+        count:
+          type: integer
+          format: int32
+          description: Total number of items available.
+        history:
+          type: array
+          items:
+            $ref: &quot;#/components/schemas/Activity&quot;
+    Error:
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        fields:
+          type: string
+</code></pre>
+<p>这里将 OpenAPI 3.0 规范中把重点使用的 api 整理了一张思维导图（还不完善，会持续更新）</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1447881-03d1619fc6f6f670.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="OpenAPI 3.0.0.png"></p>
+<h3 id="swagger">Swagger</h3>
+<p>Swagger 实际上包含了一系列的工具 Editor Codegen UI ...</p>
+<ul>
+<li>Editor 用于使用 OpenAPI 编辑 yaml</li>
+<li>Codegen 用于生成不同的 language library 的代码</li>
+<li>UI 用于生成文档</li>
+</ul>
+<p>下面介绍一下 Codegen 的使用：</p>
+<ol>
+<li>
+<p>首先下载 <a href="https://oss.sonatype.org/content/repositories/snapshots/io/swagger/swagger-codegen-cli/3.0.0-SNAPSHOT/">swagger-codegen-cli.jar</a></p>
+</li>
+<li>
+<p>确保装好了 maven</p>
+</li>
+<li>
+<p>准备 swagger.yaml</p>
+</li>
+<li>
+<p>编写 config.json 配置文件<br>
+因为之前提到 Swagger 可以生成各种 lang lib 的代码，所以这里便是进行此类配置:<br>
+查看配置 help</p>
+<pre><code>java -jar swagger-codegen-cli.jar config-help -l java
+</code></pre>
+<pre><code>CONFIG OPTIONS
+     sortParamsByRequiredFlag
+         Sort method arguments to place required parameters before optional parameters. (Default: true)
+     ensureUniqueParams
+         Whether to ensure parameter names are unique in an operation (rename parameters that are not). (Default: true)
+     allowUnicodeIdentifiers
+         boolean, toggles whether unicode identifiers are allowed in names or not, default is false (Default: false)
+     modelPackage
+         package for generated models
+     apiPackage
+         package for generated api classes
+     invokerPackage
+         root package for generated code
+     groupId
+         groupId in generated pom.xml
+     artifactId
+         artifactId in generated pom.xml
+     artifactVersion
+         artifact version in generated pom.xml
+     artifactUrl
+         artifact URL in generated pom.xml
+     artifactDescription
+         artifact description in generated pom.xml
+     scmConnection
+         SCM connection in generated pom.xml
+     scmDeveloperConnection
+         SCM developer connection in generated pom.xml
+     scmUrl
+         SCM URL in generated pom.xml
+     developerName
+         developer name in generated pom.xml
+     developerEmail
+         developer email in generated pom.xml
+     developerOrganization
+         developer organization in generated pom.xml
+     developerOrganizationUrl
+         developer organization URL in generated pom.xml
+     licenseName
+         The name of the license
+     licenseUrl
+         The URL of the license
+     sourceFolder
+         source folder for generated code
+     localVariablePrefix
+         prefix for generated code members and local variables
+     serializableModel
+         boolean - toggle &quot;implements Serializable&quot; for generated models (Default: false)
+     bigDecimalAsString
+         Treat BigDecimal values as Strings to avoid precision loss. (Default: false)
+     fullJavaUtil
+         whether to use fully qualified name for classes under java.util. This option only works for Java API client (Default: false)
+     hideGenerationTimestamp
+         hides the timestamp when files were generated
+     withXml
+         whether to include support for application/xml content type. This option only works for Java API client (resttemplate) (Default: false)
+     dateLibrary
+         Option. Date library to use
+             joda - Joda (for legacy app only)
+             legacy - Legacy java.util.Date (if you really have a good reason not to use threetenbp
+             java8-localdatetime - Java 8 using LocalDateTime (for legacy app only)
+             java8 - Java 8 native JSR310 (preferred for jdk 1.8+) - note: this also sets &quot;java8&quot; to true
+             threetenbp - Backport of JSR310 (preferred for jdk &lt; 1.8)
+     java8
+         Option. Use Java8 classes instead of third party equivalents
+             true - Use Java 8 classes such as Base64
+             false - Various third party libraries as needed
+     useRxJava
+         Whether to use the RxJava adapter with the retrofit2 library. (Default: false)
+     useRxJava2
+         Whether to use the RxJava2 adapter with the retrofit2 library. (Default: false)
+     parcelableModel
+         Whether to generate models for Android that implement Parcelable with the okhttp-gson library. (Default: false)
+     usePlay24WS
+         Use Play! 2.4 Async HTTP client (Play WS API) (Default: false)
+     supportJava6
+         Whether to support Java6 with the Jersey1 library. (Default: false)
+     useBeanValidation
+         Use BeanValidation API annotations (Default: false)
+     performBeanValidation
+         Perform BeanValidation (Default: false)
+     useGzipFeature
+         Send gzip-encoded requests (Default: false)
+     useRuntimeException
+         Use RuntimeException instead of Exception (Default: false)
+     library
+         library template (sub-template) to use (Default: okhttp-gson)
+             jersey1 - HTTP client: Jersey client 1.19.4. JSON processing: Jackson 2.8.9. Enable Java6 support using '-DsupportJava6=true'. Enable gzip request encoding using '-DuseGzipFeature=true'.
+             feign - HTTP client: OpenFeign 9.4.0. JSON processing: Jackson 2.8.9
+             jersey2 - HTTP client: Jersey client 2.25.1. JSON processing: Jackson 2.8.9
+             okhttp-gson - HTTP client: OkHttp 2.7.5. JSON processing: Gson 2.8.1. Enable Parcelable models on Android using '-DparcelableModel=true'. Enable gzip request encoding using '-DuseGzipFeature=true'.
+             retrofit - HTTP client: OkHttp 2.7.5. JSON processing: Gson 2.3.1 (Retrofit 1.9.0). IMPORTANT NOTE: retrofit1.x is no longer actively maintained so please upgrade to 'retrofit2' instead.
+             retrofit2 - HTTP client: OkHttp 3.8.0. JSON processing: Gson 2.6.1 (Retrofit 2.3.0). Enable the RxJava adapter using '-DuseRxJava[2]=true'. (RxJava 1.x or 2.x)
+             resttemplate - HTTP client: Spring RestTemplate 4.3.9-RELEASE. JSON processing: Jackson 2.8.9
+             resteasy - HTTP client: Resteasy client 3.1.3.Final. JSON processing: Jackson 2.8.9
+
+</code></pre>
+<p>几个主要的配置参数：</p>
+<ul>
+<li>library，生成的代码支付的类，有jersey1、jersey2、okhttp-gson、resttemplate、resteasy、feign、retrofit、retrofit2等几种类型，我们选择的retrofit2</li>
+<li>developerName，开发者名字，会出现在代码文件里</li>
+<li>developerEmail，开发者邮箱，会出现在代码文件里</li>
+<li>developrOrganization，开发者组织，会出现在代码里</li>
+<li>invokerPackage，项目的包名</li>
+<li>apiPackage，生成的***Api.java文件的包名</li>
+<li>modelPackage，生成的数据模型java文件包名</li>
+<li>dateLibrary，时间使用的类开</li>
+<li>useRxJava，是否使用rxjava生成api接口</li>
+<li>useRxJava2，是否使用rxjava2的方式调用接口</li>
+</ul>
+</li>
+<li>
+<p>generate 生成代码
+首先打印参数信息</p>
+<pre><code>java -jar swagger-codegen-cli.jar generate help
+</code></pre>
+<pre><code>NAME
+     swagger-codegen-cli generate - Generate code with chosen lang
+ SYNOPSIS
+     swagger-codegen-cli generate
+             [(-a &lt;authorization&gt; | --auth &lt;authorization&gt;)]
+             [--additional-properties &lt;additional properties&gt;...]
+             [--api-package &lt;api package&gt;] [--artifact-id &lt;artifact id&gt;]
+             [--artifact-version &lt;artifact version&gt;]
+             [(-c &lt;configuration file&gt; | --config &lt;configuration file&gt;)]
+             [-D &lt;system properties&gt;...] [--git-repo-id &lt;git repo id&gt;]
+             [--git-user-id &lt;git user id&gt;] [--group-id &lt;group id&gt;]
+             [--http-user-agent &lt;http user agent&gt;]
+             (-i &lt;spec file&gt; | --input-spec &lt;spec file&gt;)
+             [--ignore-file-override &lt;ignore file override location&gt;]
+             [--import-mappings &lt;import mappings&gt;...]
+             [--instantiation-types &lt;instantiation types&gt;...]
+             [--invoker-package &lt;invoker package&gt;]
+             (-l &lt;language&gt; | --lang &lt;language&gt;)
+             [--language-specific-primitives &lt;language specific primitives&gt;...]
+             [--library &lt;library&gt;] [--model-name-prefix &lt;model name prefix&gt;]
+             [--model-name-suffix &lt;model name suffix&gt;]
+             [--model-package &lt;model package&gt;]
+             [(-o &lt;output directory&gt; | --output &lt;output directory&gt;)]
+             [--release-note &lt;release note&gt;] [--remove-operation-id-prefix]
+             [--reserved-words-mappings &lt;reserved word mappings&gt;...]
+             [(-s | --skip-overwrite)]
+             [(-t &lt;template directory&gt; | --template-dir &lt;template directory&gt;)]
+             [--type-mappings &lt;type mappings&gt;...] [(-v | --verbose)]
+OPTIONS
+     -a &lt;authorization&gt;, --auth &lt;authorization&gt;
+         adds authorization headers when fetching the swagger definitions
+         remotely. Pass in a URL-encoded string of name:header with a comma
+         separating multiple values
+     --additional-properties &lt;additional properties&gt;
+         sets additional properties that can be referenced by the mustache
+         templates in the format of name=value,name=value. You can also have
+         multiple occurrences of this option.
+     --api-package &lt;api package&gt;
+         package for generated api classes
+     --artifact-id &lt;artifact id&gt;
+         artifactId in generated pom.xml
+     --artifact-version &lt;artifact version&gt;
+         artifact version in generated pom.xml
+     -c &lt;configuration file&gt;, --config &lt;configuration file&gt;
+         Path to json configuration file. File content should be in a json
+         format {&quot;optionKey&quot;:&quot;optionValue&quot;, &quot;optionKey1&quot;:&quot;optionValue1&quot;...}
+         Supported options can be different for each language. Run
+         config-help -l {lang} command for language specific config options.
+     -D &lt;system properties&gt;
+         sets specified system properties in the format of
+         name=value,name=value (or multiple options, each with name=value)
+     --git-repo-id &lt;git repo id&gt;
+         Git repo ID, e.g. swagger-codegen.
+     --git-user-id &lt;git user id&gt;
+         Git user ID, e.g. swagger-api.
+     --group-id &lt;group id&gt;
+         groupId in generated pom.xml
+     --http-user-agent &lt;http user agent&gt;
+         HTTP user agent, e.g. codegen_csharp_api_client, default to
+         'Swagger-Codegen/{packageVersion}}/{language}'
+     -i &lt;spec file&gt;, --input-spec &lt;spec file&gt;
+         location of the swagger spec, as URL or file (required)
+     --ignore-file-override &lt;ignore file override location&gt;
+         Specifies an override location for the .swagger-codegen-ignore file.
+         Most useful on initial generation.
+     --import-mappings &lt;import mappings&gt;
+         specifies mappings between a given class and the import that should
+         be used for that class in the format of type=import,type=import. You
+         can also have multiple occurrences of this option.
+     --instantiation-types &lt;instantiation types&gt;
+         sets instantiation type mappings in the format of
+         type=instantiatedType,type=instantiatedType.For example (in Java):
+         array=ArrayList,map=HashMap. In other words array types will get
+         instantiated as ArrayList in generated code. You can also have
+         multiple occurrences of this option.
+     --invoker-package &lt;invoker package&gt;
+         root package for generated code
+     -l &lt;language&gt;, --lang &lt;language&gt;
+         client language to generate (maybe class name in classpath,
+         required)
+     --language-specific-primitives &lt;language specific primitives&gt;
+         specifies additional language specific primitive types in the format
+         of type1,type2,type3,type3. For example:
+         String,boolean,Boolean,Double. You can also have multiple
+         occurrences of this option.
+     --library &lt;library&gt;
+         library template (sub-template)
+     --model-name-prefix &lt;model name prefix&gt;
+         Prefix that will be prepended to all model names. Default is the
+         empty string.
+     --model-name-suffix &lt;model name suffix&gt;
+         Suffix that will be appended to all model names. Default is the
+         empty string.
+     --model-package &lt;model package&gt;
+         package for generated models
+     -o &lt;output directory&gt;, --output &lt;output directory&gt;
+         where to write the generated files (current dir by default)
+     --release-note &lt;release note&gt;
+         Release note, default to 'Minor update'.
+     --remove-operation-id-prefix
+         Remove prefix of operationId, e.g. config_getId =&gt; getId
+     --reserved-words-mappings &lt;reserved word mappings&gt;
+         specifies how a reserved name should be escaped to. Otherwise, the
+         default _&lt;name&gt; is used. For example id=identifier. You can also
+         have multiple occurrences of this option.
+     -s, --skip-overwrite
+         specifies if the existing files should be overwritten during the
+         generation.
+     -t &lt;template directory&gt;, --template-dir &lt;template directory&gt;
+         folder containing the template files
+     --type-mappings &lt;type mappings&gt;
+         sets mappings between swagger spec types and generated code types in
+         the format of swaggerType=generatedType,swaggerType=generatedType.
+         For example: array=List,map=Map,string=String. You can also have
+         multiple occurrences of this option.
+     -v, --verbose
+         verbose mode
+</code></pre>
+<p>几个主要参数：</p>
+<ul>
+<li>-i 表示输入的文件，editor生成的设计文件路径，如：-i ~/Desktop/swagger.yaml</li>
+<li>-o 代码生成目录，swagger codegen 把代码生成到什么地方，如：-o ~/Desktop</li>
+<li>-l 生成代码语言，我们是生成java，如：-l java</li>
+<li>-c 配置文件，配制文件路径，如：-c ~/Desktop/config.json</li>
+</ul>
+<p>最后生成代码</p>
+<pre><code>java -jar swagger-codegen-cli.jar generate -i swagger.yaml -o client -l java -c config.json
+</code></pre>
+<p>成功在 ~/Desktop 下生成了相应的 code 和 doc</p>
+<p>参考资料以及推荐阅读的资料<br>
+<a href="http://docs.ansible.com/ansible/latest/YAMLSyntax.html">http://docs.ansible.com/ansible/latest/YAMLSyntax.html</a>
+<a href="https://swagger.io/docs/specification/about/">https://swagger.io/docs/specification/about/</a><br>
+<a href="http://www.jianshu.com/p/c178c18aaf43">http://www.jianshu.com/p/c178c18aaf43</a><br>
+<a href="https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md">https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md</a><br>
+<a href="https://github.com/swagger-api">https://github.com/swagger-api</a>
+<a href="https://www.gitbook.com/book/huangwenchao/swagger/details">https://www.gitbook.com/book/huangwenchao/swagger/details</a></p>
+</li>
+</ol>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Google 新提出的 App Architecture 分析]]></title>
+        <id>https://xiejinpeng007.github.io/post/google-xin-ti-chu-de-app-architecture-fen-xi</id>
+        <link href="https://xiejinpeng007.github.io/post/google-xin-ti-chu-de-app-architecture-fen-xi">
+        </link>
+        <updated>2017-05-26T09:21:24.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="app-architecture">App Architecture</h2>
+<p>为什么提出新架构：</p>
+<p>比如，当你要在自己最喜欢的社交网络app中分享一张照片的时候，你可以想象一下会发生什么。app触发一个camera intent，然后Android OS启动一个camera app来处理这一动作。此时用户已经离开了社交网络的app，但是用户的操作体验却是无缝对接的。而 camera app反过来也可能触发另一个intent，比如启动一个文件选择器，这可能会再次打开另一个app。最后用户回到社交网络app并分享照片。在这期间的任意时刻用户都可被电话打断，打完电话之后继续回来分享照片。</p>
+<p>总的来说就是，你的app组件可能是单独启动并且是无序的，而且在任何时候都有可能被系统或者用户销毁。因为app组件生命的短暂性以及生命周期的不可控制性，任何数据都不应该把存放在app组件中，同时app组件之间也不应该相互依赖。</p>
+<h4 id="任何数据都不应该存放在app组件中">=&gt; 任何数据都不应该存放在app组件中：</h4>
+<hr>
+<h4 id="通用的架构准则">通用的架构准则</h4>
+<p>最重要的一个原则就是尽量在app中做到separation of concerns（关注点分离）。常见的错误就是把所有代码都写在Activity或者Fragment中。任何跟UI和系统交互无关的事情都不应该放在这些类当中。尽可能让它们保持简单轻量可以避免很多生命周期方面的问题。别忘了能并不拥有这些类，它们只是连接app和操作系统的桥梁。根据用户的操作和其它因素，比如低内存，Android OS可能在任何时候销毁它们。为了提供可靠的用户体验，最好把对它们的依赖最小化。</p>
+<h4 id="通过mvvm来分层">==&gt; 通过MVVM来分层</h4>
+<p>第二个很重要的准则是用model驱动UI，最好是持久化的model。之所以要持久化是基于两个原因：如果OS销毁app释放资源，用户数据不会丢失；当网络很差或者断网的时候app可以继续工作。Model是负责app数据处理的组件。它们不依赖于View或者app 组件（Activity，Fragment等），因此它们不会受那些组件的生命周期的影响。保持UI代码的简单，于业务逻辑分离可以让它更易管理。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1447881-436935e41b6dbc14.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<h4 id="其中比较重要的一点就是为每个层级加入和绑定了生命周期这一个关系">其中比较重要的一点就是为每个层级加入和绑定了生命周期这一个关系。</h4>
+<p>为了实现这个新的架构，Google提供了几种组件。</p>
+<h3 id="lifecycle">Lifecycle</h3>
+<ul>
+<li>Lifecycle 是一个持有组件（比如 activity 或者 fragment）生命周期状态信息的类，并且允许其它对象观察这个状态。</li>
+</ul>
+<p>Lifecycle 主要使用两个枚举来跟踪相关组件的生命周期状态。</p>
+<ul>
+<li>
+<p>Event:
+{ON_ANY,ON_CREATE,ON_DESTROY,ON_PAUSE,ON_RESUME,ON_START,ON_STOP}</p>
+</li>
+<li>
+<p>State:
+{CREATED,DESTROYED,INITIALIZED,RESUMED,STARTED}</p>
+</li>
+<li>
+<p><code>LifecycleOwner</code>
+需要被观察的组件（比如 activity）实现这个接口 =&gt; 被观察者</p>
+</li>
+<li>
+<p><code>LifecycleObserver</code> 需要观察其它组件生命周期的类 =&gt; 观察者</p>
+</li>
+</ul>
+<h4 id="设想这样的情景">设想这样的情景：</h4>
+<pre><code class="language-java">//activity 启动的时候开始位置获取的服务
+// 结束的时候暂停位置获取的服务
+class MyActivity extends AppCompatActivity {
+    private MyLocationListener myLocationListener;
+ 
+    public void onCreate(...) {
+        myLocationListener = new MyLocationListener(this, location -&gt; {
+            // update UI
+        });    }
+
+ 
+    public void onStart() {
+        super.onStart();
+        Util.checkUserStatus(result -&gt; {
+            //在启动的时候又需要检查一些配置（例如其它的资源准备好没有）
+            //如果检查完毕后，activity.stop()，NPE。
+            // what if this callback is invoked AFTER activity is stopped?
+            if (result) {
+                myLocationListener.start();
+            }
+        });
+    }
+ 
+    public void onStop() {
+        super.onStop();
+        myLocationListener.stop();
+    }
+}
+</code></pre>
+<h4 id="如何使用-lifecycle-解决">如何使用 Lifecycle 解决</h4>
+<p>在 fragment / activity 这样实现了<code>LifecycleRegistryOwner</code>的类，则可以直接注册观察者（也可以自定义）</p>
+<pre><code class="language-java">fragment.getLifecycle().addObserver(new MyLocationListener());
+</code></pre>
+<p>如果使用了Lifecycle，则可以让 MyLocationListener 在内部获取组件的生命周期和响应生命周期变化的回调：</p>
+<pre><code class="language-java">class MyLocationListener implements LifecycleObserver {
+  private boolean enabled = false;
+  public MyLocationListener(Context context, Lifecycle lifecycle, Callback callback) {
+     ...
+  }
+
+  @OnLifecycleEvent(Lifecycle.Event.ON_START)
+  void start() {
+      if (enabled) {
+         // connect
+      }
+  }
+
+  public void enable() {
+      enabled = true;
+      if (lifecycle.getState().isAtLeast(STARTED)) {
+          // connect if not connected
+      }
+  }
+
+  @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+  void stop() {
+      // disconnect if connected
+  }
+}
+</code></pre>
+<h3 id="livedata">LiveData</h3>
+<p>LiveData是一个可观察的数据持有者。 无需明确在它与app组件之间创建依赖就可以观察LiveData对象的变化。LiveData还考虑了app组件(activities, fragments, services)的生命周期状态，做了防止对象泄漏的事情。</p>
+<p>=&gt; 过去是一个普通的POJO类，需要手动管理，现在绑定上了生命周期以及数据变化可以被观察。<br>
+=&gt; 有点类似带有生命周期的Rxjava。</p>
+<h4 id="一个普通的livedata">一个普通的LiveData</h4>
+<ul>
+<li>ViewModel</li>
+</ul>
+<pre><code class="language-java">public class UserProfileViewModel extends ViewModel {
+    ...
+    private User user;
+    private LiveData&lt;User&gt; user;
+    public LiveData&lt;User&gt; getUser() {
+        return user;
+    }
+}
+</code></pre>
+<ul>
+<li>Fragment</li>
+</ul>
+<pre><code class="language-java">    // Update  when the data changes.
+@Override
+public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
+    viewModel.getUser().observe(this, user -&gt; {
+      // update UI
+    });
+}
+</code></pre>
+<h4 id="包装后的livedata">包装后的LiveData</h4>
+<pre><code class="language-java">//现在需要一个可以获取Location数据的类
+//并且需要被多处使用
+
+public class LocationLiveData extends LiveData&lt;Location&gt; {
+    private static LocationLiveData sInstance;
+    private LocationManager locationManager;
+
+    @MainThread
+    public static LocationLiveData get(Context context) {
+        if (sInstance == null) {
+            sInstance = new LocationLiveData(context.getApplicationContext());
+        }
+        return sInstance;
+    }
+
+    private SimpleLocationListener listener = new SimpleLocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            setValue(location);
+        }
+    };
+
+    private LocationLiveData(Context context) {
+        locationManager = (LocationManager) context.getSystemService(
+                Context.LOCATION_SERVICE);
+    }
+
+    @Override
+    protected void onActive() {
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, listener);
+    }
+
+    @Override
+    protected void onInactive() {
+        locationManager.removeUpdates(listener);
+    }
+}
+
+</code></pre>
+<h4 id="在fragment中如下使用">在fragment中如下使用：</h4>
+<pre><code class="language-java">public class MyFragment extends LifecycleFragment {
+    public void onActivityCreated (Bundle savedInstanceState) {
+        Util.checkUserStatus(result -&gt; {
+            if (result) {
+                LocationLiveData.get(getActivity()).observe(this, location -&gt; {
+                   // update UI
+                });
+            }
+        });
+  }
+}
+</code></pre>
+<p>有三个方法值得注意</p>
+<ul>
+<li><code>onActive()</code>:在LiveData有活跃的观察者的时候调用 =&gt; 在上面这个例子中，有观察者激活了需要获取Location数据的时候。</li>
+<li><code>onInactive()</code>:没有活跃的观察者的时候调用 =&gt; 在这里可以暂停位置服务的更新</li>
+<li><code>setValue()</code>: 调用此方法通知外部观察者数据改变</li>
+</ul>
+<p>这样，在多个fragment中都需要使用位置信息的时候，不仅可以共享资源，LiveData可以自行妥善管理好生命周期。</p>
+<p>优点：</p>
+<ul>
+<li>没有内存泄露</li>
+<li>不会因为某个activity结束了后,还在使用activity的引用而引起崩溃</li>
+<li>因为类似屏幕旋转的操作而导致fragment重建或重新进入生命周期，fragment会立即接受到最近的数据。</li>
+<li>可以共享资源</li>
+<li>无需手动管理生命周期</li>
+<li>在fragment.onDestroy()时，就会自动移除观察者 Observer</li>
+<li>在fragment处于非活动状态时，callback不会触发。</li>
+</ul>
+<h3 id="viewmodel">ViewModel</h3>
+<p>一个ViewModel为特定的UI组件提供数据，比如fragment 或者 activity，并负责和数据处理的业务逻辑部分通信，比如调用其它组件加载数据或者转发用户的修改。ViewModel并不依赖于activity fragment view，也不会被configuration change影响。</p>
+<pre><code class="language-java">public abstract class ViewModel {
+    /**
+     * This method will be called when this ViewModel is no longer used and will be destroyed.
+     * &lt;p&gt;
+     * It is useful when ViewModel observes some data and you need to clear this subscription to
+     * prevent a leak of this ViewModel.
+     */
+    @SuppressWarnings(&quot;WeakerAccess&quot;)
+    protected void onCleared() {
+    }
+}
+</code></pre>
+<pre><code class="language-java">
+/**
+ * Application context aware {@link ViewModel}.
+ * &lt;p&gt;
+ * Subclasses must have a constructor which accepts {@link Application} as the only parameter.
+ * &lt;p&gt;
+ */
+public class AndroidViewModel extends ViewModel {
+    private Application mApplication;
+
+    public AndroidViewModel(Application application) {
+        mApplication = application;
+    }
+
+    /**
+     * Return the application.
+     */
+    public &lt;T extends Application&gt; T getApplication() {
+        return (T) mApplication;
+    }
+}
+
+</code></pre>
+<p>在fragment中设置 UID，通过fragtment arguments传递，因为ViewModel游离在View的生命周期之外，所以当类似 configuration changed (比如屏幕旋转)的时候会自动将数据保存下来，新的fragment进入生命周期的时候，会收到相同的ViewModel。</p>
+<pre><code class="language-java">public class UserProfileFragment extends LifecycleFragment {
+    private static final String UID_KEY = &quot;uid&quot;;
+    private UserProfileViewModel viewModel;
+ 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        String userId = getArguments().getString(UID_KEY);
+        viewModel = ViewModelProviders.of(this).get(UserProfileViewModel.class);
+        viewModel.init(userId);
+    }
+ 
+    @Override
+    public View onCreateView(LayoutInflater inflater,
+                @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.user_profile, container, false);
+    }
+}
+</code></pre>
+<p><img src="http://upload-images.jianshu.io/upload_images/1447881-248afc6392bc15c0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<ul>
+<li>避免了需要重复获取数据从而浪费资源、内存泄露的问题。</li>
+</ul>
+<h3 id="repository">Repository</h3>
+<p>类似之前使用的Presenter层，从不同的数据源（内存、网络、硬盘）提供数据，并不需要ViewModel层关心具体操作。
+另外，Google希望在这一层对于数据进行缓存和持久化。</p>
+<pre><code class="language-java">public class UserRepository {
+    private Webservice webservice;
+    // ...
+    public LiveData&lt;User&gt; getUser(int userId) {
+        // This is not an optimal implementation, we'll fix it below
+        final MutableLiveData&lt;User&gt; data = new MutableLiveData&lt;&gt;();
+        webservice.getUser(userId).enqueue(new Callback&lt;User&gt;() {
+            @Override
+            public void onResponse(Call&lt;User&gt; call, Response&lt;User&gt; response) {
+                // error case is left out for brevity
+                data.setValue(response.body());
+            }
+        });
+        return data;
+    }
+}
+</code></pre>
+<h3 id="管理不同组件间的依赖">管理不同组件间的依赖：</h3>
+<p>现在 Google 推荐Dagger2</p>
+<h3 id="room">Room</h3>
+<p>一个ORM库</p>
+<h4 id="参考资料">参考资料：</h4>
+<ul>
+<li><a href="https://developer.android.com/topic/libraries/architecture/index.html">https://developer.android.com/topic/libraries/architecture/index.html</a></li>
+<li><a href="https://developer.android.google.cn/topic/libraries/architecture/guide.html">https://developer.android.google.cn/topic/libraries/architecture/guide.html</a></li>
+<li><a href="https://developer.android.google.cn/topic/libraries/architecture/lifecycle.html">https://developer.android.google.cn/topic/libraries/architecture/lifecycle.html</a></li>
+<li><a href="https://developer.android.google.cn/topic/libraries/architecture/viewmodel.html">https://developer.android.google.cn/topic/libraries/architecture/viewmodel.html</a></li>
+<li><a href="https://developer.android.google.cn/topic/libraries/architecture/livedata.html">https://developer.android.google.cn/topic/libraries/architecture/livedata.html</a></li>
+<li><a href="http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2017/0523/7963.html">http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2017/0523/7963.html</a></li>
+<li><a href="http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2017/0524/7969.html">http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2017/0524/7969.html</a></li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[精华翻译] Rxjava 2.x : What's different in 2.0]]></title>
+        <id>https://xiejinpeng007.github.io/post/jing-hua-fan-yi-rxjava-2x-whats-different-in-20</id>
+        <link href="https://xiejinpeng007.github.io/post/jing-hua-fan-yi-rxjava-2x-whats-different-in-20">
+        </link>
+        <updated>2017-04-19T09:18:41.000Z</updated>
+        <content type="html"><![CDATA[<p><a href="https://juejin.im/entry/58f82cf48d6d81005875c0e0/detail"><img src="https://badge.juejin.im/entry/58f82cf48d6d81005875c0e0/likes.svg?style=flat-square" alt=""></a></p>
+<p>读完了 <code>RxJava 2.x</code> ：<a href="https://github.com/ReactiveX/RxJava/wiki/What's-different-in-2.0">What's different in 2.0</a> 后，将值得重点注意的变化进行了翻译和归纳。</p>
+<h2 id="maven仓库依赖地址和包名的变更">Maven仓库依赖地址和包名的变更 ：</h2>
+<ul>
+<li>Maven 仓库地址在 <code>io.reactivex.rxjava2:rxjava:2.x.y</code> 下</li>
+<li>类在包名为 <code>io.reactivex</code> 下</li>
+<li>JavaDoc 在 <a href="http://reactivex.io/RxJava/2.x/javadoc/">http://reactivex.io/RxJava/2.x/javadoc/</a></li>
+</ul>
+<h2 id="nulls">Nulls</h2>
+<p>Rxjava 2.x 不再接受 null，下面的情况会立即抛出 <code>NullPointerException</code></p>
+<pre><code class="language-java">Observable.just(null);
+
+Single.just(null);
+
+Observable.fromCallable(() -&gt; null)
+    .subscribe(System.out::println, Throwable::printStackTrace);
+
+Observable.just(1).map(v -&gt; null)
+    .subscribe(System.out::println, Throwable::printStackTrace);
+</code></pre>
+<p>也就是说 <code>Observable&lt;Null&gt;</code> 也不被允许，作为代替，我们可以定义一个<code>Observable&lt;Object&gt;</code>传入一个不相关的值，如下：</p>
+<pre><code class="language-java">enum Irrelevant { INSTANCE; }
+
+Observable&lt;Object&gt; source = Observable.create((ObservableEmitter&lt;Object&gt; emitter) -&gt; {
+   System.out.println(&quot;Side-effect 1&quot;);
+   emitter.onNext(Irrelevant.INSTANCE);
+
+   System.out.println(&quot;Side-effect 2&quot;);
+   emitter.onNext(Irrelevant.INSTANCE);
+
+   System.out.println(&quot;Side-effect 3&quot;);
+   emitter.onNext(Irrelevant.INSTANCE);
+});
+
+source.subscribe(e -&gt; { /* Ignored. */ }, Throwable::printStackTrace);
+</code></pre>
+<h2 id="observable-and-flowable">Observable and Flowable</h2>
+<p>Rxjava 2.x 一个大的改进就是解决了 1.x 中不支持 <code>backpressure</code> 问题<br>
+解决方案是将过去的 <code>Observable</code> 重新设计为：</p>
+<ul>
+<li>不支持 backpressure 的 <code>io.reactivex.Observable</code>  :
+现在 <code>Observable</code>会将没有消费的数据保存在内存中直到<code>OutOfMemoryError</code>而不会抛出<code>MissBackpressureException</code></li>
+<li>支持 backpressure 的 <code>io.reactivex.Flowable</code><br>
+在 <code>Flowable.create()</code>创建时指定背压策略 : 如<code>BackpressureStrategy.DROP</code></li>
+</ul>
+<h4 id="两种类型的使用场景">两种类型的使用场景</h4>
+<h4 id="observable">Observable:</h4>
+<ul>
+<li>流需要处理的元素不超过1K 或者不会产生 OOME</li>
+<li>响应 Mouse Touch 相关GUI操作的事件</li>
+</ul>
+<h4 id="flowable">Flowable:</h4>
+<ul>
+<li>流的超过10K个元素的流</li>
+<li>一系列可能阻塞消费的操作（解析文件、网络请求、数据库操作...）</li>
+</ul>
+<h2 id="single-completable-maybe">Single Completable Maybe</h2>
+<p>2.x 整个架构都按照 Reactive-Streams 规范设计, 所以现在的基本消费者类型改为了接口</p>
+<h4 id="single-只关心调用成功后对数据的处理">Single:  只关心调用成功后对数据的处理</h4>
+<p><code>onSubscribe (onSuccess | onError)?</code></p>
+<h4 id="completable只关心是否调用成功">Completable：只关心是否调用成功</h4>
+<p><code>onSubscribe (onComplete | onError)?.</code></p>
+<h4 id="maybe可能出现无数据或只有一个数据的情况所以onsuccess和oncomplete只会调用其中一个">Maybe：可能出现无数据或只有一个数据的情况，所以onSuccess()和onComplete()只会调用其中一个</h4>
+<p><code>onSubscribe (onSuccess | onError | onComplete)?</code></p>
+<h2 id="base-reactive-interfaces">Base reactive interfaces</h2>
+<p>与 Reactive-Streams 中 <code>Flowable</code> extends <code>Publisher&lt;T&gt;</code> 风格一样，其他基本响应类也有类似的基础接口</p>
+<pre><code class="language-java">interface ObservableSource&lt;T&gt; {
+    void subscribe(Observer&lt;? super T&gt; observer);
+}
+
+interface SingleSource&lt;T&gt; {
+    void subscribe(SingleObserver&lt;? super T&gt; observer);
+}
+
+interface CompletableSource {
+    void subscribe(CompletableObserver observer);
+}
+
+interface MaybeSource&lt;T&gt; {
+    void subscribe(MaybeObserver&lt;? super T&gt; observer);
+}
+</code></pre>
+<p>所以现在的操作符也接受 <code>Publisher</code> 和 <code>XSource</code>:</p>
+<pre><code class="language-java">Flowable&lt;R&gt; flatMap(Function&lt;? super T, ? extends Publisher&lt;? extends R&gt;&gt; mapper);
+
+Observable&lt;R&gt; flatMap(Function&lt;? super T, ? extends ObservableSource&lt;? extends R&gt;&gt; mapper);
+</code></pre>
+<h2 id="subjects-and-processors">Subjects and Processors</h2>
+<p>同样是为了解决 <code>backpressure</code> 问题把 <code>Subjects</code> 分为了 <code>Subjects</code> 和 <code>Processors</code></p>
+<p><code>io.reactivex.subjects.AsyncSubject</code><br>
+<code>io.reactivex.subjects.BehaviorSubject</code><br>
+<code>io.reactivex.subjects.PublishSubject</code><br>
+<code>io.reactivex.subjects.ReplaySubject</code>   <code>io.reactivex.subjects.UnicastSubject</code><br>
+不支持 backpressure , 属于 Observable 系列</p>
+<p><code>io.reactivex.processors.AsyncProcessor</code>
+<code>io.reactivex.processors.BehaviorProcessor</code> <code>io.reactivex.processors.PublishProcessor</code> <code>io.reactivex.processors.ReplayProcessor</code> <code>io.reactivex.processors.UnicastProcessor</code><br>
+支持 backpressure ，属于 Flowable 系列</p>
+<h2 id="testsubject">TestSubject</h2>
+<p>1.x 的 <code>TestSubject</code> 已被丢弃，现在通过 <code>TestScheduler</code> , <code>PublishProcessor</code>/<code>PublishSubject</code> 和 <code>observeOn(TestScheduler)</code>代替</p>
+<h2 id="serializedsubject">SerializedSubject</h2>
+<p><code>SerializedSubject</code><br>
+由 <code>Subject.toSerialized()</code> 和 <code>FlowableProcessor.toSerialized()</code> 代替</p>
+<h2 id="other-classes">Other classes</h2>
+<p><code>rx.observables.GroupedObservable</code> 由<code>io.reactivex.observables.GroupedObservable&lt;T&gt;</code> 和<code>io.reactivex.flowables.GroupedFlowable&lt;T&gt;</code>代替</p>
+<h2 id="functional-interfaces">Functional interfaces</h2>
+<p>functional 接口 默认定义了 <code>throws Exception</code><br>
+不需要再内部<code>try-catch</code></p>
+<h2 id="actions-functions">Actions Functions</h2>
+<p>符合 java8 命名规范</p>
+<ul>
+<li><code>Func</code> -&gt; <code>Function</code> , <code>Action0</code>/<code>Action1</code>/<code>Action2</code> -&gt; <code>Action</code>/<code>Consumer</code>/<code>BiConsumer</code></li>
+<li>删除了 <code>Action3-9</code>/<code>Func3-9</code><br>
+由 <code>Action&lt;Object[]&gt;</code>/<code>Function&lt;Object[],R&gt;</code>代替</li>
+</ul>
+<h2 id="subscriber-subscription">Subscriber Subscription</h2>
+<ul>
+<li>Reactive-Streams 规范中已经定义了 <code>Subscriber</code> 接口<br>
+所以以前的 <code>Subscriber</code> 类的职能现在由 <code>Subscriber</code> 接口的实现类代替:<br>
+<code>DefaultSubscriber</code>, <code>ResourceSubscriber</code>,<code>DisposableSubscriber</code>（以及它们的<code>XObserver</code> 变体）<br>
+因为以上继承了<code>Disposable</code> 所以也支持通过 <code>dispose()</code> 来断开对信号的监听</li>
+</ul>
+<pre><code>ResourceSubscriber&lt;Integer&gt; subscriber = new ResourceSubscriber&lt;Integer&gt;() {
+    @Override
+    public void onStart() {
+        request(Long.MAX_VALUE);
+    }
+
+    @Override
+    public void onNext(Integer t) {
+        System.out.println(t);
+    }
+
+    @Override
+    public void onError(Throwable t) {
+        t.printStackTrace();
+    }
+
+    @Override
+    public void onComplete() {
+        System.out.println(&quot;Done&quot;);
+    }
+};
+
+Flowable.range(1, 10).delay(1, TimeUnit.SECONDS).subscribe(subscriber);
+
+subscriber.dispose();
+</code></pre>
+<ul>
+<li><code>CompositeSubscription</code> -&gt; <code>CompositeDisposable</code></li>
+<li><code>subscribe()</code> 不返回值</li>
+<li><code>subscribWith()</code> 返回 <code>CompositeDisposable</code></li>
+<li><code>onCompleted()</code> -&gt; <code>onComplete()</code></li>
+<li><code>request()</code> 决定 <code>subscriber</code>最大接受多少个事件</li>
+</ul>
+<h2 id="schedulers">Schedulers</h2>
+<ul>
+<li>默认不变的线程:<code>computation</code> <code>io</code> <code>newThread</code> <code>trampoline</code></li>
+<li>移除:<code>immediate</code> -&gt; <code>tranmpoline</code></li>
+<li>移除: <code>test()</code> -&gt; <code>new TestScheduler()</code></li>
+<li>启动 <code>Scheduler</code> 无需再 <code>createWorker</code></li>
+<li><code>new()</code> 现在接受 <code>TimeUnit</code> 参数</li>
+</ul>
+<h2 id="entering-the-reactive-world">Entering the reactive world</h2>
+<p>现在调用 <code>Observalble.create()</code> 更安全</p>
+<h2 id="leaving-the-reactive-world">Leaving the reactive world</h2>
+<p>从响应式流中离开的方式：</p>
+<pre><code>List&lt;Integer&gt; list = Flowable.range(1, 100).toList().blockingGet(); // toList() returns Single
+
+Integer i = Flowable.range(100, 100).blockingLast();
+</code></pre>
+<p>另一个关于 <code>rx.Subscriber</code> 和 <code>org.reactivestreams.Subscriber</code>的重大变化是
+<code>Subscribers</code> 和 <code>Observers</code> 内部不在允许 throws 任何东西除了致命异常（参见 <code>Exceptions.throwIfFatal()</code>）,所以下面的代码现在不合法：</p>
+<pre><code>Subscriber&lt;Integer&gt; subscriber = new Subscriber&lt;Integer&gt;() {
+    @Override
+    public void onSubscribe(Subscription s) {
+        s.request(Long.MAX_VALUE);
+    }
+
+    public void onNext(Integer t) {
+        if (t == 1) {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    public void onError(Throwable e) {
+        if (e instanceof IllegalArgumentException) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    public void onComplete() {
+        throw new NoSuchElementException();
+    }
+};
+
+Flowable.just(1).subscribe(subscriber);
+</code></pre>
+<p>(Observer, SingleObserver, MaybeObserver and CompletableObserver 同理)</p>
+<p>如果必须要这样 throws 可以选择使用 <code>safeSubscribe()</code>或 <code>subscribe(Consumer&lt;T&gt;, Consumer&lt;Throwable&gt;, Action)</code>的相关 Consumer 重载</p>
+<h2 id="operator-differences">Operator differences</h2>
+<p>关于操作符的调整主要是为了适配以上的变化，调整命名/参数/返回值<br>
+详见官方 <a href="https://github.com/ReactiveX/RxJava/wiki/What's-different-in-2.0#operator-differences">Wiki</a> 表格</p>
+<h2 id="总结">总结</h2>
+<p>总的来说，我认为RxJava 2.x 主要做了三点更新</p>
+<ul>
+<li>对 <code>backpressure</code> 问题进行了修正（产生了大量关联的修正）</li>
+<li>按照 <code>Reactive-Streams</code> 规范对整个架构进行了重新设计</li>
+<li>一些的其它零散更新</li>
+</ul>
+<p>所以说虽然基本思想没有变化但还是需要重新理解学习的</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Firebase Notification配置]]></title>
+        <id>https://xiejinpeng007.github.io/post/firebase-notification-pei-zhi</id>
+        <link href="https://xiejinpeng007.github.io/post/firebase-notification-pei-zhi">
+        </link>
+        <updated>2017-03-27T09:15:28.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="firebase-notification配置">Firebase Notification配置</h2>
+<h4 id="前言">前言：</h4>
+<p>以前项目中用过GCM，现在Google收购了FireBase之后现在需要用到推送,看了下文档发现GCM并入了FCM,相关API和用法基本一致，趁此机会整理一下基本配置方法。</p>
+<h3 id="基本配置">基本配置</h3>
+<h5 id="官方doc"><a href="https://firebase.google.cn/docs/android/setup">官方Doc</a></h5>
+<h5 id="官方sample"><a href="https://github.com/firebase/quickstart-android/tree/master/messaging">官方Sample</a></h5>
+<h5 id="运行要求android23以上及google-play-service-961版本以上的设备">运行要求：android2.3以上及google play service 9.6.1版本以上的设备</h5>
+<h5 id="1-在firebase中创建项目后创建android子项目填写相关信息-包括package-id">1. 在firebase中创建项目后创建android子项目填写相关信息 包括：package id</h5>
+<h5 id="2-复制生成的文件放到module目录下">2. 复制生成的文件放到module目录下</h5>
+<h5 id="3-在project目录的buildgradle下添加依赖">3. 在project目录的build.gradle下添加依赖</h5>
+<pre><code> dependencies {
+ classpath 'com.google.gms:google-services:3.0.0' 
+ }
+</code></pre>
+<h5 id="4-在module目录的buildgradle下添加依赖">4. 在module目录的build.gradle下添加依赖</h5>
+<pre><code> dependencies {
+    compile 'com.google.firebase:firebase-messaging:9.6.1'
+    compile 'com.google.android.gms:play-services:9.6.1'
+}
+//底部添加plugin   
+apply plugin: 'com.google.gms.google-services'
+</code></pre>
+<h5 id="5-在baseavtivity中检查googleservice是否可用">5. 在BaseAvtivity中检查GoogleService是否可用：</h5>
+<pre><code>@Override
+protected void onResume() {
+    super.onResume();
+    isGooglePlayServicesAvailable();
+    handleFcmDataExtras();
+}
+
+public void isGooglePlayServicesAvailable() {
+    int state = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this);
+    if (state != SUCCESS)
+        GoogleApiAvailability.getInstance().getErrorDialog(this, state, 0).show();
+}
+</code></pre>
+<h5 id="6-继承firebaseinstanceidservice注册token">6.  继承FirebaseInstanceIdservice注册token</h5>
+<pre><code>@Override
+public void onTokenRefresh() {
+    // 获取 InstanceID
+    String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+    Log.d(TAG, &quot;Refreshed token: &quot; + refreshedToken);
+
+    sendRegistrationToServer(refreshedToken);
+}
+
+private void sendRegistrationToServer(String refreshedToken) {
+    // 在此方法中将InstanceID发送给app的服务器，用于定向发送推送消息。
+}
+</code></pre>
+<h5 id="7继承firebasemessagingservice以及在luncher-activity进行接收消息数据的配置">7.继承FirebaseMessagingService以及在Luncher Activity进行接收消息/数据的配置。</h5>
+<ul>
+<li>FireBaseMessagingService中</li>
+</ul>
+<pre><code>   private final String TAG = &quot;MyFirebaseMsgService&quot;;
+
+@Override
+    public void onMessageReceived(RemoteMessage remoteMessage) {
+
+        //用于处理主题消息
+        //并不是所有的消息都在这里处理，如果APP处在后台接收带数据的通知，那么数据会放在启动activity的Intent中
+        if ((remoteMessage.getFrom().startsWith(&quot;/topics/&quot;))) {
+            String topic = remoteMessage.getFrom().replace(&quot;/topics/&quot;, &quot;&quot;);
+            Log.d(TAG, &quot;From: &quot; + remoteMessage.getFrom());
+            Log.d(TAG, &quot;From: &quot; + topic);
+        }
+        // 检查是否包含数据
+        if (remoteMessage.getData().size() &gt; 0) {
+            Log.d(TAG, &quot;Message data payload: &quot; + remoteMessage.getData());
+        }
+
+        // 检查是否包含通知
+        if (remoteMessage.getNotification() != null) {
+            Log.d(TAG, &quot;Message Notification Body: &quot; + remoteMessage.getNotification().getBody());
+            sendNotification(remoteMessage.getNotification().getTitle(), remoteMessage.getNotification().getBody());
+        }
+        //如果有其它相关自定义操作，在这里完成
+    }
+
+    /**
+     *  创建Notification发送给
+     */
+    private void sendNotification(String title, String messageBody) {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
+                PendingIntent.FLAG_ONE_SHOT);
+
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.ic_media_play)
+                .setContentTitle(&quot;FCM Message&quot;)
+                .setContentTitle(title)
+                .setContentText(messageBody)
+                .setAutoCancel(true)
+                .setSound(defaultSoundUri)
+                .setContentIntent(pendingIntent);
+
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+    }
+</code></pre>
+<ul>
+<li>在Launcher Activity中</li>
+</ul>
+<pre><code>    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // 当Notification的类型是message+data时，data在此处理
+        if (getIntent().getExtras() != null) {
+            for (String key : getIntent().getExtras().keySet()) {
+                Object value = getIntent().getExtras().get(key);
+                Log.d(TAG, &quot;Key: &quot; + key + &quot; Value: &quot; + value);
+            }
+        }}
+</code></pre>
+<hr>
+<h5 id="官方doc-2"><a href="https://firebase.google.cn/docs/notifications/android/console-audience">官方Doc</a></h5>
+<h3 id="推送方式">推送方式</h3>
+<ol>
+<li>根据app id推送</li>
+<li>根据设备的fcm Id推送</li>
+<li>根据用户订阅的topic推送</li>
+</ol>
+<h3 id="消息类型">消息类型</h3>
+<ol>
+<li>通知</li>
+<li>数据</li>
+<li>通知+数据</li>
+</ol>
+<h3 id="app接收消息时的行为">app接收消息时的行为</h3>
+<p>根据app在前台/后台、消息类型的不同分别作出不同的行为。</p>
+<table>
+<thead>
+<tr>
+<th>应用状态</th>
+<th style="text-align:center">通知</th>
+<th style="text-align:center">数据</th>
+<th style="text-align:center">两者</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>前台</td>
+<td style="text-align:center">onMessageReceived</td>
+<td style="text-align:center">onMessageReceived</td>
+<td style="text-align:center">onMessageReceived</td>
+</tr>
+<tr>
+<td>后台</td>
+<td style="text-align:center">系统托盘</td>
+<td style="text-align:center">onMessageReceived</td>
+<td style="text-align:center">通知：系统托盘;数据：Intent的extra中</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>实测即使app处于后台未kill的状态，通知也会交由系统处理。</li>
+</ul>
+<h3 id="icon-color-相关设定">icon / color 相关设定</h3>
+<p>在5.0以后app的small_icon只能带有aplha图层，不支持rgb图层。<br>
+APP处于前台时：可以在onMessageReceived（）全权处理消息如自定义notification : large_icon , small_icon , color .<br>
+APP处于后台时：由系统通知处理这部分显示，只可以在Manifest定义 : icon、color</p>
+<pre><code>      &lt;meta-data
+android:name=&quot;com.google.firebase.messaging.default_notification_icon&quot;
+          android:resource=&quot;@drawable/ic_stat_ic_notification&quot; /&gt;
+      &lt;meta-data
+android:name=&quot;com.google.firebase.messaging.default_notification_color&quot;
+          android:resource=&quot;@color/colorAccent&quot; /&gt;
+          
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Kotlin 初印象和学习资源整理]]></title>
+        <id>https://xiejinpeng007.github.io/post/kotlin-chu-yin-xiang-he-xue-xi-zi-yuan-zheng-li</id>
+        <link href="https://xiejinpeng007.github.io/post/kotlin-chu-yin-xiang-he-xue-xi-zi-yuan-zheng-li">
+        </link>
+        <updated>2017-03-22T09:16:45.000Z</updated>
+        <content type="html"><![CDATA[<h4 id="cool">Cool：</h4>
+<ul>
+<li>很多好用的语法糖</li>
+<li>减少模板代码的默认实现（数据类、代理...）</li>
+<li>新特性（类型推断、空安全、lambdas、高阶函数、扩展函数、响应式、惰性计算、协程...）</li>
+<li>对于函数式编程的良好支持但又不强制使用。</li>
+<li>Language 和 IDE由 JetBrains 开发和支持 ，最近在AOSP中也出现了Kotlin。</li>
+</ul>
+<h4 id="shit">Shit：</h4>
+<p>虽然可以和java混合编译，但是目前来说一些注解处理器还是用不了（Lombok、Butterknife...）</p>
+<h4 id="感受">感受</h4>
+<p>相较于Scala ，Kotlin并没有走那么极端的路线，其最大的特点是【兼容性】
+兼容Java old school style 之外解决痛点增加新特性。
+如果你是守旧派：完全可以按照Java面向对象编程思维习惯来使用Kotlin
+如果你是激进派：Kotlin良好支持了函数式编程。
+to be continue...</p>
+<p>Kotlin基本文档
+http://kotlinlang.org/docs/reference/
+https://hltj.gitbooks.io/kotlin-reference-chinese/content/</p>
+<p>Kotlin 与 Java 基本语法的比较
+https://fabiomsr.github.io/from-java-to-kotlin/index.html</p>
+<p>Kotlin中文站
+https://kotlin-zhcn.github.io/</p>
+<p>Kotlin 优秀资源整合
+https://kotlin.link/</p>
+<p>Kotlin for Android Developers
+https://www.gitbook.com/book/wangjiegulu/kotlin-for-android-developers-zh/details</p>
+<p>《Kotlin in Action》
+https://panxl6.gitbooks.io/kotlin-in-action-in-chinese/content/</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[仿饿了么动画]]></title>
+        <id>https://xiejinpeng007.github.io/post/fang-e-liao-me-dong-hua</id>
+        <link href="https://xiejinpeng007.github.io/post/fang-e-liao-me-dong-hua">
+        </link>
+        <updated>2016-11-21T09:13:26.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="仿饿了么动画">仿饿了么动画</h1>
+<p>最近项目Release完毕，闲暇之余给公司内部的小卖部app升下级(一个人撸完了design+code)，添加了一个商城功能，因为每天都用饿了么点外卖，比较喜欢饿了么点餐落入购物车的动画，所以说自己实现了一个，做一点微小的笔记。</p>
+<p><img src="https://github.com/xiejinpeng007/LearnNotes/blob/master/ElemeAnim/elemeanim.gif" alt=""></p>
+<p>整个界面相关元素有RecyclerView + FloatActionButton，动画是点击item出现一个图标以抛物线落入购物车。</p>
+<p>整体的思路是：</p>
+<ol>
+<li>点击itemView获取到相关location[]、height、width、position参数</li>
+<li>在View层中拿到的参数初始化动画View、ViewGroup</li>
+<li>初始化动画、开始动画</li>
+</ol>
+<h3 id="step1-recyclerviewadapter类">Step1:  RecyclerView.Adapter类</h3>
+<pre><code>   /**
+     * 在RecyclerView.Adapter中的itemView添加点击事件，用于获取这个itemView在窗口（Window）中的位置信息(location[])。
+     * 这里传递的参数还包括itemView的宽高和position，用于更细致的调整动画的初始位置和更新相关数据。
+     * 这里发送点击事件没有使用接口而是用了RxBus调用startAddToCartAnim()，效果和平时使用的接口一致。
+     */
+
+holder.itemView.setOnClickListener(v -&gt; {
+            int height = holder.itemView.getHeight();
+            int width = holder.itemView.getWidth();
+            int[] startLocation = new int[2];
+            holder.itemView.getLocationInWindow(startLocation);
+            String name = list.get(holder.getLayoutPosition()).getName();
+            RxBus.getInstance().send(new F01_01_ShopFragment.OnRecyclerItemClickEvent(startLocation, height, width, holder.getLayoutPosition(), name));
+        });
+</code></pre>
+<h3 id="step2-activityfragment类">Step2: Activity/Fragment类</h3>
+<pre><code>    private void startAddToCartAnim(int[] startLocation, int height, int width) {
+        //初始化startLocation、endLocation坐标
+        int[] endLocation = new int[2];
+        orderFloatingactionbutton.getLocationInWindow(endLocation);
+
+        //初始化动画以及parentLayout的参数
+        ImageView animView = new ImageView(getContext());
+        animView.setImageResource(R.drawable.ic_card_giftcard_red_400_36dp);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.leftMargin = startLocation[0] + width / 2;
+        params.topMargin = startLocation[1];
+        //获取parentLayout以及添加动画view到parentLayout
+        getAnimLayout().addView(animView, params);
+
+        //设定动画类型（使用简单的TranslateAnimation，通过不同的Interpolator来达到抛物线效果）
+        TranslateAnimation animationX = new TranslateAnimation(0, endLocation[0] - startLocation[0] - width / 2, 0, 0);
+        animationX.setInterpolator(new LinearInterpolator());
+        animationX.setFillAfter(true);
+        TranslateAnimation animationY = new TranslateAnimation(0, 0, 0, endLocation[1] - startLocation[1]);
+        animationY.setInterpolator(new AccelerateInterpolator());
+        animationY.setFillAfter(true);
+        AlphaAnimation alphaAnimation = new AlphaAnimation(1, 0.5f);
+        AnimationSet set = new AnimationSet(false);
+        set.addAnimation(animationX);
+        set.addAnimation(animationY);
+        set.addAnimation(alphaAnimation);
+        set.setDuration(500);
+        //执行动画
+        animView.startAnimation(set);
+
+        set.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                animView.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+    }
+    
+    /**
+     * 获取点击动画所在的parentLayout(因为动画的坐标用的getLocationInWindow获取，所以这里也以DecorView的区域为parentLayout)
+     * 这里的animLayout和animView的实例不能复用
+     */
+
+    private ViewGroup getAnimLayout() {
+        ViewGroup rootView = (ViewGroup) getActivity().getWindow().getDecorView();
+        LinearLayout animLayout = new LinearLayout(getContext());
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        animLayout.setLayoutParams(lp);
+        animLayout.setId(Integer.MAX_VALUE - 1);
+        animLayout.setBackgroundResource(android.R.color.transparent);
+        rootView.addView(animLayout);
+        return animLayout;
+    }
+</code></pre>
+<ul>
+<li>补充：<br>
+这里以item中间为坐标开始动画，以最精简的代码实现了基本动画，开发者可以以此为基础实现更复杂更精细的动画。<br>
+比如：还可以根据location[]、height、width调整动画位置或是重写OnTouchListener根据触摸位置设定开始动画。</li>
+</ul>
 ]]></content>
     </entry>
 </feed>

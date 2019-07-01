@@ -1,0 +1,174 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>使用 XDslPagerAdapter 快速创建 ViewPager | xiejinpeng &#39;s Blog</title>
+<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1561973285882">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://xiejinpeng007.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://xiejinpeng007.github.io">
+  <img class="avatar" src="https://xiejinpeng007.github.io/images/avatar.png?v=1561973285882" alt="">
+  </a>
+  <h1 class="site-title">
+    xiejinpeng &#39;s Blog
+  </h1>
+  <p class="site-description">
+    
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              使用 XDslPagerAdapter 快速创建 ViewPager
+            </h2>
+            <div class="post-info">
+              <time class="post-time">
+                · 2019-04-09 ·
+              </time>
+              
+                <a href="https://xiejinpeng007.github.io/tag/OMj7d6TXe" class="post-tag">
+                  # Kotlin
+                </a>
+              
+                <a href="https://xiejinpeng007.github.io/tag/bbMgJRT1Y" class="post-tag">
+                  # Android
+                </a>
+              
+            </div>
+            
+            <div class="post-content">
+              <h2 id="使用-xdslpageradapter-快速创建-viewpager">使用 XDslPagerAdapter 快速创建 ViewPager</h2>
+<p>在 Android 开发中经常需要使用 ViewPager ，大多数的功能类似但每次都需要写 Adapter 和一堆模板代码。<br>
+目前我们很多项目都使用了 Kotlin 和 Databinding,为了简洁快速地构建 ViewPager，我使用 DSL 和 Databinding 的特性写了一个用于快速创建 PagerAdapter 的工具<code>XDslPagerAdapter</code>。</p>
+<p>下面通过创建一个欢迎画面举例说明：</p>
+<pre><code>        binding.guideViewPager.run {
+            xDslPagerAdapter {
+                item(R.layout.pager_guide) {
+                    model(BR.model to Page(0, R.drawable.img_tutorial01, &quot;下一页&quot;))
+                    click(BR.click to { _: Page -&gt; currentItem = 1 })
+                    action { binding -&gt;
+                        (binding as? PagerGuideBinding)?.run {
+                            (nextPageButton.layoutParams as? ViewGroup.MarginLayoutParams)?.run {
+                                marginStart = dp2px(30F)
+                                marginEnd = dp2px(30F)
+                            }
+                        }
+                    }
+                }
+                item(R.layout.pager_guide) {
+                    model(BR.model to Page(1, R.drawable.img_tutorial02, &quot;下一页&quot;))
+                    click(BR.click to { _: Page -&gt; currentItem = 2 })
+                }
+                item(R.layout.pager_guide) {
+                    model(BR.model to Page(2, R.drawable.img_tutorial03, &quot;下一页&quot;))
+                    click(BR.click to { _: Page -&gt; currentItem = 3 })
+                }
+                item(R.layout.pager_guide) {
+                    model(BR.model to Page(3, R.drawable.img_tutorial04, &quot;开始使用&quot;))
+                    click(BR.click to { _: Page -&gt;
+                        SharedPrefModel.isFistTime = false
+                        startActivity(Intent(context, MainActivity::class.java))
+                        finish()
+                    })
+                }
+            }
+        }
+</code></pre>
+<ol>
+<li>首先调用 ViewPager 的拓展方法<code>xDslPagerAdapter()</code>开始创建<code>PagerAdapter</code></li>
+<li>在<code>PagerAdapter</code>内部使用 <code>item()</code>开始创建<code>Item</code>，其中<code>layout</code>是必须的参数。</li>
+<li>在<code>Item</code>内部可以使用的方法有<code>model()``click()``action</code>
+<ul>
+<li><code>model()</code>传入包含 DataBinding 的 <code>BR.Id</code> 和对应的 <code>Model</code>（类型为你 ViewModel 的类型，用来绑定显示相关数据）</li>
+<li><code>click()</code>传入包含 DataBinding 的 <code>BR.Id</code> 和对应的 <code>Click</code>（类型为<code>Function&lt;Any&gt;</code>用来绑定点击事件），多个点击事件可多次调用。</li>
+<li><code>action()</code>可用来获取 Databinding 为 layout 的 ViewDataBinding 类,用来处理其它的内容，例如动态改变布局等。</li>
+</ul>
+</li>
+</ol>
+<p>源码也很简单 源码地址 <a href="https://github.com/xiejinpeng007/XDslPagerAdapter">https://github.com/xiejinpeng007/XDslPagerAdapter</a></p>
+
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://xiejinpeng007.github.io/post/rxjava2x-cong-yuan-ma-fen-xi-yuan-li">
+              <h3 class="post-title">
+                RxJava2.x 从源码分析原理
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | 
+  <a class="rss" href="https://xiejinpeng007.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>

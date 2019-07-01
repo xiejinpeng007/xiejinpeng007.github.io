@@ -1,0 +1,542 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RxJava2.x 从源码分析原理 | xiejinpeng &#39;s Blog</title>
+<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1561973285882">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://xiejinpeng007.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://xiejinpeng007.github.io">
+  <img class="avatar" src="https://xiejinpeng007.github.io/images/avatar.png?v=1561973285882" alt="">
+  </a>
+  <h1 class="site-title">
+    xiejinpeng &#39;s Blog
+  </h1>
+  <p class="site-description">
+    
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              RxJava2.x 从源码分析原理
+            </h2>
+            <div class="post-info">
+              <time class="post-time">
+                · 2019-02-11 ·
+              </time>
+              
+                <a href="https://xiejinpeng007.github.io/tag/xr6hxpBT6" class="post-tag">
+                  # Rxjava
+                </a>
+              
+                <a href="https://xiejinpeng007.github.io/tag/bbMgJRT1Y" class="post-tag">
+                  # Android
+                </a>
+              
+            </div>
+            
+            <div class="post-content">
+              <p>RxJava 相信各位已经使用了很久，大部分人在刚学习 RxJava 感叹切换线程的方便，调用逻辑清晰的同时，并不知道其中的原理，主要是靠记住运行的顺序。
+随着我们设计出的 RxJava流 越来越复杂，一些复杂的问题并不能靠着记住的运行顺序就能解决。<br>
+下面，就通过最常用的操作符的源码来看看所谓的<code>流</code>是什么运行的。</p>
+<p>首先我们用<code>Single</code>举例，设计一个最基本的 RxJava 流，只有一个 <code>Observable(ColdObservable)</code> 和<code>Obsever</code>：</p>
+<pre><code>Disposable disposable = Single.just(&quot;wtf&quot;)
+              			.subscribe(it -&gt; Log.i(&quot;subscribe&quot;, it));
+</code></pre>
+<p>上游发送一个<code>&quot;wtf&quot;</code> ，下游接受时将其打印出来。上游发送端使用 <code>Single.just</code> 作为创建方法,
+看一下 <code>just()</code> 方法里做了什么。</p>
+<pre><code>    public static &lt;T&gt; Single&lt;T&gt; just(final T item) {
+        ObjectHelper.requireNonNull(item, &quot;value is null&quot;);
+        return RxJavaPlugins.onAssembly(new SingleJust&lt;T&gt;(item));
+    }
+    
+    public static &lt;T&gt; Single&lt;T&gt; onAssembly(@NonNull Single&lt;T&gt; source) {
+    Function&lt;? super Single, ? extends Single&gt; f = onSingleAssembly;
+    if (f != null) {
+        return apply(f, source);
+    }
+    return source;
+}
+</code></pre>
+<p>其中 <code>ObjectHelper.requireNonNull</code> 只是空检查。<br>
+<code>RxJavaPlugins.onAssembly</code> 方法，这个方法其实就是通过一个全局的变量 <code>onSingleAssembly</code> 来对方法进行 Hook ，这一系列<code>xxxAssembly</code>全局变量默认为空，所以实际上当我们没有设置的时候其实 <code>just</code> 方法是直接返回了一个 新实例化的<code>SingleJust</code>对象。</p>
+<p>再看看<code>SingleJust</code>内部：</p>
+<pre><code>public final class SingleJust&lt;T&gt; extends Single&lt;T&gt; {
+
+    final T value;
+    public SingleJust(T value) {
+        this.value = value;
+    }
+
+    @Override
+    protected void subscribeActual(SingleObserver&lt;? super T&gt; observer) {
+        observer.onSubscribe(Disposables.disposed());
+        observer.onSuccess(value);
+    }
+
+}
+
+</code></pre>
+<p>实例化的时候只是将值保存了下来，没有其它操作。<br>
+下一步调用<code>subscribe()</code>来启动这个流<code>(ColdObservable)</code>，然后看看<code>subscribe</code>中做了什么：</p>
+<pre><code>    public final void subscribe(SingleObserver&lt;? super T&gt; subscriber) {
+        ObjectHelper.requireNonNull(subscriber, &quot;subscriber is null&quot;);
+        subscriber = RxJavaPlugins.onSubscribe(this, subscriber);
+        ObjectHelper.requireNonNull(subscriber, &quot;subscriber returned by the RxJavaPlugins hook is null&quot;);
+
+        try {
+ 	         //核心逻辑
+            subscribeActual(subscriber);
+        } catch (NullPointerException ex) {
+            throw ex;
+        } catch (Throwable ex) {
+            Exceptions.throwIfFatal(ex);
+            NullPointerException npe = new NullPointerException(&quot;subscribeActual failed&quot;);
+            npe.initCause(ex);
+            throw npe;
+        }
+    }
+</code></pre>
+<p>同样 <code>RxJavaPlugins.onSubscribe</code>  默认没有作用,实际的核心逻辑是调用了<code>subscribeActual(SingleObserver)</code>。<br>
+对于我们上面设计的流，则是调用了 SingleJust 中的 <code>subscribeActual(SingleObserver)</code></p>
+<p>回顾上面 <code>SingleJust</code> 中 <code>subscribeActual(SingleObserver)</code> 的实现：</p>
+<pre><code>        observer.onSubscribe(Disposables.disposed());
+        observer.onSuccess(value);
+</code></pre>
+<p>得到两个信息</p>
+<ul>
+<li>首先调用下游观察者 <code>SingleObserver</code> 的 <code>OnSubscribe</code> 方法并传递用于取消操作的 <code>Disposable</code></li>
+<li>调用<code>OnSuccess</code> 方法并传递之前保存下来的 <code>value</code></li>
+</ul>
+<h3 id="map-操作符">Map 操作符</h3>
+<p>现在我们加入一个常用且重要的<code>Map</code>操作到流中</p>
+<pre><code>Disposable disposable = Single.just(&quot;wtf&quot;)
+				 .map(it-&gt; 0)
+                 .subscribe(it -&gt; Log.i(&quot;subscribe&quot;, String.of(it)));
+</code></pre>
+<p>上面这个流包括了三种典型的操作 创建<code>Creation</code> 操作符<code>Transformation</code>和 订阅<code>Subscribe</code>。</p>
+<p>依然先检查<code>map()</code> 方法，可以看到其中实例化了一个<code>SingleMap</code></p>
+<pre><code>    public final &lt;R&gt; Single&lt;R&gt; map(Function&lt;? super T, ? extends R&gt; mapper) {
+        ObjectHelper.requireNonNull(mapper, &quot;mapper is null&quot;);
+        return RxJavaPlugins.onAssembly(new SingleMap&lt;T, R&gt;(this, mapper));
+    }
+</code></pre>
+<p>再看看 <code>SingleMap</code></p>
+<pre><code>public final class SingleMap&lt;T, R&gt; extends Single&lt;R&gt; {
+    final SingleSource&lt;? extends T&gt; source;
+    final Function&lt;? super T, ? extends R&gt; mapper;
+
+    public SingleMap(SingleSource&lt;? extends T&gt; source, Function&lt;? super T, ? extends R&gt; mapper) {
+        this.source = source;
+        this.mapper = mapper;
+    }
+
+    @Override
+    protected void subscribeActual(final SingleObserver&lt;? super R&gt; t) {
+        source.subscribe(new MapSingleObserver&lt;T, R&gt;(t, mapper));
+    }
+
+    static final class MapSingleObserver&lt;T, R&gt; implements SingleObserver&lt;T&gt; {
+
+        final SingleObserver&lt;? super R&gt; t;
+        final Function&lt;? super T, ? extends R&gt; mapper;
+
+        MapSingleObserver(SingleObserver&lt;? super R&gt; t, Function&lt;? super T, ? extends R&gt; mapper) {
+            this.t = t;
+            this.mapper = mapper;
+        }
+
+        @Override
+        public void onSubscribe(Disposable d) {
+            t.onSubscribe(d);
+        }
+
+        @Override
+        public void onSuccess(T value) {
+            R v;
+            try {
+                v = ObjectHelper.requireNonNull(mapper.apply(value), &quot;The mapper function returned a null value.&quot;);
+            } catch (Throwable e) {
+                Exceptions.throwIfFatal(e);
+                onError(e);
+                return;
+            }
+
+            t.onSuccess(v);
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            t.onError(e);
+        }
+    }
+}
+</code></pre>
+<p>类中信息稍微复杂一些：</p>
+<ol>
+<li>首先我们关注在<code>SingleMap</code>实例化的时候也是只做了保存数据的操作，而没有实际逻辑：将流的上游保存为 <code>source</code> 将数据转换的方法保存为 <code>mapper</code></li>
+<li>第二步我们知道下游观察者 <code>SingleObserver</code> 会调用核心逻辑 <code>subscribeActual</code>方法来启动流</li>
+<li>在这里的<code>subscribeActual</code>方法中可以看到几个重要的信息
+<ul>
+<li><code>MapSingleObserver</code>是一个观察者</li>
+<li><code>MapSingleObserver</code> 保存了下游的观察者 <code>SingleObserver</code> 以及 <code>mapper</code></li>
+<li>上游 <code>source</code> 被 <code>MapSingleObserver</code> 订阅</li>
+</ul>
+</li>
+</ol>
+<p>由此可以看出在<code>SingleMap</code>被下游观察者订阅了之后，实例化了一个新的观察者<code>MapSingleObserver</code>并保存下游观察者<code>SingleObserver</code>的信息，再去订阅上游<code>SingleJust</code>。<br>
+这种模式创建了一个装饰类，用来包装原有的类，并在保持类方法签名完整性的前提下，提供了额外的功能的设计模式称为<code>装饰者模式</code>。</p>
+<p>总结上面的执行顺序：</p>
+<ol>
+<li>在<code>Rx流</code>的最后一步调用 <code>subscribe</code>启动流<code>(ColdObservable)</code></li>
+<li>首先执行<code>SingleMap</code>中的<code>subscribeActual</code>方法，其中包括生成新的<code>MapSingleObserver</code>并订阅 <code>SingleJust</code></li>
+<li>执行<code>SingleJust</code>中的<code>subscribeActual</code>：调用下游<code>MapSingleObserver</code>的<code>onSubscribe</code> <code>onSuccess</code>方法</li>
+<li><code>MapSingleObserver</code>中的<code>onSubsribe</code> <code>onSuccess</code>方法也很简单，分别调用下游 <code>Observer</code>的 <code>onSubsribe``onSuccess(异常时 onError)</code>方法</li>
+</ol>
+<h3 id="observeon-操作符">observeOn 操作符</h3>
+<p>Rxjava首先被大家津津乐道之处是可以方便的切换线程，避免<code>Callback Hell</code>，现在来看看线程切换操作符。<br>
+我们加入线程切换操作符 <code>observeOn</code></p>
+<pre><code>Disposable disposable = Single.just(&quot;wtf&quot;)
+				 .map(it-&gt; 0)
+				 .observeOn(Schedulers.io())
+                 .subscribe(it -&gt; Log.i(&quot;subscribe&quot;, String.of(it)));
+</code></pre>
+<p>同样的，在 <code>observeOn</code>方法中实例化了一个<code>SingleObserveOn</code></p>
+<pre><code>    public final Single&lt;T&gt; observeOn(final Scheduler scheduler) {
+        ObjectHelper.requireNonNull(scheduler, &quot;scheduler is null&quot;);
+        return RxJavaPlugins.onAssembly(new SingleObserveOn&lt;T&gt;(this, scheduler));
+    }
+</code></pre>
+<p>继续看<code>SingleObserveOn</code>类中信息</p>
+<pre><code>public final class SingleObserveOn&lt;T&gt; extends Single&lt;T&gt; {
+
+    final SingleSource&lt;T&gt; source;
+    final Scheduler scheduler;
+
+    public SingleObserveOn(SingleSource&lt;T&gt; source, Scheduler scheduler) {
+        this.source = source;
+        this.scheduler = scheduler;
+    }
+
+    @Override
+    protected void subscribeActual(final SingleObserver&lt;? super T&gt; s) {
+        source.subscribe(new ObserveOnSingleObserver&lt;T&gt;(s, scheduler));
+    }
+
+    static final class ObserveOnSingleObserver&lt;T&gt; extends AtomicReference&lt;Disposable&gt;
+    implements SingleObserver&lt;T&gt;, Disposable, Runnable {
+        private static final long serialVersionUID = 3528003840217436037L;
+
+        final SingleObserver&lt;? super T&gt; actual;
+        final Scheduler scheduler;
+
+        T value;
+        Throwable error;
+
+        ObserveOnSingleObserver(SingleObserver&lt;? super T&gt; actual, Scheduler scheduler) {
+            this.actual = actual;
+            this.scheduler = scheduler;
+        }
+
+        @Override
+        public void onSubscribe(Disposable d) {
+            if (DisposableHelper.setOnce(this, d)) {
+                actual.onSubscribe(this);
+            }
+        }
+
+        @Override
+        public void onSuccess(T value) {
+            this.value = value;
+            Disposable d = scheduler.scheduleDirect(this);
+            DisposableHelper.replace(this, d);
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            this.error = e;
+            Disposable d = scheduler.scheduleDirect(this);
+            DisposableHelper.replace(this, d);
+        }
+
+        @Override
+        public void run() {
+            Throwable ex = error;
+            if (ex != null) {
+                actual.onError(ex);
+            } else {
+                actual.onSuccess(value);
+            }
+        }
+
+        @Override
+        public void dispose() {
+            DisposableHelper.dispose(this);
+        }
+
+        @Override
+        public boolean isDisposed() {
+            return DisposableHelper.isDisposed(get());
+        }
+    }
+}
+
+
+</code></pre>
+<p>类似的</p>
+<ul>
+<li>构造函数中保存了上游和线程切换的信息</li>
+<li><code>subscribeActual</code> 实例化了一个新的观察者<code>ObserveOnSingleObserver</code></li>
+</ul>
+<p>不同的</p>
+<ul>
+<li><code>ObserveOnSingleObserver</code> 还继承了<code>AtomicReference&lt;Disposable&gt;</code>、实现了<code>Disposable``Runnable</code>接口</li>
+<li><code>onSuccess``onError</code>中都没有直接调用下游的<code>onSuccess</code> <code>onError</code>方法，而是调用了<code>Disposable d = scheduler.scheduleDirect(this);</code>来执行<code>run</code>方法中的逻辑，而<code>run</code>方法中的逻辑则是调用下游的<code>onSuccess</code> <code>onError</code>方法</li>
+</ul>
+<p>查看<code>schedulerDirect</code>内部信息</p>
+<pre><code>    public Disposable scheduleDirect(@NonNull Runnable run, long delay, @NonNull TimeUnit unit) {
+        final Worker w = createWorker();
+        final Runnable decoratedRun = RxJavaPlugins.onSchedule(run);
+        DisposeTask task = new DisposeTask(decoratedRun, w);
+        w.schedule(task, delay, unit);
+        return task;
+    }
+</code></pre>
+<p>创建了一个对应线程的<code>Worker</code>和一个可用于取消的<code>DisposeTask</code>并执行，对于<code>IoScheduler</code>则是创建了<code>EventLoopWorker</code>，再看看<code>EventLoopWorker</code>中的信息。</p>
+<pre><code>    @Override
+    public Worker createWorker() {
+        return new EventLoopWorker(pool.get());
+    }
+</code></pre>
+<pre><code>    static final class EventLoopWorker extends Scheduler.Worker {
+        private final CompositeDisposable tasks;
+        private final CachedWorkerPool pool;
+        private final ThreadWorker threadWorker;
+
+        final AtomicBoolean once = new AtomicBoolean();
+
+        EventLoopWorker(CachedWorkerPool pool) {
+            this.pool = pool;
+            this.tasks = new CompositeDisposable();
+            this.threadWorker = pool.get();
+        }
+
+        @Override
+        public void dispose() {
+            if (once.compareAndSet(false, true)) {
+                tasks.dispose();
+
+                // releasing the pool should be the last action
+                pool.release(threadWorker);
+            }
+        }
+
+        @Override
+        public boolean isDisposed() {
+            return once.get();
+        }
+
+        @NonNull
+        @Override
+        public Disposable schedule(@NonNull Runnable action, long delayTime, @NonNull TimeUnit unit) {
+            if (tasks.isDisposed()) {
+                // don't schedule, we are unsubscribed
+                return EmptyDisposable.INSTANCE;
+            }
+
+            return threadWorker.scheduleActual(action, delayTime, unit, tasks);
+        }
+    }
+</code></pre>
+<p><code>EventLoopWorker</code>中则是维护了一套包含相应的<code>线程池</code>、可取消的<code>CompositeDisposable</code>、以及用于运行<code>Runable</code>的<code>ThreadWorker</code>。总的来说就是一套可以在相应线程运行且可取消的类和逻辑。</p>
+<ul>
+<li>上面则解释了为什么<code>observeOn</code>可以切换下游的线程(<code>onSuccess</code> <code>onError</code>)</li>
+<li>同样解释了为什么不会改变<code>onSubsribe</code>的调用线程，因为可以看到<code>onSubscribe</code>方法中直接调用了下游的<code>onSucsribe</code>，并没有受到线程切换的影响。</li>
+</ul>
+<h3 id="subscribeon">SubscribeOn</h3>
+<p>实际上，<code>subsribeOn</code> 是 RxJava2.x 中比较复杂也是相较于 RxJava1.x 改动比较大的一个操作符,它甚至会影响流的执行顺序。（可以参见唐雪茂写的 <a href="https://lexiangla.com/teams/k100002/docs/d00dcc362b2311e8a1c75254004b6d18?company_from=1656b36e07d011e8b7a85254005b9a60">Rxjava流的设计</a> 中的<code>1</code> <code>2</code>两个流）</p>
+<p>我们现在设计两个<code>Rx流</code></p>
+<pre><code>Disposable disposable = Single.just(&quot;wtf&quot;)
+				 .doOnSubsribe(it-&gt; Log.i(&quot;doOnSubsribe&quot;, 0)
+				 .doOnSubsribe(it-&gt; Log.i(&quot;doOnSubsribe&quot;, 1)
+				 .doOnSubsribe(it-&gt; Log.i(&quot;doOnSubsribe&quot;, 2)
+				 .doOnSubsribe(it-&gt; Log.i(&quot;doOnSubsribe&quot;, 3)
+                 .subscribe(it -&gt; Log.i(&quot;subscribe&quot;, 4);
+</code></pre>
+<pre><code>Disposable disposable2 = Single.just(&quot;wtf&quot;)
+				 .doOnSubsribe(it-&gt; Log.i(&quot;doOnSubsribe&quot;, 0)
+				 .doOnSubsribe(it-&gt; Log.i(&quot;doOnSubsribe&quot;, 1)
+				 .subscribeOn(Schedulers.io())
+				 .doOnSubsribe(it-&gt; Log.i(&quot;doOnSubsribe&quot;, 2)
+				 .doOnSubsribe(it-&gt; Log.i(&quot;doOnSubsribe&quot;, 3)
+                 .subscribe(it -&gt; Log.i(&quot;subscribe&quot;, 4);
+</code></pre>
+<p>你可能已经知道并记住了两个流的打印的顺序分别是 <code>01234</code> <code>23014</code>，但是为什么<code>doOnSubsribe</code>方法和<code>RxJava1</code>中调用顺序完全不一样，为什么通过<code>subscribeOn</code>切换线程会影响执行顺序？</p>
+<p>先找到 <code>SingleSubscribeOn</code> 类</p>
+<pre><code>public final class SingleSubscribeOn&lt;T&gt; extends Single&lt;T&gt; {
+    final SingleSource&lt;? extends T&gt; source;
+    final Scheduler scheduler;
+    
+    public SingleSubscribeOn(SingleSource&lt;? extends T&gt; source, Scheduler scheduler) {
+        this.source = source;
+        this.scheduler = scheduler;
+    }
+
+    @Override
+    protected void subscribeActual(final SingleObserver&lt;? super T&gt; s) {
+        final SubscribeOnObserver&lt;T&gt; parent = new SubscribeOnObserver&lt;T&gt;(s, source);
+        //直接调用下游 onSubscribe
+        s.onSubscribe(parent);
+        //再执行订阅上游的方法
+        Disposable f = scheduler.scheduleDirect(parent);
+        parent.task.replace(f);
+    }
+
+    static final class SubscribeOnObserver&lt;T&gt;
+    extends AtomicReference&lt;Disposable&gt;
+    implements SingleObserver&lt;T&gt;, Disposable, Runnable {
+
+        private static final long serialVersionUID = 7000911171163930287L;
+        final SingleObserver&lt;? super T&gt; actual;
+        final SequentialDisposable task;
+        final SingleSource&lt;? extends T&gt; source;
+        
+        SubscribeOnObserver(SingleObserver&lt;? super T&gt; actual, SingleSource&lt;? extends T&gt; source) {
+            this.actual = actual;
+            this.source = source;
+            this.task = new SequentialDisposable();
+        }
+
+        @Override
+        public void onSubscribe(Disposable d) {
+        	  //没有继续调用下游的 onSubscribe 方法
+            DisposableHelper.setOnce(this, d);
+        }
+
+        @Override
+        public void onSuccess(T value) {
+            actual.onSuccess(value);
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            actual.onError(e);
+        }
+
+        @Override
+        public void dispose() {
+            DisposableHelper.dispose(this);
+            task.dispose();
+        }
+
+        @Override
+        public boolean isDisposed() {
+            return DisposableHelper.isDisposed(get());
+        }
+
+        @Override
+        public void run() {
+            source.subscribe(this);
+        }
+    }
+
+}
+</code></pre>
+<p>同样的直接看<code>subscribeActual</code>方法及<code>onSubscribe</code>方法，发现事情并没有那么简单，和之前的操作符的逻辑区别很大：</p>
+<ul>
+<li><code>SubscribeOnObserver</code>同样还继承了<code>AtomicReference&lt;Disposable&gt;</code>，实现了<code>Disposable``Runnable</code>接口</li>
+<li>并没有直接调用<code>subscribe</code>订阅上游，而是执行了其它操作符在 <code>onSubscribe</code>中订阅下游的操作</li>
+<li>然后再结合<code>Disposable f = scheduler.scheduleDirect(parent);</code>和<code>run</code>方法可以知道在新的线程中执行了订阅上游的操作 <code>source.subscribe(this);</code></li>
+<li><code>onSubsribe</code>中并没有再继续调用下游的 <code>onSubsribe</code></li>
+</ul>
+<p>综合起来可以知道，本来应该在整个流从下至上订阅完成后按照从上至下的顺序执行 <code>onSubscribe</code>的流，在使用<code>subsribeOn</code>操作符的后，在订阅的时(执行<code>subscribeActual</code>)，就开始执行下游的<code>onSubscribe</code>且在当前线程！然后才在指定的<code>io</code>线程执行之下而上的操作，这也是为什么<code>subsribeOn</code>影响的是上游的线程。</p>
+<h3 id="小结">小结：</h3>
+<p>我认为实际上 Rx 使用了很多优秀的设计将我们各种常用的操作进行了封装，让我们自由组合使用，其本身并没有用什么黑科技。例如切换线程本质上则是帮我们启用了一个新的线程并把接下来的代码放进去执行。<br>
+当然，其中还有很多更深入的内容需要我们继续发现和学习。</p>
+
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://xiejinpeng007.github.io/post/kotlin-zhong-de-yi-lai-zhu-ru-kodein">
+              <h3 class="post-title">
+                Kotlin 中的依赖注入 KODEIN
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | 
+  <a class="rss" href="https://xiejinpeng007.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>
