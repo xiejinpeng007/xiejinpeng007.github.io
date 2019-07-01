@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>/Users/jinpengxie/Documents/Gridea/output</id>
-    <title>Gridea</title>
-    <updated>2019-07-01T08:38:29.066Z</updated>
+    <id>https://xiejinpeng007.github.io</id>
+    <title>Checkout My Ass</title>
+    <updated>2019-07-01T09:04:50.424Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="/Users/jinpengxie/Documents/Gridea/output"/>
-    <link rel="self" href="/Users/jinpengxie/Documents/Gridea/output/atom.xml"/>
-    <subtitle>温故而知新</subtitle>
-    <logo>/Users/jinpengxie/Documents/Gridea/output/images/avatar.png</logo>
-    <icon>/Users/jinpengxie/Documents/Gridea/output/favicon.ico</icon>
-    <rights>All rights reserved 2019, Gridea</rights>
+    <link rel="alternate" href="https://xiejinpeng007.github.io"/>
+    <link rel="self" href="https://xiejinpeng007.github.io/atom.xml"/>
+    <logo>https://xiejinpeng007.github.io/images/avatar.png</logo>
+    <icon>https://xiejinpeng007.github.io/favicon.ico</icon>
+    <rights>All rights reserved 2019, Checkout My Ass</rights>
     <entry>
         <title type="html"><![CDATA[Hello Gridea]]></title>
-        <id>/Users/jinpengxie/Documents/Gridea/output/post/hello-gridea/index.html</id>
-        <link href="/Users/jinpengxie/Documents/Gridea/output/post/hello-gridea/index.html">
+        <id>https://xiejinpeng007.github.io/post/hello-gridea</id>
+        <link href="https://xiejinpeng007.github.io/post/hello-gridea">
         </link>
         <updated>2018-12-11T16:00:00.000Z</updated>
         <summary type="html"><![CDATA[<p>👏  欢迎使用 <strong>Gridea</strong> ！<br>
