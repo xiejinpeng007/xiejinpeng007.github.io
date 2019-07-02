@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://xiejinpeng007.github.io</id>
-    <title>xiejinpeng &apos;s Blog</title>
-    <updated>2019-07-02T02:26:54.389Z</updated>
+    <title>xiejinpeng&apos;s space</title>
+    <updated>2019-07-02T10:00:39.900Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://xiejinpeng007.github.io"/>
     <link rel="self" href="https://xiejinpeng007.github.io/atom.xml"/>
     <logo>https://xiejinpeng007.github.io/images/avatar.png</logo>
     <icon>https://xiejinpeng007.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2019, xiejinpeng &apos;s Blog</rights>
+    <rights>All rights reserved 2019, xiejinpeng&apos;s space</rights>
     <entry>
         <title type="html"><![CDATA[使用 XDslPagerAdapter 快速创建 ViewPager]]></title>
         <id>https://xiejinpeng007.github.io/post/shi-yong-xdslpageradapter-kuai-su-chuang-jian-viewpager</id>
