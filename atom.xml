@@ -2,13 +2,121 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://xiejinpeng007.github.io</id>
     <title>xiejinpeng&apos;s space</title>
-    <updated>2019-07-02T10:08:32.715Z</updated>
+    <updated>2019-07-02T10:25:55.104Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://xiejinpeng007.github.io"/>
     <link rel="self" href="https://xiejinpeng007.github.io/atom.xml"/>
     <logo>https://xiejinpeng007.github.io/images/avatar.png</logo>
     <icon>https://xiejinpeng007.github.io/favicon.ico</icon>
     <rights>All rights reserved 2019, xiejinpeng&apos;s space</rights>
+    <entry>
+        <title type="html"><![CDATA[配置 Gitlab-CI 触发企业微信群机器人发送通知]]></title>
+        <id>https://xiejinpeng007.github.io/post/pei-zhi-gitlab-ci-hong-fa-qi-ye-wei-xin-qun-ji-qi-ren-fa-song-tong-zhi</id>
+        <link href="https://xiejinpeng007.github.io/post/pei-zhi-gitlab-ci-hong-fa-qi-ye-wei-xin-qun-ji-qi-ren-fa-song-tong-zhi">
+        </link>
+        <updated>2019-07-02T10:22:15.000Z</updated>
+        <content type="html"><![CDATA[<h3 id="配置-gitlab-ci-触发企业微信群机器人发送通知">配置 Gitlab-CI 触发企业微信群机器人发送通知</h3>
+<p>最近企业微信增加了群机器人功能，可以拿来在 Gitlab-CI 打包完成后发送通知，分享下配置方法：</p>
+<h4 id="配置群机器人">配置群机器人:</h4>
+<ol>
+<li>
+<p>在相应群右键-添加群机器人-设置相关参数</p>
+</li>
+<li>
+<p>可以看到给出了相应的 Webhook 地址和使用文档,本质就是发一个 POST 请求。 url 包含了相关 key , JSON 包含消息内容。
+消息内容支持三种类型，具体语法可以参考文档。</p>
+<ul>
+<li>text</li>
+<li>markdown</li>
+<li>图文</li>
+</ul>
+</li>
+<li>
+<p>然后可以用 Postman 或者 Terminal 来测试能否收到（替换为自己的 WebHook）。</p>
+</li>
+</ol>
+<pre><code>curl 'http://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx' \
+   -H 'Content-Type: application/json' \
+   -d '
+   {
+        &quot;msgtype&quot;: &quot;text&quot;,
+        &quot;text&quot;: {
+            &quot;content&quot;: &quot;hello world&quot;
+        }
+   }'
+</code></pre>
+<h4 id="配置到-gitlab-ci">配置到 Gitlab-CI:</h4>
+<p>在原来正常的打包流程基础上，写一个打包成功(失败)后触发的脚本，放在和 gitlab-ci.yml 同级，传入不同参数，发送不同数据，我这里通过第一个参数判断成功失败：</p>
+<ul>
+<li>成功的参数: on_success branch_name commit_hash apk_name</li>
+<li>失败的参数：on_failure</li>
+</ul>
+<pre><code>#!/usr/bin/env bash
+
+if [[ $1 == &quot;on_success&quot; ]];
+then
+curl 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=48d51802-bf41-4641-b0aa-33d67a2c9ed8' \
+      -H 'Content-Type: application/json' \
+      -d '
+      {
+        &quot;msgtype&quot;: &quot;markdown&quot;,
+        &quot;markdown&quot;: {
+          &quot;content&quot;: &quot;分支:'$2'   提交:'$3'
+          '$4'.apk 打包完成！
+          [点击查看](https://your_url/pipelines)&quot;
+        }
+      }'
+elif [[ $1 == &quot;on_failure&quot; ]];
+then
+curl 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=48d51802-bf41-4641-b0aa-33d67a2c9ed8' \
+      -H 'Content-Type: application/json' \
+      -d '
+      {
+        &quot;msgtype&quot;: &quot;markdown&quot;,
+        &quot;markdown&quot;: {
+          &quot;content&quot;: &quot;打包失败！
+          [点击查看](https://your_url/pipelines)&quot;
+        }
+      }'
+fi
+</code></pre>
+<p>改一下 gitlab-ci.yml 文件中的配置调用脚本:</p>
+<pre><code>...
+build_production_release:
+  stage: build_production_release
+  script:
+    - ./gradlew assembleProductionRelease
+    - mv app/build/outputs/apk/production/release/*.apk .
+    - sh ./Android_Gitlab_Ci_Notification.sh &quot;on_success&quot; ${CI_COMMIT_REF_SLUG} ${CI_COMMIT_SHA:0:8} &quot;PackageName_productionRelease_${CI_COMMIT_REF_SLUG}_${CI_COMMIT_SHA:0:8}&quot;
+  artifacts:
+    name: &quot;PackageName_productionRelease_${CI_COMMIT_REF_SLUG}_${CI_COMMIT_SHA:0:8}&quot;
+    paths:
+      - ./*.apk
+    expire_in: 2 weeks
+  when: manual
+    # except:
+    # - feature/CI-CD
+
+clean_build_job:
+  stage: clean
+  script:
+    - ./gradlew clean
+    - sh ./Android_Gitlab_Ci_Notification.sh &quot;on_failure&quot;
+  when: on_failure
+  ...
+</code></pre>
+<ul>
+<li>
+<p>在打包的 job ( build_production_release ) <code>./gradle assemblexxx</code> 之后传入相关参数调用脚本成功的代码
+<code>sh ./Android_Gitlab_Ci_Notification.sh &quot;on_success&quot; ${CI_COMMIT_REF_SLUG} ${CI_COMMIT_SHA:0:8} &quot;PackageName_productionRelease_${CI_COMMIT_REF_SLUG}_${CI_COMMIT_SHA:0:8}&quot;</code></p>
+</li>
+<li>
+<p>打包失败时的 job ( clean_build_job ) 传入 on_failure 调用脚本失败的代码
+<code>sh ./Android_Gitlab_Ci_Notification.sh &quot;on_failure&quot;</code></p>
+</li>
+</ul>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[使用 XDslPagerAdapter 快速创建 ViewPager]]></title>
         <id>https://xiejinpeng007.github.io/post/shi-yong-xdslpageradapter-kuai-su-chuang-jian-viewpager</id>
@@ -2113,113 +2221,6 @@ https://kotlin.link/</p>
 https://www.gitbook.com/book/wangjiegulu/kotlin-for-android-developers-zh/details</p>
 <p>《Kotlin in Action》
 https://panxl6.gitbooks.io/kotlin-in-action-in-chinese/content/</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[仿饿了么动画]]></title>
-        <id>https://xiejinpeng007.github.io/post/fang-e-liao-me-dong-hua</id>
-        <link href="https://xiejinpeng007.github.io/post/fang-e-liao-me-dong-hua">
-        </link>
-        <updated>2016-11-21T09:13:26.000Z</updated>
-        <content type="html"><![CDATA[<h1 id="仿饿了么动画">仿饿了么动画</h1>
-<p>最近项目Release完毕，闲暇之余给公司内部的小卖部app升下级(一个人撸完了design+code)，添加了一个商城功能，因为每天都用饿了么点外卖，比较喜欢饿了么点餐落入购物车的动画，所以说自己实现了一个，做一点微小的笔记。</p>
-<p><img src="https://github.com/xiejinpeng007/LearnNotes/blob/master/ElemeAnim/elemeanim.gif" alt=""></p>
-<p>整个界面相关元素有RecyclerView + FloatActionButton，动画是点击item出现一个图标以抛物线落入购物车。</p>
-<p>整体的思路是：</p>
-<ol>
-<li>点击itemView获取到相关location[]、height、width、position参数</li>
-<li>在View层中拿到的参数初始化动画View、ViewGroup</li>
-<li>初始化动画、开始动画</li>
-</ol>
-<h3 id="step1-recyclerviewadapter类">Step1:  RecyclerView.Adapter类</h3>
-<pre><code>   /**
-     * 在RecyclerView.Adapter中的itemView添加点击事件，用于获取这个itemView在窗口（Window）中的位置信息(location[])。
-     * 这里传递的参数还包括itemView的宽高和position，用于更细致的调整动画的初始位置和更新相关数据。
-     * 这里发送点击事件没有使用接口而是用了RxBus调用startAddToCartAnim()，效果和平时使用的接口一致。
-     */
-
-holder.itemView.setOnClickListener(v -&gt; {
-            int height = holder.itemView.getHeight();
-            int width = holder.itemView.getWidth();
-            int[] startLocation = new int[2];
-            holder.itemView.getLocationInWindow(startLocation);
-            String name = list.get(holder.getLayoutPosition()).getName();
-            RxBus.getInstance().send(new F01_01_ShopFragment.OnRecyclerItemClickEvent(startLocation, height, width, holder.getLayoutPosition(), name));
-        });
-</code></pre>
-<h3 id="step2-activityfragment类">Step2: Activity/Fragment类</h3>
-<pre><code>    private void startAddToCartAnim(int[] startLocation, int height, int width) {
-        //初始化startLocation、endLocation坐标
-        int[] endLocation = new int[2];
-        orderFloatingactionbutton.getLocationInWindow(endLocation);
-
-        //初始化动画以及parentLayout的参数
-        ImageView animView = new ImageView(getContext());
-        animView.setImageResource(R.drawable.ic_card_giftcard_red_400_36dp);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.leftMargin = startLocation[0] + width / 2;
-        params.topMargin = startLocation[1];
-        //获取parentLayout以及添加动画view到parentLayout
-        getAnimLayout().addView(animView, params);
-
-        //设定动画类型（使用简单的TranslateAnimation，通过不同的Interpolator来达到抛物线效果）
-        TranslateAnimation animationX = new TranslateAnimation(0, endLocation[0] - startLocation[0] - width / 2, 0, 0);
-        animationX.setInterpolator(new LinearInterpolator());
-        animationX.setFillAfter(true);
-        TranslateAnimation animationY = new TranslateAnimation(0, 0, 0, endLocation[1] - startLocation[1]);
-        animationY.setInterpolator(new AccelerateInterpolator());
-        animationY.setFillAfter(true);
-        AlphaAnimation alphaAnimation = new AlphaAnimation(1, 0.5f);
-        AnimationSet set = new AnimationSet(false);
-        set.addAnimation(animationX);
-        set.addAnimation(animationY);
-        set.addAnimation(alphaAnimation);
-        set.setDuration(500);
-        //执行动画
-        animView.startAnimation(set);
-
-        set.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                animView.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-
-    }
-    
-    /**
-     * 获取点击动画所在的parentLayout(因为动画的坐标用的getLocationInWindow获取，所以这里也以DecorView的区域为parentLayout)
-     * 这里的animLayout和animView的实例不能复用
-     */
-
-    private ViewGroup getAnimLayout() {
-        ViewGroup rootView = (ViewGroup) getActivity().getWindow().getDecorView();
-        LinearLayout animLayout = new LinearLayout(getContext());
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        animLayout.setLayoutParams(lp);
-        animLayout.setId(Integer.MAX_VALUE - 1);
-        animLayout.setBackgroundResource(android.R.color.transparent);
-        rootView.addView(animLayout);
-        return animLayout;
-    }
-</code></pre>
-<ul>
-<li>补充：<br>
-这里以item中间为坐标开始动画，以最精简的代码实现了基本动画，开发者可以以此为基础实现更复杂更精细的动画。<br>
-比如：还可以根据location[]、height、width调整动画位置或是重写OnTouchListener根据触摸位置设定开始动画。</li>
-</ul>
 ]]></content>
     </entry>
 </feed>

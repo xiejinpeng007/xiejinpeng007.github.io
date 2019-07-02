@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>使用 XDslPagerAdapter 快速创建 ViewPager | xiejinpeng&#39;s space</title>
+<title>配置 Gitlab-CI 触发企业微信群机器人发送通知 | xiejinpeng&#39;s space</title>
 <meta name="description" content="">
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -111,73 +111,120 @@
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <div class="post-detail">
-            <h2 class="post-title">使用 XDslPagerAdapter 快速创建 ViewPager</h2>
-            <div class="post-date">2019-04-09</div>
+            <h2 class="post-title">配置 Gitlab-CI 触发企业微信群机器人发送通知</h2>
+            <div class="post-date">2019-07-02</div>
             
-              <div class="feature-container" style="background-image: url('https://xiejinpeng007.github.io/post-images/shi-yong-xdslpageradapter-kuai-su-chuang-jian-viewpager.png')">
+              <div class="feature-container" style="background-image: url('https://xiejinpeng007.github.io/post-images/pei-zhi-gitlab-ci-hong-fa-qi-ye-wei-xin-qun-ji-qi-ren-fa-song-tong-zhi.png')">
               </div>
             
             <div class="post-content">
-              <h2 id="使用-xdslpageradapter-快速创建-viewpager">使用 XDslPagerAdapter 快速创建 ViewPager</h2>
-<p>在 Android 开发中经常需要使用 ViewPager ，大多数的功能类似但每次都需要写 Adapter 和一堆模板代码。<br>
-目前我们很多项目都使用了 Kotlin 和 Databinding,为了简洁快速地构建 ViewPager，我使用 DSL 和 Databinding 的特性写了一个用于快速创建 PagerAdapter 的工具<code>XDslPagerAdapter</code>。</p>
-<p>下面通过创建一个欢迎画面举例说明：</p>
-<pre><code>        binding.guideViewPager.run {
-            xDslPagerAdapter {
-                item(R.layout.pager_guide) {
-                    model(BR.model to Page(0, R.drawable.img_tutorial01, &quot;下一页&quot;))
-                    click(BR.click to { _: Page -&gt; currentItem = 1 })
-                    action { binding -&gt;
-                        (binding as? PagerGuideBinding)?.run {
-                            (nextPageButton.layoutParams as? ViewGroup.MarginLayoutParams)?.run {
-                                marginStart = dp2px(30F)
-                                marginEnd = dp2px(30F)
-                            }
-                        }
-                    }
-                }
-                item(R.layout.pager_guide) {
-                    model(BR.model to Page(1, R.drawable.img_tutorial02, &quot;下一页&quot;))
-                    click(BR.click to { _: Page -&gt; currentItem = 2 })
-                }
-                item(R.layout.pager_guide) {
-                    model(BR.model to Page(2, R.drawable.img_tutorial03, &quot;下一页&quot;))
-                    click(BR.click to { _: Page -&gt; currentItem = 3 })
-                }
-                item(R.layout.pager_guide) {
-                    model(BR.model to Page(3, R.drawable.img_tutorial04, &quot;开始使用&quot;))
-                    click(BR.click to { _: Page -&gt;
-                        SharedPrefModel.isFistTime = false
-                        startActivity(Intent(context, MainActivity::class.java))
-                        finish()
-                    })
-                }
-            }
-        }
-</code></pre>
+              <h3 id="配置-gitlab-ci-触发企业微信群机器人发送通知">配置 Gitlab-CI 触发企业微信群机器人发送通知</h3>
+<p>最近企业微信增加了群机器人功能，可以拿来在 Gitlab-CI 打包完成后发送通知，分享下配置方法：</p>
+<h4 id="配置群机器人">配置群机器人:</h4>
 <ol>
-<li>首先调用 ViewPager 的拓展方法<code>xDslPagerAdapter()</code>开始创建<code>PagerAdapter</code></li>
-<li>在<code>PagerAdapter</code>内部使用 <code>item()</code>开始创建<code>Item</code>，其中<code>layout</code>是必须的参数。</li>
-<li>在<code>Item</code>内部可以使用的方法有<code>model()``click()``action</code>
+<li>
+<p>在相应群右键-添加群机器人-设置相关参数</p>
+</li>
+<li>
+<p>可以看到给出了相应的 Webhook 地址和使用文档,本质就是发一个 POST 请求。 url 包含了相关 key , JSON 包含消息内容。
+消息内容支持三种类型，具体语法可以参考文档。</p>
 <ul>
-<li><code>model()</code>传入包含 DataBinding 的 <code>BR.Id</code> 和对应的 <code>Model</code>（类型为你 ViewModel 的类型，用来绑定显示相关数据）</li>
-<li><code>click()</code>传入包含 DataBinding 的 <code>BR.Id</code> 和对应的 <code>Click</code>（类型为<code>Function&lt;Any&gt;</code>用来绑定点击事件），多个点击事件可多次调用。</li>
-<li><code>action()</code>可用来获取 Databinding 为 layout 的 ViewDataBinding 类,用来处理其它的内容，例如动态改变布局等。</li>
+<li>text</li>
+<li>markdown</li>
+<li>图文</li>
 </ul>
 </li>
+<li>
+<p>然后可以用 Postman 或者 Terminal 来测试能否收到（替换为自己的 WebHook）。</p>
+</li>
 </ol>
-<p>源码也很简单 源码地址 <a href="https://github.com/xiejinpeng007/XDslPagerAdapter">https://github.com/xiejinpeng007/XDslPagerAdapter</a></p>
+<pre><code>curl 'http://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx' \
+   -H 'Content-Type: application/json' \
+   -d '
+   {
+        &quot;msgtype&quot;: &quot;text&quot;,
+        &quot;text&quot;: {
+            &quot;content&quot;: &quot;hello world&quot;
+        }
+   }'
+</code></pre>
+<h4 id="配置到-gitlab-ci">配置到 Gitlab-CI:</h4>
+<p>在原来正常的打包流程基础上，写一个打包成功(失败)后触发的脚本，放在和 gitlab-ci.yml 同级，传入不同参数，发送不同数据，我这里通过第一个参数判断成功失败：</p>
+<ul>
+<li>成功的参数: on_success branch_name commit_hash apk_name</li>
+<li>失败的参数：on_failure</li>
+</ul>
+<pre><code>#!/usr/bin/env bash
+
+if [[ $1 == &quot;on_success&quot; ]];
+then
+curl 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=48d51802-bf41-4641-b0aa-33d67a2c9ed8' \
+      -H 'Content-Type: application/json' \
+      -d '
+      {
+        &quot;msgtype&quot;: &quot;markdown&quot;,
+        &quot;markdown&quot;: {
+          &quot;content&quot;: &quot;分支:'$2'   提交:'$3'
+          '$4'.apk 打包完成！
+          [点击查看](https://your_url/pipelines)&quot;
+        }
+      }'
+elif [[ $1 == &quot;on_failure&quot; ]];
+then
+curl 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=48d51802-bf41-4641-b0aa-33d67a2c9ed8' \
+      -H 'Content-Type: application/json' \
+      -d '
+      {
+        &quot;msgtype&quot;: &quot;markdown&quot;,
+        &quot;markdown&quot;: {
+          &quot;content&quot;: &quot;打包失败！
+          [点击查看](https://your_url/pipelines)&quot;
+        }
+      }'
+fi
+</code></pre>
+<p>改一下 gitlab-ci.yml 文件中的配置调用脚本:</p>
+<pre><code>...
+build_production_release:
+  stage: build_production_release
+  script:
+    - ./gradlew assembleProductionRelease
+    - mv app/build/outputs/apk/production/release/*.apk .
+    - sh ./Android_Gitlab_Ci_Notification.sh &quot;on_success&quot; ${CI_COMMIT_REF_SLUG} ${CI_COMMIT_SHA:0:8} &quot;PackageName_productionRelease_${CI_COMMIT_REF_SLUG}_${CI_COMMIT_SHA:0:8}&quot;
+  artifacts:
+    name: &quot;PackageName_productionRelease_${CI_COMMIT_REF_SLUG}_${CI_COMMIT_SHA:0:8}&quot;
+    paths:
+      - ./*.apk
+    expire_in: 2 weeks
+  when: manual
+    # except:
+    # - feature/CI-CD
+
+clean_build_job:
+  stage: clean
+  script:
+    - ./gradlew clean
+    - sh ./Android_Gitlab_Ci_Notification.sh &quot;on_failure&quot;
+  when: on_failure
+  ...
+</code></pre>
+<ul>
+<li>
+<p>在打包的 job ( build_production_release ) <code>./gradle assemblexxx</code> 之后传入相关参数调用脚本成功的代码
+<code>sh ./Android_Gitlab_Ci_Notification.sh &quot;on_success&quot; ${CI_COMMIT_REF_SLUG} ${CI_COMMIT_SHA:0:8} &quot;PackageName_productionRelease_${CI_COMMIT_REF_SLUG}_${CI_COMMIT_SHA:0:8}&quot;</code></p>
+</li>
+<li>
+<p>打包失败时的 job ( clean_build_job ) 传入 on_failure 调用脚本失败的代码
+<code>sh ./Android_Gitlab_Ci_Notification.sh &quot;on_failure&quot;</code></p>
+</li>
+</ul>
 
             </div>
             
               <div class="tag-container">
                 
-                  <a href="https://xiejinpeng007.github.io/tag/OMj7d6TXe" class="tag">
-                    Kotlin
-                  </a>
-                
-                  <a href="https://xiejinpeng007.github.io/tag/bbMgJRT1Y" class="tag">
-                    Android
+                  <a href="https://xiejinpeng007.github.io/tag/7--CUUwhM" class="tag">
+                    Gitlab
                   </a>
                 
               </div>
@@ -185,9 +232,9 @@
             
               <div class="next-post">
                 <div class="next">下一篇</div>
-                <a href="https://xiejinpeng007.github.io/post/rxjava2x-cong-yuan-ma-fen-xi-yuan-li">
+                <a href="https://xiejinpeng007.github.io/post/shi-yong-xdslpageradapter-kuai-su-chuang-jian-viewpager">
                   <h3 class="post-title">
-                    RxJava2.x 从源码分析原理
+                    使用 XDslPagerAdapter 快速创建 ViewPager
                   </h3>
                 </a>
               </div>
