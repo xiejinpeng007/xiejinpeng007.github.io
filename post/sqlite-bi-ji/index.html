@@ -9,7 +9,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1562063151642">
+<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1566461193849">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://xiejinpeng007.github.io/styles/main.css">
 
@@ -45,7 +45,7 @@
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="https://xiejinpeng007.github.io">
-        <img src="https://xiejinpeng007.github.io/images/avatar.png?v=1562063151642" class="site-logo">
+        <img src="https://xiejinpeng007.github.io/images/avatar.png?v=1566461193849" class="site-logo">
         <h1 class="site-title">xiejinpeng&#39;s space</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -118,39 +118,39 @@
               <p>一些笔记</p>
 <ul>
 <li>
-<p>ROWID :
+<p>ROWID :<br>
 隐藏的 Column 用于作为行的唯一标识。<br>
-ROWID 可以看做一个隐式的 INTEGER PRIMARY KEY ,实际上这才是真正的主键，如果创建了一个 INTEGER PRIMARY KEY 的话，
-它会作为 ROWID 的别名(alias) ,而非 INTEGER PRIMARY KEY 实际上只是建立了一个索引。
+ROWID 可以看做一个隐式的 INTEGER PRIMARY KEY ,实际上这才是真正的主键，如果创建了一个 INTEGER PRIMARY KEY 的话，<br>
+它会作为 ROWID 的别名(alias) ,而非 INTEGER PRIMARY KEY 实际上只是建立了一个索引。<br>
 算法是单调递增，如果达到最大整型(9223372036854775807) 那么会重新查找前面已经删除的 ROWID。</p>
 </li>
 <li>
 <p>Index 索引:<br>
-Index 是一种特殊的查找表，数据库搜索引擎用来加快数据检索。简单地说，索引是一个指向表中数据的指针。
-索引有助于加快 SELECT 查询和 WHERE 子句，但它会减慢使用 UPDATE 和 INSERT 语句时的数据输入。
-索引可以创建或删除，但不会影响数据。
+Index 是一种特殊的查找表，数据库搜索引擎用来加快数据检索。简单地说，索引是一个指向表中数据的指针。<br>
+索引有助于加快 SELECT 查询和 WHERE 子句，但它会减慢使用 UPDATE 和 INSERT 语句时的数据输入。<br>
+索引可以创建或删除，但不会影响数据。<br>
 每个主键会自动生成一个 Index</p>
 </li>
 <li>
 <p>AUTOINCREMENT ：<br>
-作用于主键，算法是单调递增,算法上和 ROWID 的区别是达到最大整型了之后不会重新查找前面没使用的值。
-如果 AUTOINCREMENT 关键字出现在 INTEGER PRIMARY KEY后面，则会更改自动 ROWID 分配算法(因为INTEGER PRIMARY KEY 就是 ROWID 别名)，
+作用于主键，算法是单调递增,算法上和 ROWID 的区别是达到最大整型了之后不会重新查找前面没使用的值。<br>
+如果 AUTOINCREMENT 关键字出现在 INTEGER PRIMARY KEY后面，则会更改自动 ROWID 分配算法(因为INTEGER PRIMARY KEY 就是 ROWID 别名)，<br>
 以防止在数据库的整个生命周期内重用 ROWID。</p>
 </li>
 <li>
 <p>WITHOUT ROWID:<br>
-实际上可以指定不生成 ROWID ,那么必须要指定主键。
-关于是否需要 ROWID 的问题，总的来说是空间时间的影响，大概是这样的逻辑：
-在普通的SQLite表中，PRIMARY KEY实际上只是一个 UNIQUE索引。用于在磁盘上查找记录的键是 ROWID。
+实际上可以指定不生成 ROWID ,那么必须要指定主键。<br>
+关于是否需要 ROWID 的问题，总的来说是空间时间的影响，大概是这样的逻辑：<br>
+在普通的SQLite表中，PRIMARY KEY实际上只是一个 UNIQUE索引。用于在磁盘上查找记录的键是 ROWID。<br>
 普通SQLite表中的特殊“ INTEGER PRIMARY KEY ”列类型使该列成为 ROWID 的别名，因此 INTEGER PRIMARY KEY 是真正的 PRIMARY KEY。</p>
 </li>
 <li>
-<p>SQLite 的表是以 B-Tree 实现的， 在 ROWID 表中如果有 非INTEGER PRIMARY KEY 实际上会建立两个 B-Tree ,
-一个是以 ROWID 为主键其余 column 为数据的 B-Tree;另一个 是以 非INTEGER PRIMARY KEY 为主键 ROWID 为数据的索引。
+<p>SQLite 的表是以 B-Tree 实现的， 在 ROWID 表中如果有 非INTEGER PRIMARY KEY 实际上会建立两个 B-Tree ,<br>
+一个是以 ROWID 为主键其余 column 为数据的 B-Tree;另一个 是以 非INTEGER PRIMARY KEY 为主键 ROWID 为数据的索引。<br>
 查询的时候 首先在索引中根据找到匹配的 ROWID 然后再在主表中根据 ROWID 查找数据，所以进行了两次独立的二进制搜索。</p>
 </li>
 <li>
-<p>关于 SQLite 查询的结果的顺序：
+<p>关于 SQLite 查询的结果的顺序：<br>
 首先如果要保证查询结果的顺序最好就使用 ORDER BY ，否则会按照 Index 进行，没有或关闭 Index 的话会按照 ROWID 顺序查询。</p>
 </li>
 </ul>

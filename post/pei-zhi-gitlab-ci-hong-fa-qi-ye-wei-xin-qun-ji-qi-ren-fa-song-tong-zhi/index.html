@@ -9,7 +9,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1562063151642">
+<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1566461193849">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://xiejinpeng007.github.io/styles/main.css">
 
@@ -45,7 +45,7 @@
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="https://xiejinpeng007.github.io">
-        <img src="https://xiejinpeng007.github.io/images/avatar.png?v=1562063151642" class="site-logo">
+        <img src="https://xiejinpeng007.github.io/images/avatar.png?v=1566461193849" class="site-logo">
         <h1 class="site-title">xiejinpeng&#39;s space</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -126,7 +126,7 @@
 <p>在相应群右键-添加群机器人-设置相关参数</p>
 </li>
 <li>
-<p>可以看到给出了相应的 Webhook 地址和使用文档,本质就是发一个 POST 请求。 url 包含了相关 key , JSON 包含消息内容。
+<p>可以看到给出了相应的 Webhook 地址和使用文档,本质就是发一个 POST 请求。 url 包含了相关 key , JSON 包含消息内容。<br>
 消息内容支持三种类型，具体语法可以参考文档。</p>
 <ul>
 <li>text</li>
@@ -210,11 +210,11 @@ clean_build_job:
 </code></pre>
 <ul>
 <li>
-<p>在打包的 job ( build_production_release ) <code>./gradle assemblexxx</code> 之后传入相关参数调用脚本成功的代码
+<p>在打包的 job ( build_production_release ) <code>./gradle assemblexxx</code> 之后传入相关参数调用脚本成功的代码<br>
 <code>sh ./Android_Gitlab_Ci_Notification.sh &quot;on_success&quot; ${CI_COMMIT_REF_SLUG} ${CI_COMMIT_SHA:0:8} &quot;PackageName_productionRelease_${CI_COMMIT_REF_SLUG}_${CI_COMMIT_SHA:0:8}&quot;</code></p>
 </li>
 <li>
-<p>打包失败时的 job ( clean_build_job ) 传入 on_failure 调用脚本失败的代码
+<p>打包失败时的 job ( clean_build_job ) 传入 on_failure 调用脚本失败的代码<br>
 <code>sh ./Android_Gitlab_Ci_Notification.sh &quot;on_failure&quot;</code></p>
 </li>
 </ul>

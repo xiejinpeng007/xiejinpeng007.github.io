@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Flutter 开发经验总结 | xiejinpeng&#39;s space</title>
+<meta name="description" content="">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1566461193849">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://xiejinpeng007.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-143163463-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-143163463-1');
+</script>
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://xiejinpeng007.github.io">
+        <img src="https://xiejinpeng007.github.io/images/avatar.png?v=1566461193849" class="site-logo">
+        <h1 class="site-title">xiejinpeng&#39;s space</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/xiejinpeng007" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      
+    </div>
+    <div class="site-footer">
+      <a href="https://github.com/xiejinpeng007">Github</a> | <a class="rss" href="https://xiejinpeng007.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">Flutter 开发经验总结</h2>
+            <div class="post-date">2019-08-22</div>
+            
+            <div class="post-content">
+              <h1 id="flutter-开发经验总结">Flutter 开发经验总结</h1>
+<h2 id="前言">前言</h2>
+<p>Flutter 已经推出2年了，虽然一直在关注，但还是想等生态成熟一点再去踩坑。近期有一个需要使用跨平台技术的项目，在讨论后，我们选择使用 Flutter。开发完成之后，我这里总结一些重要的点，供大家参考。<br>
+当然，要学习的话最后还是需要读一遍文档，然后自己 Coding。</p>
+<h2 id="环境配置">环境配置：</h2>
+<p>参考<a href="https://flutter-io.cn/docs/get-started/install/macos">官方文档</a></p>
+<h2 id="dart-语言">Dart 语言</h2>
+<p>Flutter 采用 Dart 语言，我使用之后的感受就是： 语法基本等于 Java + Javascript + 另外一些常见的语法，没太大学习成本，也没太大亮点，下面列一些值得一提的点。</p>
+<ul>
+<li>
+<p>所有变量都是对象</p>
+</li>
+<li>
+<p>静态语言</p>
+</li>
+<li>
+<p>支持闭包</p>
+</li>
+<li>
+<p>方法是顶级的</p>
+</li>
+<li>
+<p>支持反射（Flutter 不支持反射）</p>
+</li>
+<li>
+<p>没有可见性修饰符 属性/类前加<code>_</code>就是 private</p>
+</li>
+<li>
+<p>Stream : 支持 map... 各类操作符，订阅等</p>
+</li>
+<li>
+<p>异步：Dart 的异步操作也通过 <code>Futrue</code>（同 Javascript 中的 <code>Promise</code>） 的方式实现，也支持 <code>async</code> <code>await</code> 语法糖（自动包装为<code>Futrue</code>）。这并不是 Dart 特有的特性，网上有大量资料可以参考。</p>
+</li>
+<li>
+<p>赋值操作符</p>
+<ul>
+<li>?:</li>
+<li>??</li>
+<li>??=</li>
+</ul>
+</li>
+<li>
+<p>可选方法参数</p>
+</li>
+</ul>
+<pre><code> void setUser(String name,{id = '0'});
+ //调用
+ setUser('mario',id : '01');
+</code></pre>
+<ul>
+<li>联级操作符</li>
+</ul>
+<pre><code>   var profit = Profit()
+     ..fund = 'fund'
+     ..profit = 'profit'
+     ..profitValue = 'profitValue';
+</code></pre>
+<ul>
+<li>dynamic 可以指代任何类型，不会进行类型检查。</li>
+</ul>
+<pre><code>var a = 'test';
+(a as dynamic).hello();//编译器不会报错
+</code></pre>
+<h2 id="flutter">Flutter</h2>
+<h3 id="widget-概念">Widget 概念</h3>
+<blockquote>
+<p>在Flutter中几乎所有的对象都是一个Widget。与原生开发中“控件”不同的是，Flutter中的Widget的概念更广泛，它不仅可以表示UI元素，也可以表示一些功能性的组件如：用于手势检测的 GestureDetector widget、用于APP主题数据传递的Theme等等，而原生开发中的控件通常只是指UI元素。</p>
+</blockquote>
+<p>我的理解为 Widget 的工作 = HTML + CSS 的工作。而且很多配置样式的属性名字和 CSS 中的名字差不多。</p>
+<p>Widget 分为 <code>StatelessWidget</code> <code>StatefulWidget</code> 两种，他们的核心方法都是通过<code>build()</code>方法返回一个 Widget 。</p>
+<pre><code>  @protected
+  Widget build(BuildContext context);
+</code></pre>
+<ul>
+<li><code>StatelessWidget</code> 的<code>build()</code>在 Widget 中。</li>
+<li><code>StatefulWidget</code>由于必须创建相应的 <code>State&lt;T extends Widget&gt;</code> ,所以包括<code>build()</code>在内的相关生命周期方法都在<code>State</code>中。<br>
+下面是<code>State</code>的生命周期，由于一个画面也是一个 Widget 所以也是一个画面的生命周期。</li>
+</ul>
+<p><img src="/knowledge/open.file/download?fileNo=226" alt="widget_lifecyle.jpg"></p>
+<h3 id="widget-目录-link">Widget 目录 ( <a href="https://flutterchina.club/widgets/material/">link</a> )</h3>
+<p><img src="/knowledge/open.file/download?fileNo=228" alt="widgets.png"></p>
+<p>上面是官方提供的所有的 Widget，可以看到基本上所有UI相关的内容都是通过不同类型的 Widget 来实现，通过<code>child/children</code>参数进行嵌套。</p>
+<h4 id="不同风格的-widget">不同风格的 Widget</h4>
+<p>除了基础 Widget 外，官方提供了 Material(Android) + Cupertino(ioS) 两种视觉风格的 Widget。<br>
+例如你可以在使用一个 Marterial 风格的<code>RaisedButton</code>或是 Cuptino 风格的<code>CupertinoButton</code>，再也不用担心设计师让 Android 照着 ioS 做成一样了。</p>
+<h4 id="layout-widget">Layout Widget</h4>
+<p>还有用来控制布局的 Layout Widget ,作为容器来使用，看名字都大概知道什么作用了。</p>
+<ul>
+<li>Container</li>
+<li>Padding</li>
+<li>Center</li>
+<li>Stack</li>
+<li>Column</li>
+<li>Row</li>
+<li>Expanded</li>
+<li>ListView</li>
+</ul>
+<h4 id="交互模型-widget">交互模型 Widget</h4>
+<p>控制点击、滑动等交互的 Widget。<br>
+在 Flutter 里点击事件并不是<code>setOnClickListener</code>的方式 ，而是给 Widget 外层加一层交互 Widget ，如点击可使用<code>GestureDetector</code>。<br>
+例如给上面 Splash 画面中的<code>Image</code>加一个点击事件。</p>
+<pre><code>  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: double.infinity,
+      width: double.infinity,
+      child: Image.asset('images/logo.png'),
+    );
+  }
+  
+  ==&gt;
+  
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: double.infinity,
+      width: double.infinity,
+      child: GestureDetector(
+        onTap: () {
+          //点击事件
+        },
+        child: Image.asset('images/logo.png'),
+      ),
+    );
+  }
+</code></pre>
+<h4 id="sample">Sample</h4>
+<p>所以，一个最基本的 Widget 长什么样？这是一个带有是否 login 检查的 Splash 画面。</p>
+<ul>
+<li>StatelessWidget</li>
+</ul>
+<pre><code>class SplashPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    checkLogin();
+    return Container(
+      height: double.infinity,
+      width: double.infinity,
+      child: Image.asset('images/logo.png'),
+    );
+  }
+
+// 使用 async 语法自动包装为 Futrue，也就是说这个方法是异步的。
+  checkLogin(BuildContext context) async {
+    var sp = await SharedPreferences.getInstance();
+    var token = sp.getString(&quot;X-Auth-Token&quot;);
+    if (token != null &amp;&amp; token != &quot;&quot;)
+      Navigator.pushNamedAndRemoveUntil(
+          context, HomePage.routeName, (_) =&gt; false);
+    else
+      Navigator.pushNamed(context, LoginRegisterPage.routeName);
+  }
+}
+
+</code></pre>
+<ul>
+<li>StatefulWidget</li>
+</ul>
+<pre><code>class SplashPage extends StatefulWidget {
+  //创建相应的 State
+  @override
+  State createState() =&gt; _SplashState();
+}
+
+class _SplashState extends State&lt;SplashPage&gt; {
+  @override
+  void initState() {
+    super.initState();
+    checkLogin(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: double.infinity,
+      width: double.infinity,
+      child: Image.asset('images/logo.png'),
+    );
+  }
+
+// 使用 async 语法自动包装为 Futrue，也就是说这个方法是异步的。
+  checkLogin(BuildContext context) async {
+    var sp = await SharedPreferences.getInstance();
+    var token = sp.getString(&quot;X-Auth-Token&quot;);
+    if (token != null &amp;&amp; token != &quot;&quot;)
+      Navigator.pushNamedAndRemoveUntil(
+          context, HomePage.routeName, (_) =&gt; false);
+    else
+      Navigator.pushNamed(context, LoginRegisterPage.routeName);
+  }
+  
+  @override
+  void dispose() {
+      super.dispose();
+    }
+}
+
+</code></pre>
+<h3 id="app-结构">App 结构</h3>
+<p><img src="/knowledge/open.file/download?fileNo=227" alt="counterAppwidgertree.jpg"></p>
+<p>上图是整个 Flutter App 的结构，从父节点开始分别是：</p>
+<ol>
+<li><code>MyApp</code>: 整个 App 的入口在<code>main.dart</code>的<code>main()</code>函数中，调用 <code>runApp(MyApp())</code>,而 MyApp 也是一个 Widget，只不过用来定义一些全局的内容，例如主题、多语言，路由</li>
+<li><code>MaterialApp</code>: 一个 Material 风格的主题，对应的还有 CupertinoApp。</li>
+<li><code>MyHomePage</code> <code>MyHomePageState</code> : 一个画面，也是 Widget。</li>
+<li><code>Scaffold</code> : 定义了一个画面的一些基本效果，比如这里 AppBar、滑动效果等采用 Material 风格，另外还有 ioS 风格的 <code>CupertinoPageScaffold</code>。</li>
+<li>剩下就是一些基本的组件。</li>
+</ol>
+<p>一个基本的 main.dart 大概长这样：</p>
+<pre><code>void main() async {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  static final navigatorKey = GlobalKey&lt;NavigatorState&gt;();
+  static NavigatorState get navigator =&gt; navigatorKey.currentState;
+
+  @override
+  Widget build(BuildContext context) {
+    return  CupertinoApp(
+        title: '',
+        theme: CupertinoThemeData(
+          primaryColor: Color(0xFFFFFFFF),
+          barBackgroundColor: Color(0xFF515669),
+          scaffoldBackgroundColor: Color(0xFF3C3B45),
+        ),
+        navigatorKey: navigatorKey,
+        routes: {
+          HomePage.routeName: (_) =&gt; HomePage(),
+          LoginRegisterPage.routeName: (_) =&gt; LoginRegisterPage(),
+          LoginPage.routeName: (_) =&gt; LoginPage(),
+          ForgetPswPage.routeName: (_) =&gt; ForgetPswPage(),
+          RegisterPage.routeName: (_) =&gt; RegisterPage(),
+        },
+        ),
+        home: SplashPage(),
+    );
+  }
+}
+
+</code></pre>
+<ul>
+<li><code>theme</code> 定义了一个 ioS 风格的 CupertinoApp 主题（实际开发中可能需要同时使用 Material Cupertino 风格控件所以需要自定义主题）</li>
+<li><code>routes</code> 参数注册路由表</li>
+<li><code>home</code> 参数设置首次加载的 Splash 画面</li>
+</ul>
+<h3 id="路由">路由</h3>
+<p>和 Web 中的路由类似，通过在路由表注册相应的 url 和画面。基本方法</p>
+<ul>
+<li>push / pushNamed / pushNamedAndRemoveUntil/...</li>
+<li>pop / popUntil / ...</li>
+</ul>
+<p>基本使用：</p>
+<pre><code>// pushNamed 的定义
+Future pushNamed(BuildContext context, String routeName,{Object arguments})
+
+//打开一个画面，传一个00
+Navigator.of(context).pushNamed(&quot;home_page&quot;, arguments: '00');
+
+//新画面接受参数
+var arg = ModalRoute.of(context).settings.arguments);
+
+//关闭一个画面，返回一个01
+Navigator.of(context).pop(01);
+
+</code></pre>
+<ul>
+<li>实际上更好的方法来处理传值的问题</li>
+<li>可以看到<code>pushNamed</code>方法返回值是一个<code>Future</code> ，说明是一个异步操作，因为可以接受打开的画面<code>pop</code>关闭时返回的<code>result</code> ，此处在<code>pop</code>时返回了一个 01，那么就可以这样接收到。</li>
+</ul>
+<pre><code>var result = async Navigator.of(context).pushNamed(&quot;home_page&quot;, arguments: 'arg');
+</code></pre>
+<h3 id="网络请求和序列化">网络请求和序列化</h3>
+<p>Flutter 的 网络请求库没有特别完美的，目前使用的是 <a href="https://github.com/flutterchina/dio">Dio</a> ,大致是一个简化版的 okhttp 。</p>
+<p>由于 Flutter 禁止使用反射，因为运行时反射会干扰 Dart 的 tree shaking，所以类似 Gson 这样通过反射进行序列化的方式就行不通了。<br>
+目前大概的解决方案有两种：</p>
+<ul>
+<li>手写：<code>Dio</code> 会把返回值解析为 Map/List ，所以可以这样手写:</li>
+</ul>
+<pre><code>  Future&lt;Profits&gt; requestProfits() async {
+    var response = await dio.get(&quot;u/profits&quot;);
+    var data = response.data;
+    print(&quot;requestProfits:$data&quot;);
+
+    var profit = Profit()
+      ..fund = data['profit'][&quot;fund&quot;]
+      ..profit = data['profit'][&quot;profit&quot;]
+      ..profitValue = toMoney(data['profit']['profitValue']);
+
+    return Profits()
+      ..miningProfit = data['miningProfit']
+      ..lastMiningProfit = data['lastMiningProfit']
+      ..shareProfit = data['shareProfit']
+      ..lastShareProfit = data['lastShareProfit']
+      ..tradeProfit = data['tradeProfit']
+      ..lastTradeProfit = data['lastTradeProfit']
+      ..vipProfit = data['vipProfit']
+      ..lastVipProfit = data['lastVipProfit']
+      ..profit = profit;
+  }
+</code></pre>
+<ul>
+<li>生成代码：使用 <a href="https://pub.dev/packages/json_serializable">json_serializable</a></li>
+</ul>
+<pre><code>//user.dart
+
+import 'package:json_annotation/json_annotation.dart';
+
+// user.g.dart 将在我们运行生成命令后自动生成
+part 'user.g.dart';
+
+///这个标注是告诉生成器，这个类是需要生成Model类的
+@JsonSerializable()
+
+class User{
+  User(this.name, this.email);
+
+  String name;
+  String email;
+  //不同的类使用不同的mixin即可
+  factory User.fromJson(Map&lt;String, dynamic&gt; json) =&gt; _$UserFromJson(json);
+  Map&lt;String, dynamic&gt; toJson() =&gt; _$UserToJson(this);  
+}
+</code></pre>
+<p>当然，还是需要写 <code>fromJson</code> <code>toJson</code> 的模板代码，也可以通过生成的方式解决。</p>
+<h3 id="平台特定代码">平台特定代码</h3>
+<p>Flutter 主要是负责了UI部分的构建，各平台特定的代码还是要通过原生实现，主要用两种方法处理：</p>
+<ul>
+<li><code>Platform Channel</code> : 大概就是 Flutter 端和原生端注册约定好 <code>platform_channel_name</code> 的 <code>Platform Channel</code>  ，然后调用方法和传参，另一端解析就行了。具有原生能力的 plugin 也就是这样实现的。比如</li>
+</ul>
+<pre><code>//flutter
+MethodChannel('method_channel_mobile').invokeMethod('sendMobile','13000000000')
+
+//Android MainActivity
+
+MethodChannel(flutterView, MOBILE_CHANNEL)
+            .setMethodCallHandler { methodCall, result -&gt;
+                when {
+                    TextUtils.equals(methodCall.method, &quot;mobile&quot;) -&gt; {
+                        mobile = methodCall.arguments.toString()
+                        result.success(&quot;success&quot;)
+                    }
+                     result.notImplemented()
+                }
+            }
+</code></pre>
+<ul>
+<li><code>PlatformView</code> 直接嵌套原生的 View 到 Flutter 中，但这样做效率不高。另外需要注意的是不要传入一个 view 到<code>PlatformView</code>中，否则可能出现 Flutter 端多次调用该<code>PlatformView</code>的时候状态会共存，以及不会销毁。</li>
+</ul>
+<pre><code>// 定义一个用于的 PlatformView 和 PlatformViewFactory 用于实例化 Native View 
+class ButtonFactory(
+    private val context: Context
+) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
+
+    override fun create(p0: Context?, p1: Int, p2: Any?): PlatformView {
+        return ButtonPlatformView(context)
+    }
+    class ButtonPlatformView(
+        private val context: Context
+    ) : PlatformView {
+
+        override fun getView(): Button {
+            return Button(context)
+        }
+        override fun dispose() {
+        }
+    }
+}
+
+//在 MainActivity 中注册
+        registrarFor(&quot;native_view&quot;).platformViewRegistry()
+            .registerViewFactory(&quot;native_view&quot;,ButtonPlatformFactory)
+</code></pre>
+<h3 id="widget-嵌套的问题">Widget 嵌套的问题</h3>
+<p>网上对 Flutter 嵌套讨论的比较多的问题就是，UI 复杂了以后，嵌套层数太多。<br>
+确实有这个问题，之前说了 Widget 不光是 View 还包括配置文件，所以一个类似 Button 这样的 Widget 可能就需要嵌套3 4层。<br>
+下面是我写的一个登录画面的登录按钮，感受一下:</p>
+<pre><code>  CupertinoButton _loginButton() {
+    return CupertinoButton(
+      padding: EdgeInsets.all(0),
+      child: Container(
+          width: double.infinity,
+          height: 45,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: _isLoginAvailable
+                    ? &lt;Color&gt;[Color(0xFF657FF8), Color(0xFF4260E8)]
+                    : &lt;Color&gt;[Color(0xFFCBCFE2), Color(0xFF73788F)]),
+            borderRadius: BorderRadius.all(Radius.circular(6)),
+          ),
+          child: Center(
+            child: Text(
+              &quot;登 录&quot;,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18,
+                color: _isLoginAvailable ? Colors.white : Color(0x76FFFFFF),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          )),
+//      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+      onPressed: !_isLoginAvailable ? null : _startCustomFlow,
+    );
+  }
+</code></pre>
+<p>实际上这还是只是结构+样式部分，不包括点击后的逻辑。<br>
+甚至你可以看到 Button 中的文字也是通过嵌套一个 Widget 来实现的，但这也是 Flutter 的一个优势，不再需要写自定义 Widget 的人去提供大量像文字能不能加粗，变色、斜体等等细节的样式，直接让你传一个 Widget 自行处理，类似的情况还有很多。<br>
+另外一个问题是 Widget State 的状态可能太多，包括各个 Widget 的状态和画面的状态堆在一起，想起了当年原生 Android 一个 Activity 50个变量的恐惧。<br>
+但我认为这些主要还是因为 Flutter 处于发展的初期，还没有太成熟的架构，目前官方提供了状态管理的库 <code>Provider</code>。<br>
+我目前的解决方案是尽量提成方法和独立的Widget：</p>
+<ul>
+<li>对于有整个页面无关局部状态的 Widget 提成一个独立的 <code>StatefulWidget</code>。</li>
+<li>对于没有局部状态的，需要重用就提成一个<code>StatelessWidget</code>，不需要就抽成一个方法，返回 Widget，参考上面的 Button 。</li>
+<li>最后在<code>build()</code>方法中只描述整个画面的结构。</li>
+</ul>
+<p>例如一个 login 画面的<code>build()</code>方法我是这样写的：</p>
+<pre><code>  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: cusAppBar(context, elevation: 0),
+        backgroundColor: $3C3B45,
+        body: Stack(
+          children: &lt;Widget&gt;[
+            SingleChildScrollView(
+              child: Container(
+                margin: EdgeInsets.only(left: 15, right: 15),
+                child: Column(
+                  children: &lt;Widget&gt;[
+                    _logo(),
+                    Form(
+                      onChanged: _onFormChanged,
+                      child: Column(
+                        children: &lt;Widget&gt;[
+                          _phoneRow(),
+                          _divider(),
+                          _passwordColumn(),
+                          _forgetPswText(),
+                          _loginButton(),
+                          _registerText()
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+</code></pre>
+<h3 id="热重载hotreload">热重载（HotReload）</h3>
+<p>Flutter 的热重载是广受欢迎的一个特性，重要原因则是 Debug 模式采用 JIT 编译，release 模式采用 AOT 编译。实际用下来效果不错。</p>
+<h3 id="问题">问题</h3>
+<ul>
+<li>编译偶尔遇到的一个问题：<br>
+问题：Waiting for another flutter command to release the startup lock...<br>
+解决：rm ./flutter/bin/cache/lockfile</li>
+</ul>
+<h5 id="最后以上只是总结一些重要的点最终官方文档肯定是要读一遍的熟悉大部分-widget-的用法-文档">最后，以上只是总结一些重要的点，最终官方文档肯定是要读一遍的,熟悉大部分 Widget 的用法: <a href="https://flutterchina.club/docs/">文档</a></h5>
+<h3 id="总结">总结</h3>
+<p>优点：</p>
+<ul>
+<li><code>Android iOs 两端 UI 高度一致</code>：由于 Flutter 使用自己的一套绘制 UI 的引擎和逻辑，完全不使用 Native View，仅仅调用原生的绘制接口，所以几乎可以做到两个平台的 UI 一模一样，这也是 Flutter 还要做 Web maCos 等全平台的原因。我在开发期间一直使用 Android 进行调试，最后在 Ios 上跑的时候，几乎没有什么差别(虽然目前 UI 也不太复杂)。</li>
+<li><code>接入原生相对容易</code>：需要原生实现的功能通过<code>PlatformChannel</code>和 <code>PlatformView</code>也大多都能实现，还可以通过<code>PlatformChannel</code>来启动一个原生的<code>Activity/Fragment</code>实现。（比如扫一扫功能）</li>
+<li><code>贵族血统</code>：Google 的全力支持，国内大厂也都在积极尝试。</li>
+<li><code>初步可用的程度</code>：目前已经完成了一个小项目的开发，在和原生交互不多的情况下还没有遇到太大的坑。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li><code>基础功能的缺失</code>：很多基础的功能也需要用 plugin 通过原生来实现，比如 Webview Map 这些组件，更不要说一些 SDK ,几乎都需要自己写 plugin。</li>
+<li><code>跨平台的通信</code>：对于大量使用<code>MethodChannel</code>进行通信以及各平台间API有差异的情况下，设计和维护的问题。</li>
+<li><code>性能</code>：目前原生 Flutter 在帧数上接近原生，用户使用体验接近，但内存开销更大，尤其在视频方面。</li>
+</ul>
+<p>总的来说：我的看法是，比较看好 Flutter 跨更多平台的前途，目前来说适合用来开发和原生平台 API 交互不那么复杂的 App 。</p>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://xiejinpeng007.github.io/post/pei-zhi-gitlab-ci-hong-fa-qi-ye-wei-xin-qun-ji-qi-ren-fa-song-tong-zhi">
+                  <h3 class="post-title">
+                    配置 Gitlab-CI 触发企业微信群机器人发送通知
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ea3603bb590ba2ab51ba',
+        clientSecret: 'e82e698ee0f1db9e833f069b9c3b612ba3486927',
+        repo: 'xiejinpeng007.github.io',
+        owner: 'xiejinpeng007',
+        admin: ['xiejinpeng007'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

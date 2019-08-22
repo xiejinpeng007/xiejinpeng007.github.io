@@ -9,7 +9,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1562063151642">
+<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1566461193849">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://xiejinpeng007.github.io/styles/main.css">
 
@@ -45,7 +45,7 @@
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="https://xiejinpeng007.github.io">
-        <img src="https://xiejinpeng007.github.io/images/avatar.png?v=1562063151642" class="site-logo">
+        <img src="https://xiejinpeng007.github.io/images/avatar.png?v=1566461193849" class="site-logo">
         <h1 class="site-title">xiejinpeng&#39;s space</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -158,7 +158,7 @@ source.subscribe(e -&gt; { /* Ignored. */ }, Throwable::printStackTrace);
 <p>Rxjava 2.x 一个大的改进就是解决了 1.x 中不支持 <code>backpressure</code> 问题<br>
 解决方案是将过去的 <code>Observable</code> 重新设计为：</p>
 <ul>
-<li>不支持 backpressure 的 <code>io.reactivex.Observable</code>  :
+<li>不支持 backpressure 的 <code>io.reactivex.Observable</code>  :<br>
 现在 <code>Observable</code>会将没有消费的数据保存在内存中直到<code>OutOfMemoryError</code>而不会抛出<code>MissBackpressureException</code></li>
 <li>支持 backpressure 的 <code>io.reactivex.Flowable</code><br>
 在 <code>Flowable.create()</code>创建时指定背压策略 : 如<code>BackpressureStrategy.DROP</code></li>
@@ -212,7 +212,7 @@ Observable&lt;R&gt; flatMap(Function&lt;? super T, ? extends ObservableSource&lt
 <code>io.reactivex.subjects.PublishSubject</code><br>
 <code>io.reactivex.subjects.ReplaySubject</code>   <code>io.reactivex.subjects.UnicastSubject</code><br>
 不支持 backpressure , 属于 Observable 系列</p>
-<p><code>io.reactivex.processors.AsyncProcessor</code>
+<p><code>io.reactivex.processors.AsyncProcessor</code><br>
 <code>io.reactivex.processors.BehaviorProcessor</code> <code>io.reactivex.processors.PublishProcessor</code> <code>io.reactivex.processors.ReplayProcessor</code> <code>io.reactivex.processors.UnicastProcessor</code><br>
 支持 backpressure ，属于 Flowable 系列</p>
 <h2 id="testsubject">TestSubject</h2>
@@ -288,7 +288,7 @@ subscriber.dispose();
 
 Integer i = Flowable.range(100, 100).blockingLast();
 </code></pre>
-<p>另一个关于 <code>rx.Subscriber</code> 和 <code>org.reactivestreams.Subscriber</code>的重大变化是
+<p>另一个关于 <code>rx.Subscriber</code> 和 <code>org.reactivestreams.Subscriber</code>的重大变化是<br>
 <code>Subscribers</code> 和 <code>Observers</code> 内部不在允许 throws 任何东西除了致命异常（参见 <code>Exceptions.throwIfFatal()</code>）,所以下面的代码现在不合法：</p>
 <pre><code>Subscriber&lt;Integer&gt; subscriber = new Subscriber&lt;Integer&gt;() {
     @Override

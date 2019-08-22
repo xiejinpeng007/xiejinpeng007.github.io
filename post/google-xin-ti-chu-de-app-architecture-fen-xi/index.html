@@ -9,7 +9,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1562063151642">
+<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1566461193849">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://xiejinpeng007.github.io/styles/main.css">
 
@@ -45,7 +45,7 @@
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="https://xiejinpeng007.github.io">
-        <img src="https://xiejinpeng007.github.io/images/avatar.png?v=1562063151642" class="site-logo">
+        <img src="https://xiejinpeng007.github.io/images/avatar.png?v=1566461193849" class="site-logo">
         <h1 class="site-title">xiejinpeng&#39;s space</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -135,15 +135,15 @@
 <p>Lifecycle 主要使用两个枚举来跟踪相关组件的生命周期状态。</p>
 <ul>
 <li>
-<p>Event:
+<p>Event:<br>
 {ON_ANY,ON_CREATE,ON_DESTROY,ON_PAUSE,ON_RESUME,ON_START,ON_STOP}</p>
 </li>
 <li>
-<p>State:
+<p>State:<br>
 {CREATED,DESTROYED,INITIALIZED,RESUMED,STARTED}</p>
 </li>
 <li>
-<p><code>LifecycleOwner</code>
+<p><code>LifecycleOwner</code><br>
 需要被观察的组件（比如 activity）实现这个接口 =&gt; 被观察者</p>
 </li>
 <li>
@@ -372,7 +372,7 @@ public class AndroidViewModel extends ViewModel {
 <li>避免了需要重复获取数据从而浪费资源、内存泄露的问题。</li>
 </ul>
 <h3 id="repository">Repository</h3>
-<p>类似之前使用的Presenter层，从不同的数据源（内存、网络、硬盘）提供数据，并不需要ViewModel层关心具体操作。
+<p>类似之前使用的Presenter层，从不同的数据源（内存、网络、硬盘）提供数据，并不需要ViewModel层关心具体操作。<br>
 另外，Google希望在这一层对于数据进行缓存和持久化。</p>
 <pre><code class="language-java">public class UserRepository {
     private Webservice webservice;

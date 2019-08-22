@@ -9,7 +9,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1562063151642">
+<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1566461193849">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://xiejinpeng007.github.io/styles/main.css">
 
@@ -45,7 +45,7 @@
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="https://xiejinpeng007.github.io">
-        <img src="https://xiejinpeng007.github.io/images/avatar.png?v=1562063151642" class="site-logo">
+        <img src="https://xiejinpeng007.github.io/images/avatar.png?v=1566461193849" class="site-logo">
         <h1 class="site-title">xiejinpeng&#39;s space</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -118,14 +118,14 @@
               </div>
             
             <div class="post-content">
-              <p>RxJava 相信各位已经使用了很久，大部分人在刚学习 RxJava 感叹切换线程的方便，调用逻辑清晰的同时，并不知道其中的原理，主要是靠记住运行的顺序。
+              <p>RxJava 相信各位已经使用了很久，大部分人在刚学习 RxJava 感叹切换线程的方便，调用逻辑清晰的同时，并不知道其中的原理，主要是靠记住运行的顺序。<br>
 随着我们设计出的 RxJava流 越来越复杂，一些复杂的问题并不能靠着记住的运行顺序就能解决。<br>
 下面，就通过最常用的操作符的源码来看看所谓的<code>流</code>是什么运行的。</p>
 <p>首先我们用<code>Single</code>举例，设计一个最基本的 RxJava 流，只有一个 <code>Observable(ColdObservable)</code> 和<code>Obsever</code>：</p>
 <pre><code>Disposable disposable = Single.just(&quot;wtf&quot;)
               			.subscribe(it -&gt; Log.i(&quot;subscribe&quot;, it));
 </code></pre>
-<p>上游发送一个<code>&quot;wtf&quot;</code> ，下游接受时将其打印出来。上游发送端使用 <code>Single.just</code> 作为创建方法,
+<p>上游发送一个<code>&quot;wtf&quot;</code> ，下游接受时将其打印出来。上游发送端使用 <code>Single.just</code> 作为创建方法,<br>
 看一下 <code>just()</code> 方法里做了什么。</p>
 <pre><code>    public static &lt;T&gt; Single&lt;T&gt; just(final T item) {
         ObjectHelper.requireNonNull(item, &quot;value is null&quot;);
