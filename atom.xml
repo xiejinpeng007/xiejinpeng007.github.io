@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://xiejinpeng007.github.io</id>
     <title>xiejinpeng&apos;s space</title>
-    <updated>2019-08-22T08:18:19.841Z</updated>
+    <updated>2019-08-23T07:01:34.696Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://xiejinpeng007.github.io"/>
     <link rel="self" href="https://xiejinpeng007.github.io/atom.xml"/>
@@ -93,9 +93,9 @@
 <li><code>StatefulWidget</code>由于必须创建相应的 <code>State&lt;T extends Widget&gt;</code> ,所以包括<code>build()</code>在内的相关生命周期方法都在<code>State</code>中。<br>
 下面是<code>State</code>的生命周期，由于一个画面也是一个 Widget 所以也是一个画面的生命周期。</li>
 </ul>
-<p><img src="/knowledge/open.file/download?fileNo=226" alt="widget_lifecyle.jpg"></p>
+<p><img src="https://github.com/xiejinpeng007/XLearnNotes/blob/master/Flutter/widget_lifecyle.jpg" alt="widget_lifecyle.jpg"></p>
 <h3 id="widget-目录-link">Widget 目录 ( <a href="https://flutterchina.club/widgets/material/">link</a> )</h3>
-<p><img src="/knowledge/open.file/download?fileNo=228" alt="widgets.png"></p>
+<p><img src="https://github.com/xiejinpeng007/XLearnNotes/blob/master/Flutter/widgets.png" alt="widgets.png"></p>
 <p>上面是官方提供的所有的 Widget，可以看到基本上所有UI相关的内容都是通过不同类型的 Widget 来实现，通过<code>child/children</code>参数进行嵌套。</p>
 <h4 id="不同风格的-widget">不同风格的 Widget</h4>
 <p>除了基础 Widget 外，官方提供了 Material(Android) + Cupertino(ioS) 两种视觉风格的 Widget。<br>
@@ -214,7 +214,7 @@ class _SplashState extends State&lt;SplashPage&gt; {
 
 </code></pre>
 <h3 id="app-结构">App 结构</h3>
-<p><img src="/knowledge/open.file/download?fileNo=227" alt="counterAppwidgertree.jpg"></p>
+<p><img src="https://github.com/xiejinpeng007/XLearnNotes/blob/master/Flutter/counterAppwidgertree.jpg" alt="counterAppwidgertree.jpg"></p>
 <p>上图是整个 Flutter App 的结构，从父节点开始分别是：</p>
 <ol>
 <li><code>MyApp</code>: 整个 App 的入口在<code>main.dart</code>的<code>main()</code>函数中，调用 <code>runApp(MyApp())</code>,而 MyApp 也是一个 Widget，只不过用来定义一些全局的内容，例如主题、多语言，路由</li>
