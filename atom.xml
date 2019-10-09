@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://xiejinpeng007.github.io</id>
     <title>xiejinpeng&apos;s space</title>
-    <updated>2019-10-09T06:44:33.027Z</updated>
+    <updated>2019-10-09T06:46:07.942Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://xiejinpeng007.github.io"/>
     <link rel="self" href="https://xiejinpeng007.github.io/atom.xml"/>
@@ -15,7 +15,8 @@
         <link href="https://xiejinpeng007.github.io/post/add-flutter-module-to-app">
         </link>
         <updated>2019-10-09T06:27:24.000Z</updated>
-        <content type="html"><![CDATA[<p>最近 Flutter 很火，相信长得帅的人都已经对它都有了初步的了解。<br>
+        <content type="html"><![CDATA[<h2 id="前言">前言</h2>
+<p>最近 Flutter 很火，相信长得帅的人都已经对它都有了初步的了解。<br>
 不过由于目前默认使用 Flutter 作为框架接管整个 App 进行开发，不够灵活：一方面使用纯 Flutter 开发需要在项目开始之前仔细评估是否有难以实现的功能；另一方面现有的 App 想使用 Flutter 的话很难全部转换过去。<br>
 很容易想到在现有的 App 的基础上加入 Flutter 作为部分画面/功能的实现是一个理想的方案，也更有利于做技术尝试和风险控制。<br>
 实际上目前 Flutter 官方提供了两种方案用于给现有 App 加入 Flutter Module，另外还有一些第三方的方案，最近我做了一些尝试，分享一些成果。<br>
