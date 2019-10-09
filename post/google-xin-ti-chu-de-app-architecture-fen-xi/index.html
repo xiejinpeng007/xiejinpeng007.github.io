@@ -9,7 +9,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1566899082954">
+<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1570603428650">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://xiejinpeng007.github.io/styles/main.css">
 
@@ -45,7 +45,7 @@
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="https://xiejinpeng007.github.io">
-        <img src="https://xiejinpeng007.github.io/images/avatar.png?v=1566899082954" class="site-logo">
+        <img src="https://xiejinpeng007.github.io/images/avatar.png?v=1570603428650" class="site-logo">
         <h1 class="site-title">xiejinpeng&#39;s space</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -62,7 +62,7 @@
       
         
           <a href="/archives" class="site-nav">
-            归档
+            目录
           </a>
         
       
@@ -125,7 +125,7 @@
 <p>最重要的一个原则就是尽量在app中做到separation of concerns（关注点分离）。常见的错误就是把所有代码都写在Activity或者Fragment中。任何跟UI和系统交互无关的事情都不应该放在这些类当中。尽可能让它们保持简单轻量可以避免很多生命周期方面的问题。别忘了能并不拥有这些类，它们只是连接app和操作系统的桥梁。根据用户的操作和其它因素，比如低内存，Android OS可能在任何时候销毁它们。为了提供可靠的用户体验，最好把对它们的依赖最小化。</p>
 <h4 id="通过mvvm来分层">==&gt; 通过MVVM来分层</h4>
 <p>第二个很重要的准则是用model驱动UI，最好是持久化的model。之所以要持久化是基于两个原因：如果OS销毁app释放资源，用户数据不会丢失；当网络很差或者断网的时候app可以继续工作。Model是负责app数据处理的组件。它们不依赖于View或者app 组件（Activity，Fragment等），因此它们不会受那些组件的生命周期的影响。保持UI代码的简单，于业务逻辑分离可以让它更易管理。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/1447881-436935e41b6dbc14.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<figure data-type="image" tabindex="1"><img src="http://upload-images.jianshu.io/upload_images/1447881-436935e41b6dbc14.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></figure>
 <h4 id="其中比较重要的一点就是为每个层级加入和绑定了生命周期这一个关系">其中比较重要的一点就是为每个层级加入和绑定了生命周期这一个关系。</h4>
 <p>为了实现这个新的架构，Google提供了几种组件。</p>
 <h3 id="lifecycle">Lifecycle</h3>
@@ -367,7 +367,7 @@ public class AndroidViewModel extends ViewModel {
     }
 }
 </code></pre>
-<p><img src="http://upload-images.jianshu.io/upload_images/1447881-248afc6392bc15c0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<figure data-type="image" tabindex="2"><img src="http://upload-images.jianshu.io/upload_images/1447881-248afc6392bc15c0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></figure>
 <ul>
 <li>避免了需要重复获取数据从而浪费资源、内存泄露的问题。</li>
 </ul>
