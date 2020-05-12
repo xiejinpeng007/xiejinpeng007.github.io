@@ -2,18 +2,18 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://xiejinpeng007.github.io</id>
     <title>xiejinpeng&apos;s space</title>
-    <updated>2019-10-09T07:25:38.552Z</updated>
+    <updated>2020-05-12T06:06:41.514Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://xiejinpeng007.github.io"/>
     <link rel="self" href="https://xiejinpeng007.github.io/atom.xml"/>
     <subtitle>你觉得做什么事很痛苦，那么就需要去越过它。</subtitle>
     <logo>https://xiejinpeng007.github.io/images/avatar.png</logo>
     <icon>https://xiejinpeng007.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2019, xiejinpeng&apos;s space</rights>
+    <rights>All rights reserved 2020, xiejinpeng&apos;s space</rights>
     <entry>
         <title type="html"><![CDATA[给现有 App 引入 Flutter Module]]></title>
-        <id>https://xiejinpeng007.github.io/post/add-flutter-module-to-app</id>
-        <link href="https://xiejinpeng007.github.io/post/add-flutter-module-to-app">
+        <id>https://xiejinpeng007.github.io/post/add-flutter-module-to-app/</id>
+        <link href="https://xiejinpeng007.github.io/post/add-flutter-module-to-app/">
         </link>
         <updated>2019-10-09T06:27:24.000Z</updated>
         <content type="html"><![CDATA[<h2 id="前言">前言</h2>
@@ -23,7 +23,7 @@
 实际上目前 Flutter 官方提供了两种方案用于给现有 App 加入 Flutter Module，另外还有一些第三方的方案，最近我做了一些尝试，分享一些成果。<br>
 需要注意的是， 给现有 App 引入 Flutter Module 的功能还在实验性的阶段, APIs 和工具链处于未稳定阶段,且需要切换到   <code>master</code>  分支（不稳定）使用。</p>
 <p>效果：<br>
-<img src="https://xiejinpeng007.github.io/post-images/1570603064756.gif" alt="从原生App中打开 Flutter Module（ Fragment ）"><br>
+<img src="https://xiejinpeng007.github.io/post-images/1570603064756.gif" alt="从原生App中打开 Flutter Module（ Fragment ）" loading="lazy"><br>
 从原生App中打开 Flutter Module（ Fragment , Google Pixel3 XL ）</p>
 <h2 id="android">Android</h2>
 <h3 id="创建一个-flutter-module">创建一个 Flutter module</h3>
@@ -143,7 +143,7 @@ frameLayout.addView(flutterView);
 //调用下面代码后才会渲染
 flutterView.attachToFlutterEngine(flutterEngine);
 </code></pre>
-<p><img src="https://xiejinpeng007.github.io/post-images/1570602991085.gif" alt="直接在原生App中加入 FlutterView"><br>
+<p><img src="https://xiejinpeng007.github.io/post-images/1570602991085.gif" alt="直接在原生App中加入 FlutterView" loading="lazy"><br>
 直接在原生App中加入 FlutterView ( Google Pixel3 XL )</p>
 <h4 id="通过-flutterfragment-打开">通过 FlutterFragment 打开</h4>
 <h5 id="通过-xml">通过 xml</h5>
@@ -184,7 +184,7 @@ flutterView.attachToFlutterEngine(flutterEngine);
 通过老的方式启动 Flutter 的响应时间长包括了需要启动<code>FlutterEngine</code>的时间，可以理解为冷启动，而且从原生的不同<code>Activity / ViewController</code> 启动 Flutter 都需要启动一个新的 <code>FlutterEngine</code>，所以不仅第一次启动 Flutter 时间长 ，每次启动都会需要同样的时间。比如下面的情况</p>
 <p><code>Native A -&gt; Flutter B -&gt; Native C -&gt; Flutter D</code></p>
 <p>这样从<code>Native A</code> 和 <code>Native B</code>启动时会实例化两个<code>FlutterEngine</code>。<br>
-<img src="https://xiejinpeng007.github.io/post-images/1570603039285.gif" alt="未使用 FlutterEngineCache 时从原生 App 启动白屏"><br>
+<img src="https://xiejinpeng007.github.io/post-images/1570603039285.gif" alt="未使用 FlutterEngineCache 时从原生 App 启动白屏" loading="lazy"><br>
 未使用 FlutterEngineCache 时从原生 App 启动白屏 ( Google Pixel3 XL )</p>
 <p>这样不仅慢，对资源的开销也更多。<br>
 为了解决这个问题，新的解决方案引入了<code>FlutterEngine</code> 缓存机制。</p>
@@ -273,8 +273,8 @@ FlutterEngine flutterEngine = new FlutterEngine(context);
     </entry>
     <entry>
         <title type="html"><![CDATA[Flutter 介绍 & 开发经验总结]]></title>
-        <id>https://xiejinpeng007.github.io/post/introducing-the-flutter</id>
-        <link href="https://xiejinpeng007.github.io/post/introducing-the-flutter">
+        <id>https://xiejinpeng007.github.io/post/introducing-the-flutter/</id>
+        <link href="https://xiejinpeng007.github.io/post/introducing-the-flutter/">
         </link>
         <updated>2019-08-22T08:05:51.000Z</updated>
         <content type="html"><![CDATA[<h1 id="flutter-介绍-开发经验总结">Flutter 介绍 &amp; 开发经验总结</h1>
@@ -355,9 +355,9 @@ FlutterEngine flutterEngine = new FlutterEngine(context);
 <li><code>StatefulWidget</code>由于必须创建相应的 <code>State&lt;T extends Widget&gt;</code> ,所以包括<code>build()</code>在内的相关生命周期方法都在<code>State</code>中。<br>
 下面是<code>State</code>的生命周期，由于一个画面也是一个 Widget 所以也是一个画面的生命周期。</li>
 </ul>
-<figure data-type="image" tabindex="1"><img src="https://github.com/xiejinpeng007/XLearnNotes/blob/master/Flutter/widget_lifecyle.jpg?raw=true" alt="widget_lifecyle.jpg"></figure>
+<figure data-type="image" tabindex="1"><img src="https://github.com/xiejinpeng007/XLearnNotes/blob/master/Flutter/widget_lifecyle.jpg?raw=true" alt="widget_lifecyle.jpg" loading="lazy"></figure>
 <h3 id="widget-目录-link">Widget 目录 ( <a href="https://flutterchina.club/widgets/material/">link</a> )</h3>
-<figure data-type="image" tabindex="2"><img src="https://github.com/xiejinpeng007/XLearnNotes/blob/master/Flutter/widgets.png?raw=true" alt="widgets.png"></figure>
+<figure data-type="image" tabindex="2"><img src="https://github.com/xiejinpeng007/XLearnNotes/blob/master/Flutter/widgets.png?raw=true" alt="widgets.png" loading="lazy"></figure>
 <p>上面是官方提供的所有的 Widget，可以看到基本上所有UI相关的内容都是通过不同类型的 Widget 来实现，通过<code>child/children</code>参数进行嵌套。</p>
 <h4 id="不同风格的-widget">不同风格的 Widget</h4>
 <p>除了基础 Widget 外，官方提供了 Material(Android) + Cupertino(ioS) 两种视觉风格的 Widget。<br>
@@ -476,7 +476,7 @@ class _SplashState extends State&lt;SplashPage&gt; {
 
 </code></pre>
 <h3 id="app-结构">App 结构</h3>
-<figure data-type="image" tabindex="3"><img src="https://github.com/xiejinpeng007/XLearnNotes/blob/master/Flutter/counterAppwidgertree.jpg?raw=true" alt="counterAppwidgertree.jpg"></figure>
+<figure data-type="image" tabindex="3"><img src="https://github.com/xiejinpeng007/XLearnNotes/blob/master/Flutter/counterAppwidgertree.jpg?raw=true" alt="counterAppwidgertree.jpg" loading="lazy"></figure>
 <p>上图是整个 Flutter App 的结构，从父节点开始分别是：</p>
 <ol>
 <li><code>MyApp</code>: 整个 App 的入口在<code>main.dart</code>的<code>main()</code>函数中，调用 <code>runApp(MyApp())</code>,而 MyApp 也是一个 Widget，只不过用来定义一些全局的内容，例如主题、多语言，路由</li>
@@ -761,8 +761,8 @@ class ButtonFactory(
     </entry>
     <entry>
         <title type="html"><![CDATA[配置 Gitlab-CI 触发企业微信群机器人发送通知]]></title>
-        <id>https://xiejinpeng007.github.io/post/pei-zhi-gitlab-ci-hong-fa-qi-ye-wei-xin-qun-ji-qi-ren-fa-song-tong-zhi</id>
-        <link href="https://xiejinpeng007.github.io/post/pei-zhi-gitlab-ci-hong-fa-qi-ye-wei-xin-qun-ji-qi-ren-fa-song-tong-zhi">
+        <id>https://xiejinpeng007.github.io/post/pei-zhi-gitlab-ci-hong-fa-qi-ye-wei-xin-qun-ji-qi-ren-fa-song-tong-zhi/</id>
+        <link href="https://xiejinpeng007.github.io/post/pei-zhi-gitlab-ci-hong-fa-qi-ye-wei-xin-qun-ji-qi-ren-fa-song-tong-zhi/">
         </link>
         <updated>2019-07-02T10:22:15.000Z</updated>
         <content type="html"><![CDATA[<h3 id="配置-gitlab-ci-触发企业微信群机器人发送通知">配置 Gitlab-CI 触发企业微信群机器人发送通知</h3>
@@ -869,8 +869,8 @@ clean_build_job:
     </entry>
     <entry>
         <title type="html"><![CDATA[使用 XDslPagerAdapter 快速创建 ViewPager]]></title>
-        <id>https://xiejinpeng007.github.io/post/shi-yong-xdslpageradapter-kuai-su-chuang-jian-viewpager</id>
-        <link href="https://xiejinpeng007.github.io/post/shi-yong-xdslpageradapter-kuai-su-chuang-jian-viewpager">
+        <id>https://xiejinpeng007.github.io/post/shi-yong-xdslpageradapter-kuai-su-chuang-jian-viewpager/</id>
+        <link href="https://xiejinpeng007.github.io/post/shi-yong-xdslpageradapter-kuai-su-chuang-jian-viewpager/">
         </link>
         <updated>2019-04-09T09:24:56.000Z</updated>
         <content type="html"><![CDATA[<h2 id="使用-xdslpageradapter-快速创建-viewpager">使用 XDslPagerAdapter 快速创建 ViewPager</h2>
@@ -926,8 +926,8 @@ clean_build_job:
     </entry>
     <entry>
         <title type="html"><![CDATA[RxJava2.x 从源码分析原理]]></title>
-        <id>https://xiejinpeng007.github.io/post/rxjava2x-cong-yuan-ma-fen-xi-yuan-li</id>
-        <link href="https://xiejinpeng007.github.io/post/rxjava2x-cong-yuan-ma-fen-xi-yuan-li">
+        <id>https://xiejinpeng007.github.io/post/rxjava2x-cong-yuan-ma-fen-xi-yuan-li/</id>
+        <link href="https://xiejinpeng007.github.io/post/rxjava2x-cong-yuan-ma-fen-xi-yuan-li/">
         </link>
         <updated>2019-02-11T09:24:07.000Z</updated>
         <content type="html"><![CDATA[<p>RxJava 相信各位已经使用了很久，大部分人在刚学习 RxJava 感叹切换线程的方便，调用逻辑清晰的同时，并不知道其中的原理，主要是靠记住运行的顺序。<br>
@@ -1351,8 +1351,8 @@ clean_build_job:
     </entry>
     <entry>
         <title type="html"><![CDATA[Kotlin 中的依赖注入 KODEIN]]></title>
-        <id>https://xiejinpeng007.github.io/post/kotlin-zhong-de-yi-lai-zhu-ru-kodein</id>
-        <link href="https://xiejinpeng007.github.io/post/kotlin-zhong-de-yi-lai-zhu-ru-kodein">
+        <id>https://xiejinpeng007.github.io/post/kotlin-zhong-de-yi-lai-zhu-ru-kodein/</id>
+        <link href="https://xiejinpeng007.github.io/post/kotlin-zhong-de-yi-lai-zhu-ru-kodein/">
         </link>
         <updated>2018-06-08T09:23:31.000Z</updated>
         <content type="html"><![CDATA[<p>用 Java 进行 Android 开发的话，依赖注入这一块一般使用 Dagger ,转用 Kotlin 之后有更多的选择，Kodein 是个不错的库， 4.0 5.0 都使用过了，相对于 Dagger 有很多好处。</p>
@@ -1513,8 +1513,8 @@ val kodein = Kodein {
     </entry>
     <entry>
         <title type="html"><![CDATA[SQLite 笔记]]></title>
-        <id>https://xiejinpeng007.github.io/post/sqlite-bi-ji</id>
-        <link href="https://xiejinpeng007.github.io/post/sqlite-bi-ji">
+        <id>https://xiejinpeng007.github.io/post/sqlite-bi-ji/</id>
+        <link href="https://xiejinpeng007.github.io/post/sqlite-bi-ji/">
         </link>
         <updated>2018-03-01T09:22:49.000Z</updated>
         <content type="html"><![CDATA[<p>一些笔记</p>
@@ -1564,8 +1564,8 @@ https://sqlite.org/autoinc.html</p>
     </entry>
     <entry>
         <title type="html"><![CDATA[Swagger (YAML OpenAPI) 从放弃到入门]]></title>
-        <id>https://xiejinpeng007.github.io/post/swagger-yaml-openapi-cong-fang-qi-dao-ru-men</id>
-        <link href="https://xiejinpeng007.github.io/post/swagger-yaml-openapi-cong-fang-qi-dao-ru-men">
+        <id>https://xiejinpeng007.github.io/post/swagger-yaml-openapi-cong-fang-qi-dao-ru-men/</id>
+        <link href="https://xiejinpeng007.github.io/post/swagger-yaml-openapi-cong-fang-qi-dao-ru-men/">
         </link>
         <updated>2017-10-12T09:22:03.000Z</updated>
         <content type="html"><![CDATA[<blockquote>
@@ -1957,7 +1957,7 @@ components:
           type: string
 </code></pre>
 <p>这里将 OpenAPI 3.0 规范中把重点使用的 api 整理了一张思维导图（还不完善，会持续更新）</p>
-<figure data-type="image" tabindex="1"><img src="http://upload-images.jianshu.io/upload_images/1447881-03d1619fc6f6f670.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="OpenAPI 3.0.0.png"></figure>
+<figure data-type="image" tabindex="1"><img src="http://upload-images.jianshu.io/upload_images/1447881-03d1619fc6f6f670.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="OpenAPI 3.0.0.png" loading="lazy"></figure>
 <h3 id="swagger">Swagger</h3>
 <p>Swagger 实际上包含了一系列的工具 Editor Codegen UI ...</p>
 <ul>
@@ -2239,8 +2239,8 @@ OPTIONS
     </entry>
     <entry>
         <title type="html"><![CDATA[Google 新提出的 App Architecture 分析]]></title>
-        <id>https://xiejinpeng007.github.io/post/google-xin-ti-chu-de-app-architecture-fen-xi</id>
-        <link href="https://xiejinpeng007.github.io/post/google-xin-ti-chu-de-app-architecture-fen-xi">
+        <id>https://xiejinpeng007.github.io/post/google-xin-ti-chu-de-app-architecture-fen-xi/</id>
+        <link href="https://xiejinpeng007.github.io/post/google-xin-ti-chu-de-app-architecture-fen-xi/">
         </link>
         <updated>2017-05-26T09:21:24.000Z</updated>
         <content type="html"><![CDATA[<h2 id="app-architecture">App Architecture</h2>
@@ -2253,7 +2253,7 @@ OPTIONS
 <p>最重要的一个原则就是尽量在app中做到separation of concerns（关注点分离）。常见的错误就是把所有代码都写在Activity或者Fragment中。任何跟UI和系统交互无关的事情都不应该放在这些类当中。尽可能让它们保持简单轻量可以避免很多生命周期方面的问题。别忘了能并不拥有这些类，它们只是连接app和操作系统的桥梁。根据用户的操作和其它因素，比如低内存，Android OS可能在任何时候销毁它们。为了提供可靠的用户体验，最好把对它们的依赖最小化。</p>
 <h4 id="通过mvvm来分层">==&gt; 通过MVVM来分层</h4>
 <p>第二个很重要的准则是用model驱动UI，最好是持久化的model。之所以要持久化是基于两个原因：如果OS销毁app释放资源，用户数据不会丢失；当网络很差或者断网的时候app可以继续工作。Model是负责app数据处理的组件。它们不依赖于View或者app 组件（Activity，Fragment等），因此它们不会受那些组件的生命周期的影响。保持UI代码的简单，于业务逻辑分离可以让它更易管理。</p>
-<figure data-type="image" tabindex="1"><img src="http://upload-images.jianshu.io/upload_images/1447881-436935e41b6dbc14.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></figure>
+<figure data-type="image" tabindex="1"><img src="http://upload-images.jianshu.io/upload_images/1447881-436935e41b6dbc14.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" loading="lazy"></figure>
 <h4 id="其中比较重要的一点就是为每个层级加入和绑定了生命周期这一个关系">其中比较重要的一点就是为每个层级加入和绑定了生命周期这一个关系。</h4>
 <p>为了实现这个新的架构，Google提供了几种组件。</p>
 <h3 id="lifecycle">Lifecycle</h3>
@@ -2495,7 +2495,7 @@ public class AndroidViewModel extends ViewModel {
     }
 }
 </code></pre>
-<figure data-type="image" tabindex="2"><img src="http://upload-images.jianshu.io/upload_images/1447881-248afc6392bc15c0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></figure>
+<figure data-type="image" tabindex="2"><img src="http://upload-images.jianshu.io/upload_images/1447881-248afc6392bc15c0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" loading="lazy"></figure>
 <ul>
 <li>避免了需要重复获取数据从而浪费资源、内存泄露的问题。</li>
 </ul>
@@ -2537,11 +2537,11 @@ public class AndroidViewModel extends ViewModel {
     </entry>
     <entry>
         <title type="html"><![CDATA[[精华翻译] Rxjava 2.x : What's different in 2.0]]></title>
-        <id>https://xiejinpeng007.github.io/post/jing-hua-fan-yi-rxjava-2x-whats-different-in-20</id>
-        <link href="https://xiejinpeng007.github.io/post/jing-hua-fan-yi-rxjava-2x-whats-different-in-20">
+        <id>https://xiejinpeng007.github.io/post/jing-hua-fan-yi-rxjava-2x-whats-different-in-20/</id>
+        <link href="https://xiejinpeng007.github.io/post/jing-hua-fan-yi-rxjava-2x-whats-different-in-20/">
         </link>
         <updated>2017-04-19T09:18:41.000Z</updated>
-        <content type="html"><![CDATA[<figure data-type="image" tabindex="1"><a href="https://juejin.im/entry/58f82cf48d6d81005875c0e0/detail"><img src="https://badge.juejin.im/entry/58f82cf48d6d81005875c0e0/likes.svg?style=flat-square" alt=""></a></figure>
+        <content type="html"><![CDATA[<figure data-type="image" tabindex="1"><a href="https://juejin.im/entry/58f82cf48d6d81005875c0e0/detail"><img src="https://badge.juejin.im/entry/58f82cf48d6d81005875c0e0/likes.svg?style=flat-square" alt="" loading="lazy"></a></figure>
 <p>读完了 <code>RxJava 2.x</code> ：<a href="https://github.com/ReactiveX/RxJava/wiki/What's-different-in-2.0">What's different in 2.0</a> 后，将值得重点注意的变化进行了翻译和归纳。</p>
 <h2 id="maven仓库依赖地址和包名的变更">Maven仓库依赖地址和包名的变更 ：</h2>
 <ul>

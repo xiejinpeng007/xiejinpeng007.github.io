@@ -9,7 +9,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1570605936377">
+<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1589263599976">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://xiejinpeng007.github.io/styles/main.css">
 
@@ -45,7 +45,7 @@
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="https://xiejinpeng007.github.io">
-        <img src="https://xiejinpeng007.github.io/images/avatar.png?v=1570605936377" class="site-logo">
+        <img src="https://xiejinpeng007.github.io/images/avatar.png?v=1589263599976" class="site-logo">
         <h1 class="site-title">xiejinpeng&#39;s space</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -74,7 +74,7 @@
       
         
           <a href="/post/about" class="site-nav">
-            关于
+            About Me
           </a>
         
       
@@ -121,7 +121,7 @@
 实际上目前 Flutter 官方提供了两种方案用于给现有 App 加入 Flutter Module，另外还有一些第三方的方案，最近我做了一些尝试，分享一些成果。<br>
 需要注意的是， 给现有 App 引入 Flutter Module 的功能还在实验性的阶段, APIs 和工具链处于未稳定阶段,且需要切换到   <code>master</code>  分支（不稳定）使用。</p>
 <p>效果：<br>
-<img src="https://xiejinpeng007.github.io/post-images/1570603064756.gif" alt="从原生App中打开 Flutter Module（ Fragment ）"><br>
+<img src="https://xiejinpeng007.github.io/post-images/1570603064756.gif" alt="从原生App中打开 Flutter Module（ Fragment ）" loading="lazy"><br>
 从原生App中打开 Flutter Module（ Fragment , Google Pixel3 XL ）</p>
 <h2 id="android">Android</h2>
 <h3 id="创建一个-flutter-module">创建一个 Flutter module</h3>
@@ -241,7 +241,7 @@ frameLayout.addView(flutterView);
 //调用下面代码后才会渲染
 flutterView.attachToFlutterEngine(flutterEngine);
 </code></pre>
-<p><img src="https://xiejinpeng007.github.io/post-images/1570602991085.gif" alt="直接在原生App中加入 FlutterView"><br>
+<p><img src="https://xiejinpeng007.github.io/post-images/1570602991085.gif" alt="直接在原生App中加入 FlutterView" loading="lazy"><br>
 直接在原生App中加入 FlutterView ( Google Pixel3 XL )</p>
 <h4 id="通过-flutterfragment-打开">通过 FlutterFragment 打开</h4>
 <h5 id="通过-xml">通过 xml</h5>
@@ -282,7 +282,7 @@ flutterView.attachToFlutterEngine(flutterEngine);
 通过老的方式启动 Flutter 的响应时间长包括了需要启动<code>FlutterEngine</code>的时间，可以理解为冷启动，而且从原生的不同<code>Activity / ViewController</code> 启动 Flutter 都需要启动一个新的 <code>FlutterEngine</code>，所以不仅第一次启动 Flutter 时间长 ，每次启动都会需要同样的时间。比如下面的情况</p>
 <p><code>Native A -&gt; Flutter B -&gt; Native C -&gt; Flutter D</code></p>
 <p>这样从<code>Native A</code> 和 <code>Native B</code>启动时会实例化两个<code>FlutterEngine</code>。<br>
-<img src="https://xiejinpeng007.github.io/post-images/1570603039285.gif" alt="未使用 FlutterEngineCache 时从原生 App 启动白屏"><br>
+<img src="https://xiejinpeng007.github.io/post-images/1570603039285.gif" alt="未使用 FlutterEngineCache 时从原生 App 启动白屏" loading="lazy"><br>
 未使用 FlutterEngineCache 时从原生 App 启动白屏 ( Google Pixel3 XL )</p>
 <p>这样不仅慢，对资源的开销也更多。<br>
 为了解决这个问题，新的解决方案引入了<code>FlutterEngine</code> 缓存机制。</p>
@@ -372,15 +372,15 @@ FlutterEngine flutterEngine = new FlutterEngine(context);
             
               <div class="tag-container">
                 
-                  <a href="https://xiejinpeng007.github.io/tag/XTepdAEKr" class="tag">
+                  <a href="https://xiejinpeng007.github.io/tag/XTepdAEKr/" class="tag">
                     Flutter
                   </a>
                 
-                  <a href="https://xiejinpeng007.github.io/tag/H_xGHPiP-x" class="tag">
+                  <a href="https://xiejinpeng007.github.io/tag/H_xGHPiP-x/" class="tag">
                     Dart
                   </a>
                 
-                  <a href="https://xiejinpeng007.github.io/tag/vnrLgiqLu_" class="tag">
+                  <a href="https://xiejinpeng007.github.io/tag/vnrLgiqLu_/" class="tag">
                     跨平台开发
                   </a>
                 
@@ -389,7 +389,7 @@ FlutterEngine flutterEngine = new FlutterEngine(context);
             
               <div class="next-post">
                 <div class="next">下一篇</div>
-                <a href="https://xiejinpeng007.github.io/post/introducing-the-flutter">
+                <a href="https://xiejinpeng007.github.io/post/introducing-the-flutter/">
                   <h3 class="post-title">
                     Flutter 介绍 &amp; 开发经验总结
                   </h3>
