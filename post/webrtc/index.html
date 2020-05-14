@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>WebRTC 原理和网络视频通话的实现(Android+服务器端) | xiejinpeng&#39;s space</title>
+<meta name="description" content="你觉得做什么事很痛苦，那么就需要去越过它。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1589437180284">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://xiejinpeng007.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-143163463-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-143163463-1');
+</script>
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://xiejinpeng007.github.io">
+        <img src="https://xiejinpeng007.github.io/images/avatar.png?v=1589437180284" class="site-logo">
+        <h1 class="site-title">xiejinpeng&#39;s space</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            目录
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            About Me
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      你觉得做什么事很痛苦，那么就需要去越过它。
+    </div>
+    <div class="site-footer">
+      <a href="https://github.com/xiejinpeng007">Github</a> | <a class="rss" href="https://xiejinpeng007.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">WebRTC 原理和网络视频通话的实现(Android+服务器端)</h2>
+            <div class="post-date">2020-05-14</div>
+            
+              <div class="feature-container" style="background-image: url('data:image/png;base64,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')">
+              </div>
+            
+            <div class="post-content">
+              <p>近期由于疫情原因，国内外线上会议使用率攀升，很多公司都推出了相关服务， Google 也把本来付费会议服务 Meeting 变为免费，实际上现在很多的网络视频软件都使用到了 WebRTC 这个核心的技术。<br>
+之前调查过一个摄像头监控功能的 App ，也用到了 WebRTC 相关的技术，于是做成了一个可以视频通话的客户端和服务器端，并做了一些技术的总结分享一下。</p>
+<h3 id="简介">简介：</h3>
+<blockquote>
+<p>WebRTC（Web Real-Time Communication）是一个支持网页浏览器进行实时语音对话或视频对话的API。它于2011年6月1日开源并在Google、Mozilla、Opera支持下被纳入万维网联盟的W3C推荐标准。</p>
+</blockquote>
+<p>虽然叫 WebRTC ，实际上目前主流浏览器和操作系统都已经支持了相关API。它通过点对点（Point-to-Point）的方式进行通话，但也需要信令服务器来进行相关配置信息的交换。</p>
+<p><em><strong>注：下面的原理介绍和 demo 实现，都按照最标准易懂的流程来设计，实际的业务开发会根据情况进行调整。</strong></em></p>
+<h3 id="原理">原理：</h3>
+<h4 id="基本的图示">基本的图示：</h4>
+<p><img src="https://xiejinpeng007.github.io/post-images/1589436796971.png" alt="simple_arch" loading="lazy"><br>
+从上图可以看AB互相呼叫的相关流程需要通过信令服务器中转，而视频/音频等流量数据是点对点直接传输的。</p>
+<h4 id="重要-api-和相关协议">重要 API 和相关协议：</h4>
+<ul>
+<li>Network Stream API</li>
+<li>MediaStream：MediaStream 用来表示一个媒体数据流。</li>
+<li>MediaStreamTrack 在浏览器中表示一个媒体源。</li>
+<li>RTCPeerConnection</li>
+<li>RTCPeerConnection：一个RTCPeerConnection对象允许用户在两个终端之间直接通讯。</li>
+<li>RTCIceCandidate：表示一个ICE协议的候选者。</li>
+<li>RTCIceServer：表示一个ICE Server。</li>
+<li>Peer-to-peer Data API</li>
+<li>DataChannel：数据通道（DataChannel）接口表示一个在两个节点之间的双向的数据通道。</li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Protocols#SDP">Session Description Protocol</a> :一种用于描述在设备之间共享媒体的连接的数据格式.</li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Protocols#ICE">Interactive Connectivity Establishment (ICE) </a>: 一个用于网络穿透的框架，其中使用 TURN/STUN 服务来实现。</li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Protocols#STUN">Session Traversal Utilities for NAT (STUN)</a>: 用于获取公网地址的协议</li>
+</ul>
+<div align="center"><img src="file:///Users/jinpengxie/Downloads/webrtc-stun.png" height="300"></div>
+*  [Traversal Using Relays around NAT (TURN) ](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Protocols#TURN): 用于中继数据的协议
+<div align="center"><img src="file:///Users/jinpengxie/Downloads/webrtc-turn.png" height="300"></div>
+#### 建立连接的基本流程：
+<ol>
+<li>两端进行相关初始化（Socket 、ICE、流媒体等的配置）</li>
+<li>A： 发起呼叫:创建用于连接的 <code>PeerConnection(PC)</code> 和自己的配置文件 <code>SessionDescription(SDP)</code><br>
+将 SDP 设置为 LocalDescription ,然后通过信令服务器将 SDP 转发给 B ,这个流程称之为 Offer 。</li>
+<li>B 收到 SDP 后设置为 RemoteDescription ,创建自己的 SDP ，设置为 LocalDescription,然后通过信令服务器将 SDP 转发 给 A,这个过程称之为 Answer。</li>
+<li>A 收到 SDP 后设置为 RemoteDescription</li>
+<li>在初始化时会进行 ICE 服务的配置，所以 ICE 服务成功后有回调，A B 在回调后将 ICE 的配置发送给对方，收到后分别设置到 ICE 配置中，则会进行最终的连接。</li>
+<li>连接成功后若已设置 DataChannel MediaStream ...等配置，那么相关回调会执行，此时即可获取数据。</li>
+</ol>
+<p>期间，因为需要点对点的通信，而在公网上由于 NAT/firewalls 的限制，无法直接进行通讯，所以需要使用 ICE 框架来进行，ICE 框架内部使用 STUN / TURN 协议来实现。</p>
+<ul>
+<li>STUN： 上面已经解释了是用于获取公网IP的服务，Google 也提供了公共的服务器 <code>stun:stun.l.google.com:19302</code></li>
+<li>TURN： 主要是用于客户端即使知道了互相的 IP ，由于 Symmetric NAT 的限制无法直接建立连接时用于转发媒体流数据的服务，这个一般来说需要自己搭建。</li>
+</ul>
+<h3 id="android-客户端的实现">Android 客户端的实现</h3>
+<p>客户端的功能包括了自定义服务器地址连接服务器、查看在线设备、选择设备进行视频通话</p>
+<p>依赖库中 Webrtc 使用 Google 官方提供的， 服务器端和 Android 端使用了同样的 Socket 库，若服务器端没有什么限制推荐使用 OkHttp 自带的 Socket 通信功能。</p>
+<pre><code>    implementation 'org.webrtc:google-webrtc:1.0.28513'
+    implementation 'com.github.nkzawa:socket.io-client:0.4.2'
+
+</code></pre>
+<h4 id="webrtcclient-的初始化">WebRtcClient 的初始化</h4>
+<pre><code>    init {
+        //初始化 PeerConnectionFactory 配置
+        PeerConnectionFactory.initialize(
+            PeerConnectionFactory
+                .InitializationOptions
+                .builder(app)
+                .createInitializationOptions()
+        )
+        
+        //初始化视频编码/解码信息
+        factory = PeerConnectionFactory.builder()
+            .setVideoDecoderFactory(
+                DefaultVideoDecoderFactory(eglContext)
+            )
+            .setVideoEncoderFactory(
+                DefaultVideoEncoderFactory(
+                    eglContext, true, true
+                )
+            )
+            .createPeerConnectionFactory()
+
+        // 初始化 Socket 通信
+        val messageHandler = MessageHandler()
+
+        try {
+            socket = IO.socket(url)
+        } catch (e: URISyntaxException) {
+            e.printStackTrace()
+        }
+
+        socket?.on(&quot;id&quot;, messageHandler.onId)
+        socket?.on(&quot;message&quot;, messageHandler.onMessage)
+        socket?.on(&quot;ids&quot;, messageHandler.onIdsChanged)
+        socket?.connect()
+
+        //初始化 ICE 服务器创建 PC 时使用
+        iceServers.add(PeerConnection.IceServer(&quot;stun:23.21.150.121&quot;))
+        iceServers.add(PeerConnection.IceServer(&quot;stun:stun.l.google.com:19302&quot;))
+
+        //初始化本地的 MediaConstraints 创建 PC 时使用，是流媒体的配置信息
+        pcConstraints.mandatory.add(MediaConstraints.KeyValuePair(&quot;OfferToReceiveAudio&quot;, &quot;true&quot;))
+        pcConstraints.mandatory.add(MediaConstraints.KeyValuePair(&quot;OfferToReceiveVideo&quot;, &quot;true&quot;))
+        pcConstraints.optional.add(MediaConstraints.KeyValuePair(&quot;DtlsSrtpKeyAgreement&quot;, &quot;true&quot;))
+    }
+</code></pre>
+<h4 id="开始建立连接">开始建立连接</h4>
+<p>上面介绍的<code>建立连接的基本流程</code>提到了 A 呼叫 B 的话是由 A 开启 Offer 流程，由于我希望创建 PC 的时候知道自己的 id 和获取所有在线客户端，所以修改了一些流程，增加了<code>init</code> <code>readyToStream</code>的动作。</p>
+<ul>
+<li>初始化 Socket 连接上服务器后会返回相应 clientId, 此时进行本地摄像头的初始化和本地媒体流的初始化最后进行向服务器发送准备初始化成功的指令。</li>
+</ul>
+<pre><code>    private fun getVideoCapturer() =
+        Camera2Enumerator(app).run {
+            deviceNames.find {
+                isFrontFacing(it)
+            }?.let {
+                createCapturer(it, null)
+            } ?: throw IllegalStateException()
+        }
+
+    fun startLocalCamera(name: String, context: Context) {
+        //init local media stream
+        val localVideoSource = factory.createVideoSource(false)
+        val surfaceTextureHelper =
+            SurfaceTextureHelper.create(
+                Thread.currentThread().name, eglContext
+            )
+        (vc as VideoCapturer).initialize(
+            surfaceTextureHelper,
+            context,
+            localVideoSource.capturerObserver
+        )
+        vc.startCapture(320, 240, 60)
+        localMS = factory.createLocalMediaStream(&quot;LOCALMEDIASTREAM&quot;)
+        localMS?.addTrack(factory.createVideoTrack(&quot;LOCALMEDIASTREAM&quot;, localVideoSource))
+        webrtcListener.onLocalStream(localMS!!)
+
+        try {
+            val message = JSONObject()
+            message.put(&quot;name&quot;, name)
+            socket?.emit(&quot;readyToStream&quot;, message)
+        } catch (e: JSONException) {
+            e.printStackTrace()
+        }
+    }
+</code></pre>
+<ul>
+<li>此时已连上服务器并配置完毕，调用 <code>refreshIds</code> 获取已连接上服务器客户端，选择 id 进行呼叫</li>
+</ul>
+<pre><code>  //发送消息的方法
+private fun sendMessage(to: String, type: String, payload: JSONObject) {
+        val message = JSONObject()
+        message.put(&quot;to&quot;, to)
+        message.put(&quot;type&quot;, type)
+        message.put(&quot;payload&quot;, payload)
+        socket?.emit(&quot;message&quot;, message)
+    }
+    
+    fun refreshIds() {
+        socket?.emit(&quot;refreshids&quot;, null)
+    }
+    
+    fun callByClientId(clientId: String) {
+        sendMessage(clientId, &quot;init&quot;, JSONObject())
+    }
+
+</code></pre>
+<ul>
+<li><code>readyToStream</code> <code>refreshIds</code>是为了实现查看在线设备相关功能，并非 WebRTC 的标准，下面的<code>建立连接的基本流程</code>是必要的流程。<br>
+接收消息后根据消息进入不同的响应流程以及具体的实现。</li>
+</ul>
+<pre><code>    private inner class MessageHandler {
+		//建立 PC 交换 SDP ICE 等配置的事件
+        val onMessage = Emitter.Listener { args -&gt;
+            val data = args[0] as JSONObject
+            try {
+                val from = data.getString(&quot;from&quot;)
+                val type = data.getString(&quot;type&quot;)
+                var payload: JSONObject? = null
+                if (type != &quot;init&quot;) {
+                    payload = data.getJSONObject(&quot;payload&quot;)
+                }
+                //用于检查是否 PC 是否已存在已经是否达到最大的2个 PC 的限制
+                if (!peers.containsKey(from)) {
+                    val endPoint = findEndPoint()
+                    if (endPoint == MAX_PEER) return@Listener
+                    else addPeer(from, endPoint)
+                }
+                //根据不同的指令类型和数据响应相应步骤的方法
+                when (type) {
+                    &quot;init&quot; -&gt; createOffer(from)
+                    &quot;offer&quot; -&gt; createAnswer(from, payload)
+                    &quot;answer&quot; -&gt; setRemoteSdp(from, payload)
+                    &quot;candidate&quot; -&gt; addIceCandidate(from, payload)
+                }
+
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+        }
+        //连接上服务器会返回自己的 clientId 的事件，可开始呼叫。
+        val onId = Emitter.Listener { args -&gt;
+            val id = args[0] as String
+            webrtcListener.onCallReady(id)
+        }
+		 //获取在线客户端的事件
+        val onIdsChanged = Emitter.Listener { args -&gt;
+            Log.d(TAG, args.toString())
+            val ids = args[0] as JSONArray
+
+            webrtcListener.onOnlineIdsChanged(ids)
+        }
+    }
+    
+    //开始 Offer 流程
+    private fun createOffer(peerId: String) {
+        Log.d(TAG, &quot;CreateOffer&quot;)
+        val peer = peers[peerId]
+        peer?.pc?.createOffer(peer, pcConstraints)
+    }
+
+	//开始 Answer 流程
+    private fun createAnswer(peerId: String, payload: JSONObject?) {
+        Log.d(TAG, &quot;CreateAnswer&quot;)
+        val peer = peers[peerId]
+        val sdp = SessionDescription(
+            SessionDescription.Type.fromCanonicalForm(payload?.getString(&quot;type&quot;)),
+            payload?.getString(&quot;sdp&quot;)
+        )
+        peer?.pc?.setRemoteDescription(peer, sdp)
+        peer?.pc?.createAnswer(peer, pcConstraints)
+    }
+
+	//设置 SDP 后无需操作等待 ICE 成功后响应
+    private fun setRemoteSdp(peerId: String, payload: JSONObject?) {
+        Log.d(TAG, &quot;SetRemoteSDP&quot;)
+        val peer = peers[peerId]
+        val sdp = SessionDescription(
+            SessionDescription.Type.fromCanonicalForm(payload?.getString(&quot;type&quot;)),
+            payload?.getString(&quot;sdp&quot;)
+        )
+        peer?.pc?.setRemoteDescription(peer, sdp)
+    }
+
+	//收到 ICE  后添加到 PC
+    private fun addIceCandidate(peerId: String, payload: JSONObject?) {
+        Log.d(TAG, &quot;AddIceCandidate&quot;)
+        val pc = peers[peerId]!!.pc
+        if (pc!!.remoteDescription != null) {
+            val candidate = IceCandidate(
+                payload!!.getString(&quot;id&quot;),
+                payload.getInt(&quot;label&quot;),
+                payload.getString(&quot;candidate&quot;)
+            )
+            pc.addIceCandidate(candidate)
+        }
+    }
+</code></pre>
+<h4 id="基本流程中的一些细节补充">基本流程中的一些细节补充：</h4>
+<ul>
+<li>建立 PeerConnection 时需绑定本地媒体流</li>
+</ul>
+<pre><code>        init {
+            Log.d(TAG, &quot;new Peer: $id $endPoint&quot;)
+            this.pc = factory.createPeerConnection(iceServers, pcConstraints, this)
+            pc?.addStream(localMS!!) //, new MediaConstraints()
+            webrtcListener.onStatusChanged(&quot;CONNECTING&quot;)
+        }
+</code></pre>
+<ul>
+<li>需要实现 <code>SdpObserver</code> <code>PeerConnection.Observer</code> 接口，用于监听 PeerConnection SDP 关键的回调。</li>
+</ul>
+<pre><code>	// SDP 创建成功后回调，发送给服务器。
+        override fun onCreateSuccess(sdp: SessionDescription) {
+            // TODO: modify sdp to use pcParams prefered codecs
+            try {
+                val payload = JSONObject()
+                payload.put(&quot;type&quot;, sdp.type.canonicalForm())
+                payload.put(&quot;sdp&quot;, sdp.description)
+                sendMessage(id, sdp.type.canonicalForm(), payload)
+                pc!!.setLocalDescription(this@Peer, sdp)
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+        }
+       
+       // ICE 框架获取候选者成功后的回调，发送给服务器。
+        override fun onIceCandidate(candidate: IceCandidate) {
+            try {
+                val payload = JSONObject()
+                payload.put(&quot;label&quot;, candidate.sdpMLineIndex)
+                payload.put(&quot;id&quot;, candidate.sdpMid)
+                payload.put(&quot;candidate&quot;, candidate.sdp)
+                sendMessage(id, &quot;candidate&quot;, payload)
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+
+        }
+        
+        // ICE 连接状态变化时的回调
+         override fun onIceConnectionChange(iceConnectionState: PeerConnection.IceConnectionState) {
+            webrtcListener.onStatusChanged(iceConnectionState.name)
+            Log.d(TAG, &quot;onIceConnectionChange ${iceConnectionState.name}&quot;)
+            if (iceConnectionState == PeerConnection.IceConnectionState.DISCONNECTED) {
+                removePeer(id)
+            }
+        }
+ 	
+ 	//连接成功后，最后获取到媒体流，发给 View 层进行视频/音频的播放。
+       override fun onAddStream(mediaStream: MediaStream) {
+            Log.d(TAG, &quot;onAddStream &quot; + mediaStream.id)
+            // remote streams are displayed from 1 to MAX_PEER (0 is localStream)
+            webrtcListener.onAddRemoteStream(mediaStream, endPoint + 1)
+        }
+	
+	//媒体流断开
+        override fun onRemoveStream(mediaStream: MediaStream) {
+            Log.d(TAG, &quot;onRemoveStream &quot; + mediaStream.id)
+            removePeer(id)
+        }
+        
+</code></pre>
+<p>在<code>onAddStream</code>中将 MediaStream 发给 View 层后 WebRtcClient 中的连接的工作基本完成。</p>
+<ul>
+<li>View 层中将 MediaStream 绑定到 View 中</li>
+</ul>
+<pre><code>	//使用 org.webrtc.SurfaceViewRenderer
+        &lt;org.webrtc.SurfaceViewRenderer
+            android:id=&quot;@+id/remote_renderer&quot;
+            android:layout_width=&quot;match_parent&quot;
+            android:layout_height=&quot;match_parent&quot; /&gt;
+            
+       //初始化
+     override fun onCreate(savedInstanceState: Bundle?) {      
+        binding.remoteRenderer.apply {
+            setEnableHardwareScaler(true)
+            init(eglBase.eglBaseContext, null)
+        }
+      }
+	//绑定从 WebRtcClent 中转发 MediaStream
+      override fun onAddRemoteStream(remoteStream: MediaStream, endPoint: Int) {
+                    remoteStream.videoTracks[0].addSink(binding.remoteRenderer)
+                }
+</code></pre>
+<p>此外，上面只是展示了关键步骤，但实际编码中回调较多，还是比较繁杂。<br>
+完整代码参考 <a href="https://github.com/xiejinpeng007/WebRTC-Android-Server">https://github.com/xiejinpeng007/WebRTC-Android-Server</a></p>
+<h3 id="信令服务器端nodejs">信令服务器端（NodeJS）</h3>
+<p>负责转发信令等功能</p>
+<p>部署：<br>
+在 SignalServer 根目录下执行 <code>node app.js</code>  会部署在 3000 端口，并监听客户端的连接情况。<br>
+<img src="https://lexiangla.com/assets/f9a4f3da94cb11eabac80a58ac13ad16" alt="图片" title="图片" loading="lazy"></p>
+<h3 id="使用和演示">使用和演示</h3>
+<p>输入信令服务器地址（公网和局域网皆可）连接服务器后， 根据在线用户进行呼叫，由于 STUN 服务器用了 Google 的，所以需要梯子。</p>
+<ol>
+<li>
+<p>设定服务器地址查看在线用户<br>
+<img src="file:///Users/jinpengxie/Desktop/webrtc_android.png" height="500"></p>
+</li>
+<li>
+<p>选择用户进行拨号连接,可以看到成功了。<br>
+<img src="file:///Users/jinpengxie/Desktop/webrtc_android_demo.gif" height="500"></p>
+</li>
+</ol>
+<h3 id="总结">总结</h3>
+<p>优点：</p>
+<ul>
+<li>当然是大部分流量不经过服务器直接点对点(P2P)传输，可以大大的节省服务商的带宽资源。</li>
+</ul>
+<p>缺点:</p>
+<ul>
+<li>原生只支持1对1的通信，要实现多人通信需要借助服务端的其它方案例如中转。</li>
+<li>复杂的网络场景连接质量无法保证，比如跨国等情况，也需要服务商进行优化。</li>
+</ul>
+<p>大多使用 WebRTC 技术的都根据具体业务都在此基础上进行了二次封装， Google 自家应用上也看到在使用相关的技术，所以总的来说 WebRTC 确实是一套实际可用的技术。</p>
+<h3 id="参考">参考:</h3>
+<p><a href="https://github.com/xiejinpeng007/WebRTC-Android-Server">https://github.com/xiejinpeng007/WebRTC-Android-Server</a>  (Demo)<br>
+<a href="https://webrtc.github.io/webrtc-org/native-code/android/">https://webrtc.github.io/webrtc-org/native-code/android/</a><br>
+<a href="https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Protocols">https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Protocols</a></p>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://xiejinpeng007.github.io/post/add-flutter-module-to-app/">
+                  <h3 class="post-title">
+                    给现有 App 引入 Flutter Module
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ea3603bb590ba2ab51ba',
+        clientSecret: 'e82e698ee0f1db9e833f069b9c3b612ba3486927',
+        repo: 'xiejinpeng007.github.io',
+        owner: 'xiejinpeng007',
+        admin: ['xiejinpeng007'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>
