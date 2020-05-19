@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://xiejinpeng007.github.io</id>
     <title>xiejinpeng&apos;s space</title>
-    <updated>2020-05-19T03:21:33.595Z</updated>
+    <updated>2020-05-19T03:25:13.031Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://xiejinpeng007.github.io"/>
     <link rel="self" href="https://xiejinpeng007.github.io/atom.xml"/>
@@ -43,10 +43,11 @@
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Protocols#SDP">Session Description Protocol</a> :一种用于描述在设备之间共享媒体的连接的数据格式.</li>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Protocols#ICE">Interactive Connectivity Establishment (ICE) </a>: 一个用于网络穿透的框架，其中使用 TURN/STUN 服务来实现。</li>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Protocols#STUN">Session Traversal Utilities for NAT (STUN)</a>: 用于获取公网地址的协议<br>
-<img src="file:///Users/jinpengxie/Downloads/webrtc-stun.png" alt="webrtc-stun" loading="lazy"></li>
-<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Protocols#TURN">Traversal Using Relays around NAT (TURN) </a>: 用于中继数据的协议<br>
-<img src="file:///Users/jinpengxie/Downloads/webrtc-turn.png" alt="" loading="lazy"></li>
+<img src="https://xiejinpeng007.github.io/post-images/1589858590133.png" alt="" loading="lazy"></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Protocols#TURN">Traversal Using Relays around NAT (TURN) </a>: 用于中继数据的协议</li>
+<li></li>
 </ul>
+<figure data-type="image" tabindex="2"><img src="https://xiejinpeng007.github.io/post-images/1589858577167.png" alt="" loading="lazy"></figure>
 <h4 id="建立连接的基本流程">建立连接的基本流程：</h4>
 <ol>
 <li>两端进行相关初始化（Socket 、ICE、流媒体等的配置）</li>
@@ -360,18 +361,16 @@ private fun sendMessage(to: String, type: String, payload: JSONObject) {
 <p>负责转发信令等功能</p>
 <p>部署：<br>
 在 SignalServer 根目录下执行 <code>node app.js</code>  会部署在 3000 端口，并监听客户端的连接情况。<br>
-<img src="https://lexiangla.com/assets/f9a4f3da94cb11eabac80a58ac13ad16" alt="图片" title="图片" loading="lazy"></p>
+<img src="https://xiejinpeng007.github.io/post-images/1589858682056.png" alt="" loading="lazy"></p>
 <h3 id="使用和演示">使用和演示</h3>
 <p>输入信令服务器地址（公网和局域网皆可）连接服务器后， 根据在线用户进行呼叫，由于 STUN 服务器用了 Google 的，所以需要梯子。</p>
 <ol>
-<li>
-<p>设定服务器地址查看在线用户<br>
-<img src="file:///Users/jinpengxie/Desktop/webrtc_android.png" alt="" loading="lazy"></p>
-</li>
-<li>
-<p>选择用户进行拨号连接,可以看到成功了。<br>
-<img src="file:///Users/jinpengxie/Desktop/webrtc_android_demo.gif" alt="" loading="lazy"></p>
-</li>
+<li>设定服务器地址查看在线用户</li>
+</ol>
+<figure data-type="image" tabindex="3"><img src="https://xiejinpeng007.github.io/post-images/1589858691023.png" alt="" loading="lazy"></figure>
+<ol start="2">
+<li>选择用户进行拨号连接,可以看到成功了。<br>
+<img src="https://xiejinpeng007.github.io/post-images/1589858701140.gif" alt="" loading="lazy"></li>
 </ol>
 <h3 id="总结">总结</h3>
 <p>优点：</p>
