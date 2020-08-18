@@ -1,176 +1,226 @@
-<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" >
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
 
 <title>Dart | xiejinpeng&#39;s space</title>
-<meta name="description" content="你觉得做什么事很痛苦，那么就需要去越过它。">
 
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1597717907032">
 
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1597635460833">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://xiejinpeng007.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
 
 
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-143163463-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
 
-<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+        function gtag() {
+            dataLayer.push(arguments);
+        }
 
-<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
-
-
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-143163463-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'UA-143163463-1');
-</script>
+        gtag('js', new Date());
+        gtag('config', 'UA-143163463-1');
+    </script>
 
 
-  </head>
-  <body>
-    <div id="app" class="main">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <div class="main-content">
+        <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            xiejinpeng&#39;s space
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            目录
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            About Me
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1597717907032" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
 
-      <div class="sidebar" :class="{ 'full-height': menuVisible }">
-  <div class="top-container" data-aos="fade-right">
-    <div class="top-header-container">
-      <a class="site-title-container" href="https://xiejinpeng007.github.io">
-        <img src="https://xiejinpeng007.github.io/images/avatar.png?v=1597635460833" class="site-logo">
-        <h1 class="site-title">xiejinpeng&#39;s space</h1>
-      </a>
-      <div class="menu-btn" @click="menuVisible = !menuVisible">
-        <div class="line"></div>
-      </div>
+        <div class="current-tag-container">
+            <h2 class="title gt-c-content-color-first">
+                #Dart
+            </h2>
+        </div>
+        <div class="post-list-container">
+    <div class="post-inner">
+        
+            <div class="post gt-bg-theme-color-second">
+                <div class="post-left">
+                    <div>
+                        
+                        <a href="https://xiejinpeng007.github.io/post/add-flutter-module-to-app/">
+                            <span class="post-title gt-c-content-color-first">给现有 App 引入 Flutter Module</span>
+                        </a>
+                    </div>
+                    <div class="gt-post-content post-abstract gt-c-content-color-second">
+                        
+                    </div>
+                    <div class="post-info">
+                        <time class="post-time gt-c-content-color-first">
+                            发布于 · 2019-10-09 ·
+                        </time>
+                        
+                            <a href="https://xiejinpeng007.github.io/tag/XTepdAEKr/" class="post-tag">
+                                # Flutter
+                            </a>
+                        
+                            <a href="https://xiejinpeng007.github.io/tag/H_xGHPiP-x/" class="post-tag">
+                                # Dart
+                            </a>
+                        
+                            <a href="https://xiejinpeng007.github.io/tag/vnrLgiqLu_/" class="post-tag">
+                                # 跨平台开发
+                            </a>
+                        
+                    </div>
+                </div>
+                
+                    <a href="https://xiejinpeng007.github.io/post/add-flutter-module-to-app/" class="post-feature-image"
+                       style="background-image: url('https://xiejinpeng007.github.io/post-images/add-flutter-module-to-app.jpeg')">
+                    </a>
+                
+            </div>
+        
+            <div class="post gt-bg-theme-color-second">
+                <div class="post-left">
+                    <div>
+                        
+                        <a href="https://xiejinpeng007.github.io/post/introducing-the-flutter/">
+                            <span class="post-title gt-c-content-color-first">Flutter 介绍 &amp; 开发经验总结</span>
+                        </a>
+                    </div>
+                    <div class="gt-post-content post-abstract gt-c-content-color-second">
+                        
+                    </div>
+                    <div class="post-info">
+                        <time class="post-time gt-c-content-color-first">
+                            发布于 · 2019-08-22 ·
+                        </time>
+                        
+                            <a href="https://xiejinpeng007.github.io/tag/XTepdAEKr/" class="post-tag">
+                                # Flutter
+                            </a>
+                        
+                            <a href="https://xiejinpeng007.github.io/tag/H_xGHPiP-x/" class="post-tag">
+                                # Dart
+                            </a>
+                        
+                            <a href="https://xiejinpeng007.github.io/tag/vnrLgiqLu_/" class="post-tag">
+                                # 跨平台开发
+                            </a>
+                        
+                    </div>
+                </div>
+                
+                    <a href="https://xiejinpeng007.github.io/post/introducing-the-flutter/" class="post-feature-image"
+                       style="background-image: url('https://xiejinpeng007.github.io/post-images/introducing-the-flutter.jpeg')">
+                    </a>
+                
+            </div>
+        
+    </div>
+</div>
+        <div class="pagination-container">
+    
+    
+</div>
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">你觉得做什么事很痛苦，那么就需要去越过它。</div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/xiejinpeng007" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        <a href="https://github.com/xiejinpeng007">Github</a>
     </div>
     <div>
-      
-        
-          <a href="/" class="site-nav">
-            首页
-          </a>
-        
-      
-        
-          <a href="/archives" class="site-nav">
-            目录
-          </a>
-        
-      
-        
-          <a href="/tags" class="site-nav">
-            标签
-          </a>
-        
-      
-        
-          <a href="/post/about" class="site-nav">
-            About Me
-          </a>
-        
-      
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://xiejinpeng007.github.io/atom.xml" target="_blank">RSS</a></a>
     </div>
-  </div>
-  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
-    <div class="social-container">
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    </div>
-    <div class="site-description">
-      你觉得做什么事很痛苦，那么就需要去越过它。
-    </div>
-    <div class="site-footer">
-      <a href="https://github.com/xiejinpeng007">Github</a> | <a class="rss" href="https://xiejinpeng007.github.io/atom.xml" target="_blank">RSS</a>
-    </div>
-  </div>
 </div>
 
-
-      <div class="main-container">
-        <div class="content-container" data-aos="fade-up">
-          <h2 class="current-tag">标签: Dart</h2>
-          
-            <article class="post-item">
-              <div class="left">
-                <a href="https://xiejinpeng007.github.io/post/add-flutter-module-to-app/">
-                  <h2 class="post-title">给现有 App 引入 Flutter Module</h2>
-                </a>
-                <div class="post-date">
-                  2019-10-09
-                </div>
-                <div class="post-abstract">
-                  
-                </div>
-              </div>
-              
-                <a class="right" href="https://xiejinpeng007.github.io/post/add-flutter-module-to-app/">
-                  <div class="feature-container" style="background-image: url('https://xiejinpeng007.github.io/post-images/add-flutter-module-to-app.jpeg')">
-                  </div>
-                </a>
-              
-            </article>
-          
-            <article class="post-item">
-              <div class="left">
-                <a href="https://xiejinpeng007.github.io/post/introducing-the-flutter/">
-                  <h2 class="post-title">Flutter 介绍 &amp; 开发经验总结</h2>
-                </a>
-                <div class="post-date">
-                  2019-08-22
-                </div>
-                <div class="post-abstract">
-                  
-                </div>
-              </div>
-              
-                <a class="right" href="https://xiejinpeng007.github.io/post/introducing-the-flutter/">
-                  <div class="feature-container" style="background-image: url('https://xiejinpeng007.github.io/post-images/introducing-the-flutter.jpeg')">
-                  </div>
-                </a>
-              
-            </article>
-          
-
-          <div class="pagination-container">
-  
-  
-</div>
-
-        </div>
-      </div>
-    </div>
-
-    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
-
-<script type="application/javascript">
-
-AOS.init();
-
-hljs.initHighlightingOnLoad()
-
-var app = new Vue({
-  el: '#app',
-  data: {
-    menuVisible: false,
-  },
-})
-
+<script>
+  hljs.initHighlightingOnLoad()
 </script>
 
-
-
-
-  </body>
+    </div>
+</div>
+</body>
 </html>
