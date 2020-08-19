@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://xiejinpeng007.github.io</id>
     <title>xiejinpeng&apos;s space</title>
-    <updated>2020-08-19T07:45:04.423Z</updated>
+    <updated>2020-08-19T09:20:25.883Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://xiejinpeng007.github.io"/>
     <link rel="self" href="https://xiejinpeng007.github.io/atom.xml"/>
@@ -121,7 +121,7 @@
 </ul>
 <h3 id="1-媒体集">1. 媒体集</h3>
 <h4 id="1-查询媒体集需要-read_external_storage-权限">1） 查询媒体集（需要 READ_EXTERNAL_STORAGE 权限）</h4>
-<p>实际上 <code>MediaStore</code> 是以前就有的 API ，不同的是过去主要通过 <code>MediaStore.Video.Media._DATA</code> 这个 colum 请求原始数据，可以得到绝对<code>Uri</code> ，现在需要请求<code>MediaStore.Video.Media._ID</code>来得到相对<code>Uri</code>再进行处理。</p>
+<p>实际上 <code>MediaStore</code> 是以前就有的 API ，不同的是过去主要通过 <code>MediaStore.Video.Media._DATA</code> 这个<code>Column</code> 请求原始数据，可以得到绝对<code>Uri</code> ，现在需要请求<code>MediaStore.Video.Media._ID</code>来得到相对<code>Uri</code>再进行处理。</p>
 <pre><code class="language-kotlin">// Need the READ_EXTERNAL_STORAGE permission if accessing video files that your
 // app didn't create.
 
