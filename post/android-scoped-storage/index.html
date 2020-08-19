@@ -1,0 +1,658 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Android 10(Q)/11(R) 分区存储适配 | xiejinpeng&#39;s space</title>
+
+<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1597822448745">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://xiejinpeng007.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-143163463-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        gtag('js', new Date());
+        gtag('config', 'UA-143163463-1');
+    </script>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            xiejinpeng&#39;s space
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            目录
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            About Me
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1597822448745" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    Android 10(Q)/11(R) 分区存储适配
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2020-08-19 ·
+                    </time>
+                    
+                        <a href="https://xiejinpeng007.github.io/tag/bbMgJRT1Y/" class="post-tags">
+                            # Android
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <p>大部分应用都会请求 ( READ_EXTERNAL_STORAGE ) ( WRITE_EXTERNAL_STORAGE ) 存储权限，来做一些诸如在 SD 卡中存储文件或者读取多媒体文件等常规操作。这些应用可能会在磁盘中存储大量文件，即使应用被卸载了还会依然存在。另外，这些应用还可能会读取其他应用的一些敏感文件数据。</p>
+<p>为此，Google 终于下定决心在 Android 10 中引入了分区存储，对权限进行场景的细分，按需索取，并在 Android 11 中进行了进一步的调整。</p>
+<h2 id="android-存储分区情况">Android 存储分区情况</h2>
+<p>Android 中存储可以分为两大类：私有存储和共享存储</p>
+<ul>
+<li>私有存储 (Private Storage) : 每个应用在都拥有自己的私有目录，其它应用看不到，彼此也无法访问到该目录：
+<ul>
+<li>内部存储私有目录<code>(/data/data/packageName)</code> ；</li>
+<li>外部存储私有目录 <code>(/sdcard/Android/data/packageName)</code>，</li>
+</ul>
+</li>
+<li>共享存储 (Shared Storage) : 存储其他应用可访问文件， 包含媒体文件、文档文件以及其他文件，对应设备DCIM、Pictures、Alarms、Music、Notifications、Podcasts、Ringtones、Movies、Download等目录。</li>
+</ul>
+<h2 id="android-10q-行为变更">Android 10(Q) 行为变更：</h2>
+<p>Android 10 中主要对<code>共享目录</code>进行了权限详细的划分，不再能通过绝对路径访问。</p>
+<p>受影响的接口：</p>
+<figure data-type="image" tabindex="1"><img src="https://xiejinpeng007.github.io/post-images/1597822089838.png" alt="" loading="lazy"></figure>
+<h3 id="访问不同分区的方式">访问不同分区的方式：</h3>
+<ol>
+<li>私有目录：和以前的版本一致，可通过 <code>File()</code> API 访问，无需申请权限。</li>
+<li>共享目录：需要通过<code>MediaStore</code>和<code>Storage Access Framework</code> API 访问，视具体情况申请权限，下面详细介绍。</li>
+</ol>
+<p>其中，对共享目录的权限进行了细分：</p>
+<ol>
+<li>
+<p>无需申请权限的操作：<br>
+通过 <code>MediaStore API</code>对媒体集、文件集进行媒体/文件的添加、对 <strong>自身APP</strong> 创建的 媒体/文件 进行查询、修改、删除的操作。</p>
+</li>
+<li>
+<p>需要申请<code>READ_EXTERNAL_STORAGE</code>权限：<br>
+通过 <code>MediaStore API</code>对所有的媒体集进行查询、修改、删除的操作。</p>
+</li>
+<li>
+<p>调用 <code>Storage Access Framework API</code> ：<br>
+会启动系统的文件选择器向用户申请操作指定的文件</p>
+</li>
+</ol>
+<p>新的访问方式：</p>
+<figure data-type="image" tabindex="2"><img src="https://xiejinpeng007.github.io/post-images/1597822101677.png" alt="" loading="lazy"></figure>
+<h2 id="android-11-r-行为变更">Android 11 (R) 行为变更 :</h2>
+<p>Android 11 (R) 在 Android 10 (Q) 中分区存储的基础上进行了调整</p>
+<h3 id="1-新增执行批量操作">1. 新增执行批量操作</h3>
+<blockquote>
+<p>为实现各种设备之间的一致性并增加用户便利性，Android 11 向 MediaStore API 中添加了多种方法。对于希望简化特定媒体文件更改流程（例如在原位置编辑照片）的应用而言，这些方法尤为有用。</p>
+</blockquote>
+<p>MediaStore API 新增的方法</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>createWriteRequest (ContentResolver, Collection)</td>
+<td>用户向应用授予对指定媒体文件组的写入访问权限的请求。</td>
+</tr>
+<tr>
+<td>createFavoriteRequest (ContentResolver, Collection, boolean)</td>
+<td>用户将设备上指定的媒体文件标记为 “收藏” 的请求。对该文件具有读取访问权限的任何应用都可以看到用户已将该文件标记为 “收藏”。</td>
+</tr>
+<tr>
+<td>createTrashRequest (ContentResolver, Collection, boolean)</td>
+<td>用户将指定的媒体文件放入设备垃圾箱的请求。垃圾箱中的内容在特定时间段（默认为 7 天）后会永久删除。</td>
+</tr>
+<tr>
+<td>createDeleteRequest (ContentResolver, Collection)</td>
+<td>用户立即永久删除指定的媒体文件（而不是先将其放入垃圾箱）的请求。</td>
+</tr>
+</tbody>
+</table>
+<p>系统在调用以上任何一个方法后，会构建一个 PendingIntent 对象。应用调用此 intent 后，用户会看到一个对话框，请求用户同意应用更新或删除指定的媒体文件。</p>
+<h3 id="2-使用直接文件路径和原生库访问文件">2. 使用直接文件路径和原生库访问文件</h3>
+<blockquote>
+<p>为了帮助您的应用更顺畅地使用第三方媒体库，Android 11 允许您使用除 MediaStore API 之外的 API 访问共享存储空间中的媒体文件。不过，您也可以转而选择使用以下任一 API 直接访问媒体文件：</p>
+<p>File API。<br>
+原生库，例如 fopen()。</p>
+</blockquote>
+<p>简单来说就是，可以通过 <code>File()</code> 等API 访问有权限访问的媒体集了。</p>
+<h5 id="性能">性能：</h5>
+<p>通过 <code>File ()</code> 等直接通过路径访问的 API 实际上也会映射为<code>MediaStore</code> API 。<br>
+按文件路径顺序读取的时候性能相当；随机读取和写入的时候则会更慢，所以还是推荐直接使用 <code>MediaStore</code>API。</p>
+<h3 id="3-新增权限">3. 新增权限</h3>
+<p><code>MANAGE_EXTERNAL_STORAGE</code> :<br>
+类似以前的 <code>READ_EXTERNAL_STORAGE</code> + <code>WRITE_EXTERNAL_STORAGE</code>，除了应用专有目录都可以访问。</p>
+<p>应用可通过执行以下操作向用户请求名为所有文件访问权限的特殊应用访问权限：</p>
+<ol>
+<li>在清单中声明 MANAGE_EXTERNAL_STORAGE 权限。</li>
+<li>使用 ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION intent 操作将用户引导至一个系统设置页面，在该页面上，用户可以为您的应用启用以下选项：授予所有文件的管理权限。</li>
+</ol>
+<ul>
+<li>在 Google Play 上架的话，需要提交使用此权限的说明，只有指定的几种类型的 APP 才能使用。</li>
+</ul>
+<h2 id="sample">Sample</h2>
+<ul>
+<li>
+<p>使用 <code>MediaStore</code> 增删改查媒体集</p>
+</li>
+<li>
+<p>使用 <code>Storage Access Framework</code> 访问文件集</p>
+</li>
+</ul>
+<h3 id="1-媒体集">1. 媒体集</h3>
+<h4 id="1-查询媒体集需要-read_external_storage-权限">1） 查询媒体集（需要 READ_EXTERNAL_STORAGE 权限）</h4>
+<p>实际上 <code>MediaStore</code> 是以前就有的 API ，不同的是过去主要通过 <code>MediaStore.Video.Media._DATA</code> 这个 colum 请求原始数据，可以得到绝对Uri<code>，现在需要请求</code>MediaStore.Video.Media._ID<code>来得到相对</code>Uri`再进行处理。</p>
+<pre><code class="language-kotlin">// Need the READ_EXTERNAL_STORAGE permission if accessing video files that your
+// app didn't create.
+
+// Container for information about each video.
+data class Video(
+    val uri: Uri,
+    val name: String,
+    val duration: Int,
+    val size: Int
+)
+val videoList = mutableListOf&lt;Video&gt;()
+
+val projection = arrayOf(
+    MediaStore.Video.Media._ID,
+    MediaStore.Video.Media.DISPLAY_NAME,
+    MediaStore.Video.Media.DURATION,
+    MediaStore.Video.Media.SIZE
+)
+
+// Show only videos that are at least 5 minutes in duration.
+val selection = &quot;${MediaStore.Video.Media.DURATION} &gt;= ?&quot;
+val selectionArgs = arrayOf(
+    TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES).toString()
+)
+
+// Display videos in alphabetical order based on their display name.
+val sortOrder = &quot;${MediaStore.Video.Media.DISPLAY_NAME} ASC&quot;
+
+val query = ContentResolver.query(
+    MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+    projection,
+    selection,
+    selectionArgs,
+    sortOrder
+)
+query?.use { cursor -&gt;
+    // Cache column indices.
+    val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID)
+    val nameColumn =
+            cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME)
+    val durationColumn =
+            cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION)
+    val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE)
+
+    while (cursor.moveToNext()) {
+        // Get values of columns for a given video.
+        val id = cursor.getLong(idColumn)
+        val name = cursor.getString(nameColumn)
+        val duration = cursor.getInt(durationColumn)
+        val size = cursor.getInt(sizeColumn)
+
+        val contentUri: Uri = ContentUris.withAppendedId(
+            MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+            id
+        )
+
+        // Stores column values and the contentUri in a local object
+        // that represents the media file.
+        videoList += Video(contentUri, name, duration, size)
+    }
+}
+
+</code></pre>
+<h4 id="2插入媒体集无需权限">2）插入媒体集（无需权限）</h4>
+<pre><code class="language-kotlin">// Add a media item that other apps shouldn't see until the item is
+// fully written to the media store.
+val resolver = applicationContext.contentResolver
+
+// Find all audio files on the primary external storage device.
+// On API &lt;= 28, use VOLUME_EXTERNAL instead.
+val audioCollection = MediaStore.Audio.Media
+        .getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+
+val songDetails = ContentValues().apply {
+    put(MediaStore.Audio.Media.DISPLAY_NAME, &quot;My Workout Playlist.mp3&quot;)
+    put(MediaStore.Audio.Media.IS_PENDING, 1)
+}
+
+val songContentUri = resolver.insert(audioCollection, songDetails)
+
+resolver.openFileDescriptor(songContentUri, &quot;w&quot;, null).use { pfd -&gt;
+    // Write data into the pending audio file.
+}
+
+// Now that we're finished, release the &quot;pending&quot; status, and allow other apps
+// to play the audio track.
+songDetails.clear()
+songDetails.put(MediaStore.Audio.Media.IS_PENDING, 0)
+resolver.update(songContentUri, songDetails, null, null)
+</code></pre>
+<h4 id="3更新自己创建的媒体集无需权限">3）更新自己创建的媒体集（无需权限）</h4>
+<p>删除类似</p>
+<pre><code class="language-kotlin">// Updates an existing media item.
+val mediaId = // MediaStore.Audio.Media._ID of item to update.
+val resolver = applicationContext.contentResolver
+
+// When performing a single item update, prefer using the ID
+val selection = &quot;${MediaStore.Audio.Media._ID} = ?&quot;
+
+// By using selection + args we protect against improper escaping of // values.
+val selectionArgs = arrayOf(mediaId.toString())
+
+// Update an existing song.
+val updatedSongDetails = ContentValues().apply {
+    put(MediaStore.Audio.Media.DISPLAY_NAME, &quot;My Favorite Song.mp3&quot;)
+}
+
+// Use the individual song's URI to represent the collection that's
+// updated.
+val numSongsUpdated = resolver.update(
+        myFavoriteSongUri,
+        updatedSongDetails,
+        selection,
+        selectionArgs)
+</code></pre>
+<h4 id="4更新删除其它媒体创建的媒体集">4）更新/删除其它媒体创建的媒体集</h4>
+<p>若已经开启分区存储则会抛出 <code>RecoverableSecurityException</code>，捕获并通过<code>SAF</code>请求权限</p>
+<pre><code class="language-kotlin">// Apply a grayscale filter to the image at the given content URI.
+try {
+    contentResolver.openFileDescriptor(image-content-uri, &quot;w&quot;)?.use {
+        setGrayscaleFilter(it)
+    }
+} catch (securityException: SecurityException) {
+    if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.Q) {
+        val recoverableSecurityException = securityException as?
+            RecoverableSecurityException ?:
+            throw RuntimeException(securityException.message, securityException)
+
+        val intentSender =
+            recoverableSecurityException.userAction.actionIntent.intentSender
+        intentSender?.let {
+            startIntentSenderForResult(intentSender, image-request-code,
+                    null, 0, 0, 0, null)
+        }
+    } else {
+        throw RuntimeException(securityException.message, securityException)
+    }
+}
+
+</code></pre>
+<h3 id="2-文件集-通过-saf">2. 文件集 （通过 SAF）</h3>
+<h4 id="1创建文档">1）创建文档</h4>
+<p>注：创建操作若重名的话不会覆盖原文档，会添加 (1) 最为后缀，如 document.pdf -&gt; document(1).pdf</p>
+<pre><code class="language-kotlin">// Request code for creating a PDF document.
+const val CREATE_FILE = 1
+
+private fun createFile(pickerInitialUri: Uri) {
+    val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+        addCategory(Intent.CATEGORY_OPENABLE)
+        type = &quot;application/pdf&quot;
+        putExtra(Intent.EXTRA_TITLE, &quot;invoice.pdf&quot;)
+
+        // Optionally, specify a URI for the directory that should be opened in
+        // the system file picker before your app creates the document.
+        putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri)
+    }
+    startActivityForResult(intent, CREATE_FILE)
+}
+</code></pre>
+<h4 id="2打开文档">2）打开文档</h4>
+<p>建议使用 type 设置 MIME 类型</p>
+<pre><code class="language-kotlin">// Request code for selecting a PDF document.
+const val PICK_PDF_FILE = 2
+
+fun openFile(pickerInitialUri: uri) {
+    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+        addCategory(Intent.CATEGORY_OPENABLE)
+        type = &quot;application/pdf&quot;
+
+        // Optionally, specify a URI for the file that should appear in the
+        // system file picker when it loads.
+        putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri)
+    }
+
+    startActivityForResult(intent, PICK_PDF_FILE)
+}
+</code></pre>
+<h4 id="3授予对目录内容的访问权限">3）授予对目录内容的访问权限</h4>
+<p>用户选择目录后，可访问该目录下的所有内容</p>
+<p><em><strong>Android 11 中无法访问 Downloads</strong></em></p>
+<pre><code class="language-kotlin">fun openDirectory(pickerInitialUri: Uri) {
+    // Choose a directory using the system's file picker.
+    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
+        // Provide read access to files and sub-directories in the user-selected
+        // directory.
+        flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+
+        // Optionally, specify a URI for the directory that should be opened in
+        // the system file picker when it loads.
+        putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri)
+    }
+
+    startActivityForResult(intent, your-request-code)
+}
+</code></pre>
+<h4 id="4永久获取目录访问权限">4）永久获取目录访问权限</h4>
+<p>上面提到的授权是临时性的，重启后则会失效。可以通过下面的方法获取相应目录永久性的权限</p>
+<pre><code class="language-kotlin">val contentResolver = applicationContext.contentResolver
+
+val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+// Check for the freshest data.
+contentResolver.takePersistableUriPermission(uri, takeFlags)
+</code></pre>
+<h4 id="5saf-api-响应">5）SAF API 响应</h4>
+<p><code>SAF API</code> 调用后都是通过 <code>onActivityResult</code>来相应动作</p>
+<pre><code class="language-kotlin">override fun onActivityResult(
+        requestCode: Int, resultCode: Int, resultData: Intent?) {
+    if (requestCode == your-request-code
+            &amp;&amp; resultCode == Activity.RESULT_OK) {
+        // The result data contains a URI for the document or directory that
+        // the user selected.
+        resultData?.data?.also { uri -&gt;
+            // Perform operations on the document using its URI.
+        }
+    }
+}
+</code></pre>
+<h4 id="6-其它操作">6) 其它操作</h4>
+<p>除了上面的操作之外，对文档其它的复制、移动等操作都是通过设置不同的 FLAG 来实现，见 <a href="https://developer.android.com/reference/android/provider/DocumentsContract.Document#COLUMN_FLAGS"><code>Document.COLUMN_FLAGS</code></a></p>
+<h4 id="3-批量操作媒体集">3. 批量操作媒体集</h4>
+<p>构建一个媒体集的写入操作 <code>createWriteRequest()</code></p>
+<pre><code class="language-kotlin">val urisToModify = /* A collection of content URIs to modify. */
+val editPendingIntent = MediaStore.createWriteRequest(contentResolver,
+        urisToModify)
+
+// Launch a system prompt requesting user permission for the operation.
+startIntentSenderForResult(editPendingIntent.intentSender, EDIT_REQUEST_CODE,
+    null, 0, 0, 0)
+
+//相应
+override fun onActivityResult(requestCode: Int, resultCode: Int,
+                 data: Intent?) {
+    ...
+    when (requestCode) {
+        EDIT_REQUEST_CODE -&gt;
+            if (resultCode == Activity.RESULT_OK) {
+                /* Edit request granted; proceed. */
+            } else {
+                /* Edit request not granted; explain to the user. */
+            }
+    }
+}
+</code></pre>
+<p><code>createFavoriteRequest()</code> <code>createTrashRequest()</code> <code>createDeleteRequest()</code> 同理</p>
+<figure data-type="image" tabindex="3"><img src="https://xiejinpeng007.github.io/post-images/1597822142159.png" alt="批量删除图片" loading="lazy"></figure>
+<h3 id="适配和兼容">适配和兼容</h3>
+<p>在 targetSDK = 29 APP 中，在 <code>AndroidManifes</code> 设置 <code>requestLegacyExternalStorage=&quot;true&quot;</code> 启用兼容模式，以传统分区模式运行。</p>
+<pre><code class="language-xml">   &lt;manifest ... &gt;
+      &lt;!-- This attribute is &quot;false&quot; by default on apps targeting
+           Android 10 or higher. --&gt;
+      &lt;application android:requestLegacyExternalStorage=&quot;true&quot; ... &gt;
+        ...
+      &lt;/application&gt;
+    &lt;/manifest&gt;
+</code></pre>
+<blockquote>
+<p><strong>注意</strong>：如果某个应用在安装时启用了传统外部存储，则该应用会保持此模式，直到卸载为止。无论设备后续是否升级为搭载 Android 10 或更高版本，或者应用后续是否更新为以 Android 10 或更高版本为目标平台，此兼容性行为均适用。</p>
+</blockquote>
+<p>意思就是在新系统新安装的应用才会启用，覆盖安装会保持传统分区模式，例如：</p>
+<ul>
+<li>
+<p>系统通过 OTA 升级到 Android 10/11</p>
+</li>
+<li>
+<p>应用通过更新升级到 targetSdkVersion &gt;= 29</p>
+</li>
+</ul>
+<h3 id="补充">补充</h3>
+<p>Q：之前讨论过一些问题，APP 无需权限可以访问自己创建的媒体，那么系统如何进行判断？</p>
+<p>A：创建媒体时系统会给媒体打上 packageName tag，应用被卸载则会清除 tag ，所以不会存在使用同样 packageName 进行欺骗的情况。</p>
+<p>Q：我可以在媒体集文件夹下创建文档，就可以避开权限的问题了？</p>
+<p>A：官方文档上写了只能创建相应类型的媒体/文件，具体如何限制的，没有说明。</p>
+<h2 id="总结">总结</h2>
+<p>从 Android 10提出分区存储之后到现在已经一年多了，所以Google 从强制推行的态度到现在  targetSDK &gt;=30 才强制启用分区存储来看，Google 还是渐渐地选择给开发者留更多的时间。缺点当然是不强制启用的话，国内 APP 适配进度估计得延后了。不过好消息是在查资料的时候，看到了国内大厂的相关适配文章，至少说明大厂在跟进了。</p>
+<p>去年（19年）的文档描述是无论 targetSDK 多少，明年（20年）高版本强制启用。</p>
+<figure data-type="image" tabindex="4"><img src="https://xiejinpeng007.github.io/post-images/1597822164995.png" alt="" loading="lazy"></figure>
+<p>今年（20）文档描述是 targetSDK &gt;=30 才强制启用</p>
+<figure data-type="image" tabindex="5"><img src="https://xiejinpeng007.github.io/post-images/1597822174244.png" alt="" loading="lazy"></figure>
+<h5 id="关于适配的难度">关于适配的难度：</h5>
+<p>对绝对路径相关接口依赖比较深的 APP 适配还是改动挺多的；其次权限的划分很细，什么时候需要什么权限以及调用哪个接口，理解起来需要一定时间；<code>MediaStore API</code>  <code>SAF API</code> 这类接口以前就设计好了，我也觉得也不算特别友好；最后测试也需要重新进行。</p>
+<p>所以虽然明年才会强制执行分区存储，但还是建议尽早理解和 review 项目中需要适配的代码。</p>
+<h5 id="参考文档">参考文档：</h5>
+<ul>
+<li>
+<p><a href="https://developer.android.com/preview/privacy/storage">https://developer.android.com/preview/privacy/storage (Android 11 中的存储机制更新)</a></p>
+</li>
+<li>
+<p><a href="https://developer.android.com/training/data-storage/shared/documents-files">https://developer.android.com/training/data-storage/shared/documents-files (从共享存储空间访问文档和其他文件)</a></p>
+</li>
+<li>
+<p><a href="https://developer.android.com/training/data-storage/files/external-scoped?hl=zh-cn">https://developer.android.com/training/data-storage/files/external-scoped?hl=zh-cn (管理分区外部存储访问)</a></p>
+</li>
+<li>
+<p><a href="https://developer.android.com/guide/topics/providers/document-provider">https://developer.android.com/guide/topics/providers/document-provider (使用存储访问框架打开文件)</a></p>
+</li>
+<li>
+<p><a href="https://juejin.im/post/6844904063432130568">https://juejin.im/post/6844904063432130568 (Android 10 分区存储介绍及百度APP适配实践)</a></p>
+</li>
+<li>
+<p>[https://github.com/android/storage-samples</p>
+</li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://xiejinpeng007.github.io/post/webrtc/" class="post-title gt-a-link">
+                    WebRTC 原理和网络视频通话的实现(Android+服务器端)
+                </a>
+            </div>
+        
+
+        
+
+        
+            
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+<script>
+    // md5.min.js
+    !function(n){
+        "use strict";
+        function d(n,t){var r=(65535&n)+(65535&t);return(n>>16)+(t>>16)+(r>>16)<<16|65535&r}
+        function f(n,t,r,e,o,u){return d((c=d(d(t,n),d(e,u)))<<(f=o)|c>>>32-f,r);var c,f}
+        function l(n,t,r,e,o,u,c){return f(t&r|~t&e,n,t,o,u,c)}
+        function v(n,t,r,e,o,u,c){return f(t&e|r&~e,n,t,o,u,c)}
+        function g(n,t,r,e,o,u,c){return f(t^r^e,n,t,o,u,c)}
+        function m(n,t,r,e,o,u,c){return f(r^(t|~e),n,t,o,u,c)}
+        function i(n,t){var r,e,o,u,c;n[t>>5]|=128<<t%32,n[14+(t+64>>>9<<4)]=t;var f=1732584193,i=-271733879,a=-1732584194,h=271733878;for(r=0;r<n.length;r+=16)f=l(e=f,o=i,u=a,c=h,n[r],7,-680876936),h=l(h,f,i,a,n[r+1],12,-389564586),a=l(a,h,f,i,n[r+2],17,606105819),i=l(i,a,h,f,n[r+3],22,-1044525330),f=l(f,i,a,h,n[r+4],7,-176418897),h=l(h,f,i,a,n[r+5],12,1200080426),a=l(a,h,f,i,n[r+6],17,-1473231341),i=l(i,a,h,f,n[r+7],22,-45705983),f=l(f,i,a,h,n[r+8],7,1770035416),h=l(h,f,i,a,n[r+9],12,-1958414417),a=l(a,h,f,i,n[r+10],17,-42063),i=l(i,a,h,f,n[r+11],22,-1990404162),f=l(f,i,a,h,n[r+12],7,1804603682),h=l(h,f,i,a,n[r+13],12,-40341101),a=l(a,h,f,i,n[r+14],17,-1502002290),f=v(f,i=l(i,a,h,f,n[r+15],22,1236535329),a,h,n[r+1],5,-165796510),h=v(h,f,i,a,n[r+6],9,-1069501632),a=v(a,h,f,i,n[r+11],14,643717713),i=v(i,a,h,f,n[r],20,-373897302),f=v(f,i,a,h,n[r+5],5,-701558691),h=v(h,f,i,a,n[r+10],9,38016083),a=v(a,h,f,i,n[r+15],14,-660478335),i=v(i,a,h,f,n[r+4],20,-405537848),f=v(f,i,a,h,n[r+9],5,568446438),h=v(h,f,i,a,n[r+14],9,-1019803690),a=v(a,h,f,i,n[r+3],14,-187363961),i=v(i,a,h,f,n[r+8],20,1163531501),f=v(f,i,a,h,n[r+13],5,-1444681467),h=v(h,f,i,a,n[r+2],9,-51403784),a=v(a,h,f,i,n[r+7],14,1735328473),f=g(f,i=v(i,a,h,f,n[r+12],20,-1926607734),a,h,n[r+5],4,-378558),h=g(h,f,i,a,n[r+8],11,-2022574463),a=g(a,h,f,i,n[r+11],16,1839030562),i=g(i,a,h,f,n[r+14],23,-35309556),f=g(f,i,a,h,n[r+1],4,-1530992060),h=g(h,f,i,a,n[r+4],11,1272893353),a=g(a,h,f,i,n[r+7],16,-155497632),i=g(i,a,h,f,n[r+10],23,-1094730640),f=g(f,i,a,h,n[r+13],4,681279174),h=g(h,f,i,a,n[r],11,-358537222),a=g(a,h,f,i,n[r+3],16,-722521979),i=g(i,a,h,f,n[r+6],23,76029189),f=g(f,i,a,h,n[r+9],4,-640364487),h=g(h,f,i,a,n[r+12],11,-421815835),a=g(a,h,f,i,n[r+15],16,530742520),f=m(f,i=g(i,a,h,f,n[r+2],23,-995338651),a,h,n[r],6,-198630844),h=m(h,f,i,a,n[r+7],10,1126891415),a=m(a,h,f,i,n[r+14],15,-1416354905),i=m(i,a,h,f,n[r+5],21,-57434055),f=m(f,i,a,h,n[r+12],6,1700485571),h=m(h,f,i,a,n[r+3],10,-1894986606),a=m(a,h,f,i,n[r+10],15,-1051523),i=m(i,a,h,f,n[r+1],21,-2054922799),f=m(f,i,a,h,n[r+8],6,1873313359),h=m(h,f,i,a,n[r+15],10,-30611744),a=m(a,h,f,i,n[r+6],15,-1560198380),i=m(i,a,h,f,n[r+13],21,1309151649),f=m(f,i,a,h,n[r+4],6,-145523070),h=m(h,f,i,a,n[r+11],10,-1120210379),a=m(a,h,f,i,n[r+2],15,718787259),i=m(i,a,h,f,n[r+9],21,-343485551),f=d(f,e),i=d(i,o),a=d(a,u),h=d(h,c);return[f,i,a,h]}
+        function a(n){var t,r="",e=32*n.length;for(t=0;t<e;t+=8)r+=String.fromCharCode(n[t>>5]>>>t%32&255);return r}
+        function h(n){var t,r=[];for(r[(n.length>>2)-1]=void 0,t=0;t<r.length;t+=1)r[t]=0;var e=8*n.length;for(t=0;t<e;t+=8)r[t>>5]|=(255&n.charCodeAt(t/8))<<t%32;return r}
+        function e(n){var t,r,e="0123456789abcdef",o="";for(r=0;r<n.length;r+=1)t=n.charCodeAt(r),o+=e.charAt(t>>>4&15)+e.charAt(15&t);return o}
+        function r(n){return unescape(encodeURIComponent(n))}
+        function o(n){return a(i(h(t=r(n)),8*t.length));var t}
+        function u(n,t){return function(n,t){var r,e,o=h(n),u=[],c=[];for(u[15]=c[15]=void 0,16<o.length&&(o=i(o,8*n.length)),r=0;r<16;r+=1)u[r]=909522486^o[r],c[r]=1549556828^o[r];return e=i(u.concat(h(t)),512+8*t.length),a(i(c.concat(e),640))}(r(n),r(t))}
+        function t(n,t,r){return t?r?u(t,n):e(u(t,n)):r?o(n):e(o(n))}
+        "function"==typeof define&&define.amd?define(function(){return t}):"object"==typeof module&&module.exports?module.exports=t:n.md5=t;
+    }(this);
+</script>
+
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'ea3603bb590ba2ab51ba',
+    clientSecret: 'e82e698ee0f1db9e833f069b9c3b612ba3486927',
+    repo: 'xiejinpeng007.github.io',
+    owner: 'xiejinpeng007',
+    admin: ['xiejinpeng007'],
+    id: md5(location.pathname),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false       // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+            
+
+            
+        
+
+        
+            <script src='https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js'></script>
+
+<style>
+	div#vcomments{
+		width:100%;
+		max-width: 1000px;
+		padding: 2.5%
+	}
+</style>
+
+
+	<div id="vcomments"></div>
+
+<script>
+	new Valine({
+		el: '#vcomments',
+		appId: '',
+		appKey: '',
+		avatar: '',
+		pageSize: 5,
+		recordIp: false,
+		placeholder: 'Just Go Go',
+		visitor: false,
+	});
+</script>
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">你觉得做什么事很痛苦，那么就需要去越过它。</div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/xiejinpeng007" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        <a href="https://github.com/xiejinpeng007">Github</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://xiejinpeng007.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>
