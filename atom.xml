@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://xiejinpeng007.github.io</id>
     <title>xiejinpeng&apos;s space</title>
-    <updated>2020-08-18T02:32:39.943Z</updated>
+    <updated>2020-08-19T07:29:56.669Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://xiejinpeng007.github.io"/>
     <link rel="self" href="https://xiejinpeng007.github.io/atom.xml"/>
@@ -10,6 +10,423 @@
     <logo>https://xiejinpeng007.github.io/images/avatar.png</logo>
     <icon>https://xiejinpeng007.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, xiejinpeng&apos;s space</rights>
+    <entry>
+        <title type="html"><![CDATA[Android 10(Q)/11(R) 分区存储适配]]></title>
+        <id>https://xiejinpeng007.github.io/post/android-10q11r-fen-qu-cun-chu-gua-pei/</id>
+        <link href="https://xiejinpeng007.github.io/post/android-10q11r-fen-qu-cun-chu-gua-pei/">
+        </link>
+        <updated>2020-08-19T07:26:50.000Z</updated>
+        <content type="html"><![CDATA[<p>大部分应用都会请求 ( READ_EXTERNAL_STORAGE ) ( WRITE_EXTERNAL_STORAGE ) 存储权限，来做一些诸如在 SD 卡中存储文件或者读取多媒体文件等常规操作。这些应用可能会在磁盘中存储大量文件，即使应用被卸载了还会依然存在。另外，这些应用还可能会读取其他应用的一些敏感文件数据。</p>
+<p>为此，Google 终于下定决心在 Android 10 中引入了分区存储，对权限进行场景的细分，按需索取，并在 Android 11 中进行了进一步的调整。</p>
+<h2 id="android-存储分区情况">Android 存储分区情况</h2>
+<p>Android 中存储可以分为两大类：私有存储和共享存储</p>
+<ul>
+<li>私有存储 (Private Storage) : 每个应用在都拥有自己的私有目录，其它应用看不到，彼此也无法访问到该目录：
+<ul>
+<li>内部存储私有目录<code>(/data/data/packageName)</code> ；</li>
+<li>外部存储私有目录 <code>(/sdcard/Android/data/packageName)</code>，</li>
+</ul>
+</li>
+<li>共享存储 (Shared Storage) : 存储其他应用可访问文件， 包含媒体文件、文档文件以及其他文件，对应设备DCIM、Pictures、Alarms、Music、Notifications、Podcasts、Ringtones、Movies、Download等目录。</li>
+</ul>
+<h2 id="android-10q-行为变更">Android 10(Q) 行为变更：</h2>
+<p>Android 10 中主要对<code>共享目录</code>进行了权限详细的划分，不再能通过绝对路径访问。</p>
+<p>受影响的接口：</p>
+<figure data-type="image" tabindex="1"><img src="https://xiejinpeng007.github.io/post-images/1597822089838.png" alt="" loading="lazy"></figure>
+<h3 id="访问不同分区的方式">访问不同分区的方式：</h3>
+<ol>
+<li>私有目录：和以前的版本一致，可通过 <code>File()</code> API 访问，无需申请权限。</li>
+<li>共享目录：需要通过<code>MediaStore</code>和<code>Storage Access Framework</code> API 访问，视具体情况申请权限，下面详细介绍。</li>
+</ol>
+<p>其中，对共享目录的权限进行了细分：</p>
+<ol>
+<li>
+<p>无需申请权限的操作：<br>
+通过 <code>MediaStore API</code>对媒体集、文件集进行媒体/文件的添加、对 <strong>自身APP</strong> 创建的 媒体/文件 进行查询、修改、删除的操作。</p>
+</li>
+<li>
+<p>需要申请<code>READ_EXTERNAL_STORAGE</code>权限：<br>
+通过 <code>MediaStore API</code>对所有的媒体集进行查询、修改、删除的操作。</p>
+</li>
+<li>
+<p>调用 <code>Storage Access Framework API</code> ：<br>
+会启动系统的文件选择器向用户申请操作指定的文件</p>
+</li>
+</ol>
+<p>新的访问方式：</p>
+<figure data-type="image" tabindex="2"><img src="https://xiejinpeng007.github.io/post-images/1597822101677.png" alt="" loading="lazy"></figure>
+<h2 id="android-11-r-行为变更">Android 11 (R) 行为变更 :</h2>
+<p>Android 11 (R) 在 Android 10 (Q) 中分区存储的基础上进行了调整</p>
+<h3 id="1-新增执行批量操作">1. 新增执行批量操作</h3>
+<blockquote>
+<p>为实现各种设备之间的一致性并增加用户便利性，Android 11 向 MediaStore API 中添加了多种方法。对于希望简化特定媒体文件更改流程（例如在原位置编辑照片）的应用而言，这些方法尤为有用。</p>
+</blockquote>
+<p>MediaStore API 新增的方法</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>createWriteRequest (ContentResolver, Collection)</td>
+<td>用户向应用授予对指定媒体文件组的写入访问权限的请求。</td>
+</tr>
+<tr>
+<td>createFavoriteRequest (ContentResolver, Collection, boolean)</td>
+<td>用户将设备上指定的媒体文件标记为 “收藏” 的请求。对该文件具有读取访问权限的任何应用都可以看到用户已将该文件标记为 “收藏”。</td>
+</tr>
+<tr>
+<td>createTrashRequest (ContentResolver, Collection, boolean)</td>
+<td>用户将指定的媒体文件放入设备垃圾箱的请求。垃圾箱中的内容在特定时间段（默认为 7 天）后会永久删除。</td>
+</tr>
+<tr>
+<td>createDeleteRequest (ContentResolver, Collection)</td>
+<td>用户立即永久删除指定的媒体文件（而不是先将其放入垃圾箱）的请求。</td>
+</tr>
+</tbody>
+</table>
+<p>系统在调用以上任何一个方法后，会构建一个 PendingIntent 对象。应用调用此 intent 后，用户会看到一个对话框，请求用户同意应用更新或删除指定的媒体文件。</p>
+<h3 id="2-使用直接文件路径和原生库访问文件">2. 使用直接文件路径和原生库访问文件</h3>
+<blockquote>
+<p>为了帮助您的应用更顺畅地使用第三方媒体库，Android 11 允许您使用除 MediaStore API 之外的 API 访问共享存储空间中的媒体文件。不过，您也可以转而选择使用以下任一 API 直接访问媒体文件：</p>
+<p>File API。<br>
+原生库，例如 fopen()。</p>
+</blockquote>
+<p>简单来说就是，可以通过 <code>File()</code> 等API 访问有权限访问的媒体集了。</p>
+<h5 id="性能">性能：</h5>
+<p>通过 <code>File ()</code> 等直接通过路径访问的 API 实际上也会映射为<code>MediaStore</code> API 。<br>
+按文件路径顺序读取的时候性能相当；随机读取和写入的时候则会更慢，所以还是推荐直接使用 <code>MediaStore</code>API。</p>
+<h3 id="3-新增权限">3. 新增权限</h3>
+<p><code>MANAGE_EXTERNAL_STORAGE</code> :<br>
+类似以前的 <code>READ_EXTERNAL_STORAGE</code> + <code>WRITE_EXTERNAL_STORAGE</code>，除了应用专有目录都可以访问。</p>
+<p>应用可通过执行以下操作向用户请求名为所有文件访问权限的特殊应用访问权限：</p>
+<ol>
+<li>在清单中声明 MANAGE_EXTERNAL_STORAGE 权限。</li>
+<li>使用 ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION intent 操作将用户引导至一个系统设置页面，在该页面上，用户可以为您的应用启用以下选项：授予所有文件的管理权限。</li>
+</ol>
+<ul>
+<li>在 Google Play 上架的话，需要提交使用此权限的说明，只有指定的几种类型的 APP 才能使用。</li>
+</ul>
+<h2 id="sample">Sample</h2>
+<ul>
+<li>
+<p>使用 <code>MediaStore</code> 增删改查媒体集</p>
+</li>
+<li>
+<p>使用 <code>Storage Access Framework</code> 访问文件集</p>
+</li>
+</ul>
+<h3 id="1-媒体集">1. 媒体集</h3>
+<h4 id="1-查询媒体集需要-read_external_storage-权限">1） 查询媒体集（需要 READ_EXTERNAL_STORAGE 权限）</h4>
+<p>实际上 <code>MediaStore</code> 是以前就有的 API ，不同的是过去主要通过 <code>MediaStore.Video.Media._DATA</code> 这个 colum 请求原始数据，可以得到绝对Uri<code>，现在需要请求</code>MediaStore.Video.Media._ID<code>来得到相对</code>Uri`再进行处理。</p>
+<pre><code class="language-kotlin">// Need the READ_EXTERNAL_STORAGE permission if accessing video files that your
+// app didn't create.
+
+// Container for information about each video.
+data class Video(
+    val uri: Uri,
+    val name: String,
+    val duration: Int,
+    val size: Int
+)
+val videoList = mutableListOf&lt;Video&gt;()
+
+val projection = arrayOf(
+    MediaStore.Video.Media._ID,
+    MediaStore.Video.Media.DISPLAY_NAME,
+    MediaStore.Video.Media.DURATION,
+    MediaStore.Video.Media.SIZE
+)
+
+// Show only videos that are at least 5 minutes in duration.
+val selection = &quot;${MediaStore.Video.Media.DURATION} &gt;= ?&quot;
+val selectionArgs = arrayOf(
+    TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES).toString()
+)
+
+// Display videos in alphabetical order based on their display name.
+val sortOrder = &quot;${MediaStore.Video.Media.DISPLAY_NAME} ASC&quot;
+
+val query = ContentResolver.query(
+    MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+    projection,
+    selection,
+    selectionArgs,
+    sortOrder
+)
+query?.use { cursor -&gt;
+    // Cache column indices.
+    val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID)
+    val nameColumn =
+            cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME)
+    val durationColumn =
+            cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION)
+    val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE)
+
+    while (cursor.moveToNext()) {
+        // Get values of columns for a given video.
+        val id = cursor.getLong(idColumn)
+        val name = cursor.getString(nameColumn)
+        val duration = cursor.getInt(durationColumn)
+        val size = cursor.getInt(sizeColumn)
+
+        val contentUri: Uri = ContentUris.withAppendedId(
+            MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+            id
+        )
+
+        // Stores column values and the contentUri in a local object
+        // that represents the media file.
+        videoList += Video(contentUri, name, duration, size)
+    }
+}
+
+</code></pre>
+<h4 id="2插入媒体集无需权限">2）插入媒体集（无需权限）</h4>
+<pre><code class="language-kotlin">// Add a media item that other apps shouldn't see until the item is
+// fully written to the media store.
+val resolver = applicationContext.contentResolver
+
+// Find all audio files on the primary external storage device.
+// On API &lt;= 28, use VOLUME_EXTERNAL instead.
+val audioCollection = MediaStore.Audio.Media
+        .getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+
+val songDetails = ContentValues().apply {
+    put(MediaStore.Audio.Media.DISPLAY_NAME, &quot;My Workout Playlist.mp3&quot;)
+    put(MediaStore.Audio.Media.IS_PENDING, 1)
+}
+
+val songContentUri = resolver.insert(audioCollection, songDetails)
+
+resolver.openFileDescriptor(songContentUri, &quot;w&quot;, null).use { pfd -&gt;
+    // Write data into the pending audio file.
+}
+
+// Now that we're finished, release the &quot;pending&quot; status, and allow other apps
+// to play the audio track.
+songDetails.clear()
+songDetails.put(MediaStore.Audio.Media.IS_PENDING, 0)
+resolver.update(songContentUri, songDetails, null, null)
+</code></pre>
+<h4 id="3更新自己创建的媒体集无需权限">3）更新自己创建的媒体集（无需权限）</h4>
+<p>删除类似</p>
+<pre><code class="language-kotlin">// Updates an existing media item.
+val mediaId = // MediaStore.Audio.Media._ID of item to update.
+val resolver = applicationContext.contentResolver
+
+// When performing a single item update, prefer using the ID
+val selection = &quot;${MediaStore.Audio.Media._ID} = ?&quot;
+
+// By using selection + args we protect against improper escaping of // values.
+val selectionArgs = arrayOf(mediaId.toString())
+
+// Update an existing song.
+val updatedSongDetails = ContentValues().apply {
+    put(MediaStore.Audio.Media.DISPLAY_NAME, &quot;My Favorite Song.mp3&quot;)
+}
+
+// Use the individual song's URI to represent the collection that's
+// updated.
+val numSongsUpdated = resolver.update(
+        myFavoriteSongUri,
+        updatedSongDetails,
+        selection,
+        selectionArgs)
+</code></pre>
+<h4 id="4更新删除其它媒体创建的媒体集">4）更新/删除其它媒体创建的媒体集</h4>
+<p>若已经开启分区存储则会抛出 <code>RecoverableSecurityException</code>，捕获并通过<code>SAF</code>请求权限</p>
+<pre><code class="language-kotlin">// Apply a grayscale filter to the image at the given content URI.
+try {
+    contentResolver.openFileDescriptor(image-content-uri, &quot;w&quot;)?.use {
+        setGrayscaleFilter(it)
+    }
+} catch (securityException: SecurityException) {
+    if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.Q) {
+        val recoverableSecurityException = securityException as?
+            RecoverableSecurityException ?:
+            throw RuntimeException(securityException.message, securityException)
+
+        val intentSender =
+            recoverableSecurityException.userAction.actionIntent.intentSender
+        intentSender?.let {
+            startIntentSenderForResult(intentSender, image-request-code,
+                    null, 0, 0, 0, null)
+        }
+    } else {
+        throw RuntimeException(securityException.message, securityException)
+    }
+}
+
+</code></pre>
+<h3 id="2-文件集-通过-saf">2. 文件集 （通过 SAF）</h3>
+<h4 id="1创建文档">1）创建文档</h4>
+<p>注：创建操作若重名的话不会覆盖原文档，会添加 (1) 最为后缀，如 document.pdf -&gt; document(1).pdf</p>
+<pre><code class="language-kotlin">// Request code for creating a PDF document.
+const val CREATE_FILE = 1
+
+private fun createFile(pickerInitialUri: Uri) {
+    val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+        addCategory(Intent.CATEGORY_OPENABLE)
+        type = &quot;application/pdf&quot;
+        putExtra(Intent.EXTRA_TITLE, &quot;invoice.pdf&quot;)
+
+        // Optionally, specify a URI for the directory that should be opened in
+        // the system file picker before your app creates the document.
+        putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri)
+    }
+    startActivityForResult(intent, CREATE_FILE)
+}
+</code></pre>
+<h4 id="2打开文档">2）打开文档</h4>
+<p>建议使用 type 设置 MIME 类型</p>
+<pre><code class="language-kotlin">// Request code for selecting a PDF document.
+const val PICK_PDF_FILE = 2
+
+fun openFile(pickerInitialUri: uri) {
+    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+        addCategory(Intent.CATEGORY_OPENABLE)
+        type = &quot;application/pdf&quot;
+
+        // Optionally, specify a URI for the file that should appear in the
+        // system file picker when it loads.
+        putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri)
+    }
+
+    startActivityForResult(intent, PICK_PDF_FILE)
+}
+</code></pre>
+<h4 id="3授予对目录内容的访问权限">3）授予对目录内容的访问权限</h4>
+<p>用户选择目录后，可访问该目录下的所有内容</p>
+<p><em><strong>Android 11 中无法访问 Downloads</strong></em></p>
+<pre><code class="language-kotlin">fun openDirectory(pickerInitialUri: Uri) {
+    // Choose a directory using the system's file picker.
+    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
+        // Provide read access to files and sub-directories in the user-selected
+        // directory.
+        flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+
+        // Optionally, specify a URI for the directory that should be opened in
+        // the system file picker when it loads.
+        putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri)
+    }
+
+    startActivityForResult(intent, your-request-code)
+}
+</code></pre>
+<h4 id="4永久获取目录访问权限">4）永久获取目录访问权限</h4>
+<p>上面提到的授权是临时性的，重启后则会失效。可以通过下面的方法获取相应目录永久性的权限</p>
+<pre><code class="language-kotlin">val contentResolver = applicationContext.contentResolver
+
+val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+// Check for the freshest data.
+contentResolver.takePersistableUriPermission(uri, takeFlags)
+</code></pre>
+<h4 id="5saf-api-响应">5）SAF API 响应</h4>
+<p><code>SAF API</code> 调用后都是通过 <code>onActivityResult</code>来相应动作</p>
+<pre><code class="language-kotlin">override fun onActivityResult(
+        requestCode: Int, resultCode: Int, resultData: Intent?) {
+    if (requestCode == your-request-code
+            &amp;&amp; resultCode == Activity.RESULT_OK) {
+        // The result data contains a URI for the document or directory that
+        // the user selected.
+        resultData?.data?.also { uri -&gt;
+            // Perform operations on the document using its URI.
+        }
+    }
+}
+</code></pre>
+<h4 id="6-其它操作">6) 其它操作</h4>
+<p>除了上面的操作之外，对文档其它的复制、移动等操作都是通过设置不同的 FLAG 来实现，见 <a href="https://developer.android.com/reference/android/provider/DocumentsContract.Document#COLUMN_FLAGS"><code>Document.COLUMN_FLAGS</code></a></p>
+<h4 id="3-批量操作媒体集">3. 批量操作媒体集</h4>
+<p>构建一个媒体集的写入操作 <code>createWriteRequest()</code></p>
+<pre><code class="language-kotlin">val urisToModify = /* A collection of content URIs to modify. */
+val editPendingIntent = MediaStore.createWriteRequest(contentResolver,
+        urisToModify)
+
+// Launch a system prompt requesting user permission for the operation.
+startIntentSenderForResult(editPendingIntent.intentSender, EDIT_REQUEST_CODE,
+    null, 0, 0, 0)
+
+//相应
+override fun onActivityResult(requestCode: Int, resultCode: Int,
+                 data: Intent?) {
+    ...
+    when (requestCode) {
+        EDIT_REQUEST_CODE -&gt;
+            if (resultCode == Activity.RESULT_OK) {
+                /* Edit request granted; proceed. */
+            } else {
+                /* Edit request not granted; explain to the user. */
+            }
+    }
+}
+</code></pre>
+<p><code>createFavoriteRequest()</code> <code>createTrashRequest()</code> <code>createDeleteRequest()</code> 同理</p>
+<figure data-type="image" tabindex="3"><img src="https://xiejinpeng007.github.io/post-images/1597822142159.png" alt="批量删除图片" loading="lazy"></figure>
+<h3 id="适配和兼容">适配和兼容</h3>
+<p>在 targetSDK = 29 APP 中，在 <code>AndroidManifes</code> 设置 <code>requestLegacyExternalStorage=&quot;true&quot;</code> 启用兼容模式，以传统分区模式运行。</p>
+<pre><code class="language-xml">   &lt;manifest ... &gt;
+      &lt;!-- This attribute is &quot;false&quot; by default on apps targeting
+           Android 10 or higher. --&gt;
+      &lt;application android:requestLegacyExternalStorage=&quot;true&quot; ... &gt;
+        ...
+      &lt;/application&gt;
+    &lt;/manifest&gt;
+</code></pre>
+<blockquote>
+<p><strong>注意</strong>：如果某个应用在安装时启用了传统外部存储，则该应用会保持此模式，直到卸载为止。无论设备后续是否升级为搭载 Android 10 或更高版本，或者应用后续是否更新为以 Android 10 或更高版本为目标平台，此兼容性行为均适用。</p>
+</blockquote>
+<p>意思就是在新系统新安装的应用才会启用，覆盖安装会保持传统分区模式，例如：</p>
+<ul>
+<li>
+<p>系统通过 OTA 升级到 Android 10/11</p>
+</li>
+<li>
+<p>应用通过更新升级到 targetSdkVersion &gt;= 29</p>
+</li>
+</ul>
+<h3 id="补充">补充</h3>
+<p>Q：之前讨论过一些问题，APP 无需权限可以访问自己创建的媒体，那么系统如何进行判断？</p>
+<p>A：创建媒体时系统会给媒体打上 packageName tag，应用被卸载则会清除 tag ，所以不会存在使用同样 packageName 进行欺骗的情况。</p>
+<p>Q：我可以在媒体集文件夹下创建文档，就可以避开权限的问题了？</p>
+<p>A：官方文档上写了只能创建相应类型的媒体/文件，具体如何限制的，没有说明。</p>
+<h2 id="总结">总结</h2>
+<p>从 Android 10提出分区存储之后到现在已经一年多了，所以Google 从强制推行的态度到现在  targetSDK &gt;=30 才强制启用分区存储来看，Google 还是渐渐地选择给开发者留更多的时间。缺点当然是不强制启用的话，国内 APP 适配进度估计得延后了。不过好消息是在查资料的时候，看到了国内大厂的相关适配文章，至少说明大厂在跟进了。</p>
+<p>去年（19年）的文档描述是无论 targetSDK 多少，明年（20年）高版本强制启用。</p>
+<figure data-type="image" tabindex="4"><img src="https://xiejinpeng007.github.io/post-images/1597822164995.png" alt="" loading="lazy"></figure>
+<p>今年（20）文档描述是 targetSDK &gt;=30 才强制启用</p>
+<figure data-type="image" tabindex="5"><img src="https://xiejinpeng007.github.io/post-images/1597822174244.png" alt="" loading="lazy"></figure>
+<h5 id="关于适配的难度">关于适配的难度：</h5>
+<p>对绝对路径相关接口依赖比较深的 APP 适配还是改动挺多的；其次权限的划分很细，什么时候需要什么权限以及调用哪个接口，理解起来需要一定时间；<code>MediaStore API</code>  <code>SAF API</code> 这类接口以前就设计好了，我也觉得也不算特别友好；最后测试也需要重新进行。</p>
+<p>所以虽然明年才会强制执行分区存储，但还是建议尽早理解和 review 项目中需要适配的代码。</p>
+<h5 id="参考文档">参考文档：</h5>
+<ul>
+<li>
+<p><a href="https://developer.android.com/preview/privacy/storage">https://developer.android.com/preview/privacy/storage (Android 11 中的存储机制更新)</a></p>
+</li>
+<li>
+<p><a href="https://developer.android.com/training/data-storage/shared/documents-files">https://developer.android.com/training/data-storage/shared/documents-files (从共享存储空间访问文档和其他文件)</a></p>
+</li>
+<li>
+<p><a href="https://developer.android.com/training/data-storage/files/external-scoped?hl=zh-cn">https://developer.android.com/training/data-storage/files/external-scoped?hl=zh-cn (管理分区外部存储访问)</a></p>
+</li>
+<li>
+<p><a href="https://developer.android.com/guide/topics/providers/document-provider">https://developer.android.com/guide/topics/providers/document-provider (使用存储访问框架打开文件)</a></p>
+</li>
+<li>
+<p><a href="https://juejin.im/post/6844904063432130568">https://juejin.im/post/6844904063432130568 (Android 10 分区存储介绍及百度APP适配实践)</a></p>
+</li>
+<li>
+<p>[https://github.com/android/storage-samples</p>
+</li>
+</ul>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[WebRTC 原理和网络视频通话的实现(Android+服务器端)]]></title>
         <id>https://xiejinpeng007.github.io/post/webrtc/</id>
@@ -2613,304 +3030,6 @@ OPTIONS
 <a href="https://www.gitbook.com/book/huangwenchao/swagger/details">https://www.gitbook.com/book/huangwenchao/swagger/details</a></p>
 </li>
 </ol>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Google 新提出的 App Architecture 分析]]></title>
-        <id>https://xiejinpeng007.github.io/post/google-xin-ti-chu-de-app-architecture-fen-xi/</id>
-        <link href="https://xiejinpeng007.github.io/post/google-xin-ti-chu-de-app-architecture-fen-xi/">
-        </link>
-        <updated>2017-05-26T09:21:24.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="app-architecture">App Architecture</h2>
-<p>为什么提出新架构：</p>
-<p>比如，当你要在自己最喜欢的社交网络app中分享一张照片的时候，你可以想象一下会发生什么。app触发一个camera intent，然后Android OS启动一个camera app来处理这一动作。此时用户已经离开了社交网络的app，但是用户的操作体验却是无缝对接的。而 camera app反过来也可能触发另一个intent，比如启动一个文件选择器，这可能会再次打开另一个app。最后用户回到社交网络app并分享照片。在这期间的任意时刻用户都可被电话打断，打完电话之后继续回来分享照片。</p>
-<p>总的来说就是，你的app组件可能是单独启动并且是无序的，而且在任何时候都有可能被系统或者用户销毁。因为app组件生命的短暂性以及生命周期的不可控制性，任何数据都不应该把存放在app组件中，同时app组件之间也不应该相互依赖。</p>
-<h4 id="任何数据都不应该存放在app组件中">=&gt; 任何数据都不应该存放在app组件中：</h4>
-<hr>
-<h4 id="通用的架构准则">通用的架构准则</h4>
-<p>最重要的一个原则就是尽量在app中做到separation of concerns（关注点分离）。常见的错误就是把所有代码都写在Activity或者Fragment中。任何跟UI和系统交互无关的事情都不应该放在这些类当中。尽可能让它们保持简单轻量可以避免很多生命周期方面的问题。别忘了能并不拥有这些类，它们只是连接app和操作系统的桥梁。根据用户的操作和其它因素，比如低内存，Android OS可能在任何时候销毁它们。为了提供可靠的用户体验，最好把对它们的依赖最小化。</p>
-<h4 id="通过mvvm来分层">==&gt; 通过MVVM来分层</h4>
-<p>第二个很重要的准则是用model驱动UI，最好是持久化的model。之所以要持久化是基于两个原因：如果OS销毁app释放资源，用户数据不会丢失；当网络很差或者断网的时候app可以继续工作。Model是负责app数据处理的组件。它们不依赖于View或者app 组件（Activity，Fragment等），因此它们不会受那些组件的生命周期的影响。保持UI代码的简单，于业务逻辑分离可以让它更易管理。</p>
-<figure data-type="image" tabindex="1"><img src="http://upload-images.jianshu.io/upload_images/1447881-436935e41b6dbc14.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" loading="lazy"></figure>
-<h4 id="其中比较重要的一点就是为每个层级加入和绑定了生命周期这一个关系">其中比较重要的一点就是为每个层级加入和绑定了生命周期这一个关系。</h4>
-<p>为了实现这个新的架构，Google提供了几种组件。</p>
-<h3 id="lifecycle">Lifecycle</h3>
-<ul>
-<li>Lifecycle 是一个持有组件（比如 activity 或者 fragment）生命周期状态信息的类，并且允许其它对象观察这个状态。</li>
-</ul>
-<p>Lifecycle 主要使用两个枚举来跟踪相关组件的生命周期状态。</p>
-<ul>
-<li>
-<p>Event:<br>
-{ON_ANY,ON_CREATE,ON_DESTROY,ON_PAUSE,ON_RESUME,ON_START,ON_STOP}</p>
-</li>
-<li>
-<p>State:<br>
-{CREATED,DESTROYED,INITIALIZED,RESUMED,STARTED}</p>
-</li>
-<li>
-<p><code>LifecycleOwner</code><br>
-需要被观察的组件（比如 activity）实现这个接口 =&gt; 被观察者</p>
-</li>
-<li>
-<p><code>LifecycleObserver</code> 需要观察其它组件生命周期的类 =&gt; 观察者</p>
-</li>
-</ul>
-<h4 id="设想这样的情景">设想这样的情景：</h4>
-<pre><code class="language-java">//activity 启动的时候开始位置获取的服务
-// 结束的时候暂停位置获取的服务
-class MyActivity extends AppCompatActivity {
-    private MyLocationListener myLocationListener;
- 
-    public void onCreate(...) {
-        myLocationListener = new MyLocationListener(this, location -&gt; {
-            // update UI
-        });    }
-
- 
-    public void onStart() {
-        super.onStart();
-        Util.checkUserStatus(result -&gt; {
-            //在启动的时候又需要检查一些配置（例如其它的资源准备好没有）
-            //如果检查完毕后，activity.stop()，NPE。
-            // what if this callback is invoked AFTER activity is stopped?
-            if (result) {
-                myLocationListener.start();
-            }
-        });
-    }
- 
-    public void onStop() {
-        super.onStop();
-        myLocationListener.stop();
-    }
-}
-</code></pre>
-<h4 id="如何使用-lifecycle-解决">如何使用 Lifecycle 解决</h4>
-<p>在 fragment / activity 这样实现了<code>LifecycleRegistryOwner</code>的类，则可以直接注册观察者（也可以自定义）</p>
-<pre><code class="language-java">fragment.getLifecycle().addObserver(new MyLocationListener());
-</code></pre>
-<p>如果使用了Lifecycle，则可以让 MyLocationListener 在内部获取组件的生命周期和响应生命周期变化的回调：</p>
-<pre><code class="language-java">class MyLocationListener implements LifecycleObserver {
-  private boolean enabled = false;
-  public MyLocationListener(Context context, Lifecycle lifecycle, Callback callback) {
-     ...
-  }
-
-  @OnLifecycleEvent(Lifecycle.Event.ON_START)
-  void start() {
-      if (enabled) {
-         // connect
-      }
-  }
-
-  public void enable() {
-      enabled = true;
-      if (lifecycle.getState().isAtLeast(STARTED)) {
-          // connect if not connected
-      }
-  }
-
-  @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-  void stop() {
-      // disconnect if connected
-  }
-}
-</code></pre>
-<h3 id="livedata">LiveData</h3>
-<p>LiveData是一个可观察的数据持有者。 无需明确在它与app组件之间创建依赖就可以观察LiveData对象的变化。LiveData还考虑了app组件(activities, fragments, services)的生命周期状态，做了防止对象泄漏的事情。</p>
-<p>=&gt; 过去是一个普通的POJO类，需要手动管理，现在绑定上了生命周期以及数据变化可以被观察。<br>
-=&gt; 有点类似带有生命周期的Rxjava。</p>
-<h4 id="一个普通的livedata">一个普通的LiveData</h4>
-<ul>
-<li>ViewModel</li>
-</ul>
-<pre><code class="language-java">public class UserProfileViewModel extends ViewModel {
-    ...
-    private User user;
-    private LiveData&lt;User&gt; user;
-    public LiveData&lt;User&gt; getUser() {
-        return user;
-    }
-}
-</code></pre>
-<ul>
-<li>Fragment</li>
-</ul>
-<pre><code class="language-java">    // Update  when the data changes.
-@Override
-public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-    super.onActivityCreated(savedInstanceState);
-    viewModel.getUser().observe(this, user -&gt; {
-      // update UI
-    });
-}
-</code></pre>
-<h4 id="包装后的livedata">包装后的LiveData</h4>
-<pre><code class="language-java">//现在需要一个可以获取Location数据的类
-//并且需要被多处使用
-
-public class LocationLiveData extends LiveData&lt;Location&gt; {
-    private static LocationLiveData sInstance;
-    private LocationManager locationManager;
-
-    @MainThread
-    public static LocationLiveData get(Context context) {
-        if (sInstance == null) {
-            sInstance = new LocationLiveData(context.getApplicationContext());
-        }
-        return sInstance;
-    }
-
-    private SimpleLocationListener listener = new SimpleLocationListener() {
-        @Override
-        public void onLocationChanged(Location location) {
-            setValue(location);
-        }
-    };
-
-    private LocationLiveData(Context context) {
-        locationManager = (LocationManager) context.getSystemService(
-                Context.LOCATION_SERVICE);
-    }
-
-    @Override
-    protected void onActive() {
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, listener);
-    }
-
-    @Override
-    protected void onInactive() {
-        locationManager.removeUpdates(listener);
-    }
-}
-
-</code></pre>
-<h4 id="在fragment中如下使用">在fragment中如下使用：</h4>
-<pre><code class="language-java">public class MyFragment extends LifecycleFragment {
-    public void onActivityCreated (Bundle savedInstanceState) {
-        Util.checkUserStatus(result -&gt; {
-            if (result) {
-                LocationLiveData.get(getActivity()).observe(this, location -&gt; {
-                   // update UI
-                });
-            }
-        });
-  }
-}
-</code></pre>
-<p>有三个方法值得注意</p>
-<ul>
-<li><code>onActive()</code>:在LiveData有活跃的观察者的时候调用 =&gt; 在上面这个例子中，有观察者激活了需要获取Location数据的时候。</li>
-<li><code>onInactive()</code>:没有活跃的观察者的时候调用 =&gt; 在这里可以暂停位置服务的更新</li>
-<li><code>setValue()</code>: 调用此方法通知外部观察者数据改变</li>
-</ul>
-<p>这样，在多个fragment中都需要使用位置信息的时候，不仅可以共享资源，LiveData可以自行妥善管理好生命周期。</p>
-<p>优点：</p>
-<ul>
-<li>没有内存泄露</li>
-<li>不会因为某个activity结束了后,还在使用activity的引用而引起崩溃</li>
-<li>因为类似屏幕旋转的操作而导致fragment重建或重新进入生命周期，fragment会立即接受到最近的数据。</li>
-<li>可以共享资源</li>
-<li>无需手动管理生命周期</li>
-<li>在fragment.onDestroy()时，就会自动移除观察者 Observer</li>
-<li>在fragment处于非活动状态时，callback不会触发。</li>
-</ul>
-<h3 id="viewmodel">ViewModel</h3>
-<p>一个ViewModel为特定的UI组件提供数据，比如fragment 或者 activity，并负责和数据处理的业务逻辑部分通信，比如调用其它组件加载数据或者转发用户的修改。ViewModel并不依赖于activity fragment view，也不会被configuration change影响。</p>
-<pre><code class="language-java">public abstract class ViewModel {
-    /**
-     * This method will be called when this ViewModel is no longer used and will be destroyed.
-     * &lt;p&gt;
-     * It is useful when ViewModel observes some data and you need to clear this subscription to
-     * prevent a leak of this ViewModel.
-     */
-    @SuppressWarnings(&quot;WeakerAccess&quot;)
-    protected void onCleared() {
-    }
-}
-</code></pre>
-<pre><code class="language-java">
-/**
- * Application context aware {@link ViewModel}.
- * &lt;p&gt;
- * Subclasses must have a constructor which accepts {@link Application} as the only parameter.
- * &lt;p&gt;
- */
-public class AndroidViewModel extends ViewModel {
-    private Application mApplication;
-
-    public AndroidViewModel(Application application) {
-        mApplication = application;
-    }
-
-    /**
-     * Return the application.
-     */
-    public &lt;T extends Application&gt; T getApplication() {
-        return (T) mApplication;
-    }
-}
-
-</code></pre>
-<p>在fragment中设置 UID，通过fragtment arguments传递，因为ViewModel游离在View的生命周期之外，所以当类似 configuration changed (比如屏幕旋转)的时候会自动将数据保存下来，新的fragment进入生命周期的时候，会收到相同的ViewModel。</p>
-<pre><code class="language-java">public class UserProfileFragment extends LifecycleFragment {
-    private static final String UID_KEY = &quot;uid&quot;;
-    private UserProfileViewModel viewModel;
- 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        String userId = getArguments().getString(UID_KEY);
-        viewModel = ViewModelProviders.of(this).get(UserProfileViewModel.class);
-        viewModel.init(userId);
-    }
- 
-    @Override
-    public View onCreateView(LayoutInflater inflater,
-                @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.user_profile, container, false);
-    }
-}
-</code></pre>
-<figure data-type="image" tabindex="2"><img src="http://upload-images.jianshu.io/upload_images/1447881-248afc6392bc15c0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" loading="lazy"></figure>
-<ul>
-<li>避免了需要重复获取数据从而浪费资源、内存泄露的问题。</li>
-</ul>
-<h3 id="repository">Repository</h3>
-<p>类似之前使用的Presenter层，从不同的数据源（内存、网络、硬盘）提供数据，并不需要ViewModel层关心具体操作。<br>
-另外，Google希望在这一层对于数据进行缓存和持久化。</p>
-<pre><code class="language-java">public class UserRepository {
-    private Webservice webservice;
-    // ...
-    public LiveData&lt;User&gt; getUser(int userId) {
-        // This is not an optimal implementation, we'll fix it below
-        final MutableLiveData&lt;User&gt; data = new MutableLiveData&lt;&gt;();
-        webservice.getUser(userId).enqueue(new Callback&lt;User&gt;() {
-            @Override
-            public void onResponse(Call&lt;User&gt; call, Response&lt;User&gt; response) {
-                // error case is left out for brevity
-                data.setValue(response.body());
-            }
-        });
-        return data;
-    }
-}
-</code></pre>
-<h3 id="管理不同组件间的依赖">管理不同组件间的依赖：</h3>
-<p>现在 Google 推荐Dagger2</p>
-<h3 id="room">Room</h3>
-<p>一个ORM库</p>
-<h4 id="参考资料">参考资料：</h4>
-<ul>
-<li><a href="https://developer.android.com/topic/libraries/architecture/index.html">https://developer.android.com/topic/libraries/architecture/index.html</a></li>
-<li><a href="https://developer.android.google.cn/topic/libraries/architecture/guide.html">https://developer.android.google.cn/topic/libraries/architecture/guide.html</a></li>
-<li><a href="https://developer.android.google.cn/topic/libraries/architecture/lifecycle.html">https://developer.android.google.cn/topic/libraries/architecture/lifecycle.html</a></li>
-<li><a href="https://developer.android.google.cn/topic/libraries/architecture/viewmodel.html">https://developer.android.google.cn/topic/libraries/architecture/viewmodel.html</a></li>
-<li><a href="https://developer.android.google.cn/topic/libraries/architecture/livedata.html">https://developer.android.google.cn/topic/libraries/architecture/livedata.html</a></li>
-<li><a href="http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2017/0523/7963.html">http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2017/0523/7963.html</a></li>
-<li><a href="http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2017/0524/7969.html">http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2017/0524/7969.html</a></li>
-</ul>
 ]]></content>
     </entry>
 </feed>
