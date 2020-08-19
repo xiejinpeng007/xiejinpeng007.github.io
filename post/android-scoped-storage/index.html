@@ -6,7 +6,7 @@
 
 <title>Android 10(Q)/11(R) 分区存储适配 | xiejinpeng&#39;s space</title>
 
-<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1597822644882">
+<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1597822968512">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://xiejinpeng007.github.io/styles/main.css">
@@ -89,7 +89,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1597822644882" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1597822968512" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -219,7 +219,7 @@
 </ul>
 <h3 id="1-媒体集">1. 媒体集</h3>
 <h4 id="1-查询媒体集需要-read_external_storage-权限">1） 查询媒体集（需要 READ_EXTERNAL_STORAGE 权限）</h4>
-<p>实际上 <code>MediaStore</code> 是以前就有的 API ，不同的是过去主要通过 <code>MediaStore.Video.Media._DATA</code> 这个 colum 请求原始数据，可以得到绝对Uri<code>，现在需要请求</code>MediaStore.Video.Media._ID<code>来得到相对</code>Uri`再进行处理。</p>
+<p>实际上 <code>MediaStore</code> 是以前就有的 API ，不同的是过去主要通过 <code>MediaStore.Video.Media._DATA</code> 这个 colum 请求原始数据，可以得到绝对<code>Uri</code> ，现在需要请求<code>MediaStore.Video.Media._ID</code>来得到相对<code>Uri</code>再进行处理。</p>
 <pre><code class="language-kotlin">// Need the READ_EXTERNAL_STORAGE permission if accessing video files that your
 // app didn't create.
 
