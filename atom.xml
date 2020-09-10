@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://xiejinpeng007.github.io</id>
     <title>xiejinpeng&apos;s space</title>
-    <updated>2020-08-19T09:59:09.867Z</updated>
+    <updated>2020-09-10T01:52:53.106Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://xiejinpeng007.github.io"/>
     <link rel="self" href="https://xiejinpeng007.github.io/atom.xml"/>
@@ -15,7 +15,7 @@
         <id>https://xiejinpeng007.github.io/post/android-scoped-storage/</id>
         <link href="https://xiejinpeng007.github.io/post/android-scoped-storage/">
         </link>
-        <updated>2020-08-19T07:26:50.000Z</updated>
+        <updated>2020-09-09T07:26:50.000Z</updated>
         <content type="html"><![CDATA[<p>大部分应用都会请求 ( READ_EXTERNAL_STORAGE ) ( WRITE_EXTERNAL_STORAGE ) 存储权限，来做一些诸如在 SD 卡中存储文件或者读取多媒体文件等常规操作。这些应用可能会在磁盘中存储大量文件，即使应用被卸载了还会依然存在。另外，这些应用还可能会读取其他应用的一些敏感文件数据。</p>
 <p>为此，Google 终于下定决心在 Android 10 中引入了分区存储，对权限进行场景的细分，按需索取，并在 Android 11 中进行了进一步的调整。</p>
 <h2 id="android-存储分区情况">Android 存储分区情况</h2>
