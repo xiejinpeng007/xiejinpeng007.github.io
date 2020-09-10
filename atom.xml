@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://xiejinpeng007.github.io</id>
-    <title>xiejinpeng&apos;s space</title>
-    <updated>2020-09-10T09:22:35.312Z</updated>
+    <title>xiejinpeng&apos;s blog</title>
+    <updated>2020-09-10T09:25:16.999Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://xiejinpeng007.github.io"/>
     <link rel="self" href="https://xiejinpeng007.github.io/atom.xml"/>
     <subtitle>你觉得做什么事很痛苦，那么就需要去越过它。</subtitle>
     <logo>https://xiejinpeng007.github.io/images/avatar.png</logo>
     <icon>https://xiejinpeng007.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2020, xiejinpeng&apos;s space</rights>
+    <rights>All rights reserved 2020, xiejinpeng&apos;s blog</rights>
     <entry>
         <title type="html"><![CDATA[Android 10(Q)/11(R) 分区存储适配]]></title>
         <id>https://xiejinpeng007.github.io/post/android-scoped-storage/</id>
