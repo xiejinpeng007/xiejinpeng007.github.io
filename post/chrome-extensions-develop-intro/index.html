@@ -1,0 +1,695 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Chrome Extensions 开发简介 | xiejinpeng&#39;s blog</title>
+
+<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1612504947625">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://xiejinpeng007.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-143163463-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        gtag('js', new Date());
+        gtag('config', 'UA-143163463-1');
+    </script>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            xiejinpeng&#39;s blog
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            目录
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            About Me
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1612504947625" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    Chrome Extensions 开发简介
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2021-02-05 ·
+                    </time>
+                    
+                        <a href="https://xiejinpeng007.github.io/tag/Eq0PmvcIl/" class="post-tags">
+                            # chrome-extension
+                        </a>
+                    
+                        <a href="https://xiejinpeng007.github.io/tag/__Lk7wb5XD/" class="post-tags">
+                            # Web
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h3 id="前言">前言</h3>
+<p>最近想写一个对网页进行自动填充、跳转等操作的一个脚本。联想到平时用了那么多插件，调查了一下之后发现 Chrome 插件可以做很多事情，翻译类、广告拦截类、修改页面样式类（主题、暗黑模式）、效率类（快捷键、鼠标手势）、以及一系列小工具。</p>
+<h3 id="chrome-插件是什么">Chrome 插件是什么？</h3>
+<p>Chrome 插件相信各位用的很多很熟悉了，根据名字来看，其实<code>插件/拓展</code>这个描述挺准的，Chrome Extensions 能在原本网页功能的基础上通过操作 DOM 来添加/修改 JS 、CSS 、HTML 达到功能的增加、样式的修改等目的。</p>
+<h3 id="开发-chrome-extensions-需要具备的知识">开发 Chrome Extensions 需要具备的知识</h3>
+<ul>
+<li>JavaScript HTML CSS</li>
+</ul>
+<h2 id="核心部分">核心部分</h2>
+<h3 id="manifestjson">manifest.json</h3>
+<p><code>manifes.json</code>是 Chrome 插件最重要也是唯一必须的文件，用来配置所有和插件相关的配置，必须放在根目录。其中，<code>manifest_version</code>、<code>name</code>、<code>version</code> 3个是必不可少的，description 和 icons 是推荐的。<br>
+这里是以 V2 版本为例，最新的 manifest 版本刚刚被 Google 升到了 V3。</p>
+<pre><code>{
+	// manifest 版本，最新的是 3
+	&quot;manifest_version&quot;: 2,
+	// 插件的名称
+	&quot;name&quot;: &quot;demo&quot;,
+	// 插件的版本
+	&quot;version&quot;: &quot;1.0.0&quot;,
+	// 插件描述
+	&quot;description&quot;: &quot;简单的Chrome扩展demo&quot;,
+	// 图标
+	&quot;icons&quot;:
+	{
+		&quot;16&quot;: &quot;img/icon.png&quot;,
+		&quot;48&quot;: &quot;img/icon.png&quot;,
+		&quot;128&quot;: &quot;img/icon.png&quot;
+	},
+	// 会一直常驻的后台JS或后台页面
+	&quot;background&quot;:
+	{
+		// 2种指定方式，如果指定JS，那么会自动生成一个背景页
+		&quot;page&quot;: &quot;background.html&quot;
+		//&quot;scripts&quot;: [&quot;js/background.js&quot;]
+	},
+	// 浏览器右上角图标设置，browser_action、page_action、app必须三选一
+	&quot;browser_action&quot;: 
+	{
+		&quot;default_icon&quot;: &quot;img/icon.png&quot;,
+		// 图标悬停时的标题，可选
+		&quot;default_title&quot;: &quot;这是一个示例Chrome插件&quot;,
+		&quot;default_popup&quot;: &quot;popup.html&quot;
+	},
+	// 当某些特定页面打开才显示的图标
+	/*&quot;page_action&quot;:
+	{
+		&quot;default_icon&quot;: &quot;img/icon.png&quot;,
+		&quot;default_title&quot;: &quot;我是pageAction&quot;,
+		&quot;default_popup&quot;: &quot;popup.html&quot;
+	},*/
+	// 需要直接注入页面的JS
+	&quot;content_scripts&quot;: 
+	[
+		{
+			//&quot;matches&quot;: [&quot;http://*/*&quot;, &quot;https://*/*&quot;],
+			// &quot;&lt;all_urls&gt;&quot; 表示匹配所有地址
+			&quot;matches&quot;: [&quot;&lt;all_urls&gt;&quot;],
+			// 多个JS按顺序注入
+			&quot;js&quot;: [&quot;js/jquery-1.8.3.js&quot;, &quot;js/content-script.js&quot;],
+			// JS的注入可以随便一点，但是CSS的注意就要千万小心了，因为一不小心就可能影响全局样式
+			&quot;css&quot;: [&quot;css/custom.css&quot;],
+			// 代码注入的时间，可选值： &quot;document_start&quot;, &quot;document_end&quot;, or &quot;document_idle&quot;，最后一个表示页面空闲时，默认document_idle
+			&quot;run_at&quot;: &quot;document_start&quot;
+		},
+		// 这里仅仅是为了演示content-script可以配置多个规则
+		{
+			&quot;matches&quot;: [&quot;*://*/*.png&quot;, &quot;*://*/*.jpg&quot;, &quot;*://*/*.gif&quot;, &quot;*://*/*.bmp&quot;],
+			&quot;js&quot;: [&quot;js/show-image-content-size.js&quot;]
+		}
+	],
+	// 权限申请
+	&quot;permissions&quot;:
+	[
+		&quot;contextMenus&quot;, // 右键菜单
+		&quot;tabs&quot;, // 标签
+		&quot;notifications&quot;, // 通知
+		&quot;webRequest&quot;, // web请求
+		&quot;webRequestBlocking&quot;,
+		&quot;storage&quot;, // 插件本地存储
+		&quot;http://*/*&quot;, // 可以通过executeScript或者insertCSS访问的网站
+		&quot;https://*/*&quot; // 可以通过executeScript或者insertCSS访问的网站
+	],
+	// 普通页面能够直接访问的插件资源列表，如果不设置是无法直接访问的
+	&quot;web_accessible_resources&quot;: [&quot;js/inject.js&quot;],
+	// 插件主页，这个很重要，不要浪费了这个免费广告位
+	&quot;homepage_url&quot;: &quot;https://www.baidu.com&quot;,
+	// 覆盖浏览器默认页面
+	&quot;chrome_url_overrides&quot;:
+	{
+		// 覆盖浏览器默认的新标签页
+		&quot;newtab&quot;: &quot;newtab.html&quot;
+	},
+	// Chrome40以后的插件配置页写法，如果2个都写，新版Chrome只认后面这一个
+	&quot;options_ui&quot;:
+	{
+		&quot;page&quot;: &quot;options.html&quot;,
+		// 添加一些默认的样式，推荐使用
+		&quot;chrome_style&quot;: true
+	},
+	// 向地址栏注册一个关键字以提供搜索建议，只能设置一个关键字
+	&quot;omnibox&quot;: { &quot;keyword&quot; : &quot;go&quot; },
+	// 默认语言
+	&quot;default_locale&quot;: &quot;zh_CN&quot;,
+	// devtools页面入口，注意只能指向一个HTML文件，不能是JS文件
+	&quot;devtools_page&quot;: &quot;devtools.html&quot;
+}
+</code></pre>
+<h4 id="sample">Sample</h4>
+<p>匹配不同的 url 执行不同的脚本</p>
+<pre><code>{
+    &quot;name&quot;: &quot;自动预约&quot;,
+    &quot;version&quot;: &quot;1.0&quot;,
+    &quot;description&quot;: &quot;sede.administracionespublicas&quot;,
+    &quot;permissions&quot;: [&quot;tabs&quot;,&quot;activeTab&quot;,&quot;declarativeContent&quot;,&quot;storage&quot;],
+    &quot;background&quot;: {
+      &quot;scripts&quot;: [&quot;background.js&quot;],
+      &quot;persistent&quot;: false
+    },
+    &quot;browser_action&quot;: {
+        &quot;default_popup&quot;: &quot;popup.html&quot;
+      },
+      &quot;content_scripts&quot;: [
+        {
+          &quot;matches&quot;: [&quot;https://sede.administracionespublicas/icpplustiem/index.html&quot;],
+          &quot;run_at&quot;: &quot;document_end&quot;,
+          &quot;js&quot;: [&quot;autofill_index.js&quot;]
+        },{
+          &quot;matches&quot;: [&quot;https://sede.administracionespublicas/icpplustiem/citar*&quot;],
+          &quot;run_at&quot;: &quot;document_end&quot;,
+          &quot;js&quot;: [&quot;autofill_citar.js&quot;]
+        },
+        {
+          &quot;matches&quot;: [&quot;https://sede.administracionespublicas/icpplustiem/acInfo&quot;],
+          &quot;run_at&quot;: &quot;document_end&quot;,
+          &quot;js&quot;: [&quot;autofill_acinfo.js&quot;]
+        },
+        {
+          &quot;matches&quot;: [&quot;https://sede.administracionespublicas./icpplustiem/acEntrada&quot;],
+          &quot;run_at&quot;: &quot;document_end&quot;,
+          &quot;js&quot;: [&quot;autofill_acentrada.js&quot;]
+        },
+        {
+          &quot;matches&quot;: [&quot;https://sede.administracionespublicas/icpplustiem/acValidarEntrada&quot;],
+          &quot;run_at&quot;: &quot;document_end&quot;,
+          &quot;js&quot;: [&quot;autofill_acvalidar.js&quot;]
+        },
+        {
+          &quot;matches&quot;: [&quot;https://sede.administracionespublicas.gob.es/icpplustiem/acCitar&quot;],
+          &quot;run_at&quot;: &quot;document_end&quot;,
+          &quot;js&quot;: [&quot;autofill_acCitar.js&quot;]
+        },
+        {
+          &quot;matches&quot;: [&quot;https://sede.administracionespublicas.gob.es/icpplustiem/acVerFormulario&quot;],
+          &quot;run_at&quot;: &quot;document_end&quot;,
+          &quot;js&quot;: [&quot;autofill_acVerFormulario.js&quot;]
+        }
+      ],
+    &quot;manifest_version&quot;: 2
+  }
+
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://developer-chrome-com.imgix.net/image/BrQidfK9jaQyIHwdw91aVpkPiib2/CNDAVsTnJeSskIXVnSQV.png?auto=format&amp;w=400" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="2"><img src="https://developer-chrome-com.imgix.net/image/BrQidfK9jaQyIHwdw91aVpkPiib2/466ftDp0EXB4E1XeaGh0.png?auto=format&amp;w=400" alt="和其它组件通信" loading="lazy"></figure>
+<h3 id="content-scripts">Content Scripts</h3>
+<blockquote></blockquote>
+<p>Content scripts are files that run in the context of web pages. By using the standard Document Object Model (DOM), they are able to read details of the web pages the browser visits, make changes to them and pass information to their parent extension.</p>
+<p><a href="https://developer.chrome.com/docs/extensions/mv2/content_scripts/"><code>Content Scripts</code></a> 是实现插件的拓展能力非常重要的一部分， Contents Scripts 让我们通过操作 DOM 来实现对页面动态/静态地注入 JS CSS。<br>
+Contents Scripts 和原生页面共享 DOM 但是不共享 JS（无法修改原始 JS），使用的 API 也比较有限，但可以通过和权限更高的<code>background scripts</code>通讯来实现。</p>
+<pre><code>{
+	// 需要直接注入页面的JS
+	&quot;content_scripts&quot;: 
+	[
+		{
+			//&quot;matches&quot;: [&quot;http://*/*&quot;, &quot;https://*/*&quot;],
+			// &quot;&lt;all_urls&gt;&quot; 表示匹配所有地址
+			&quot;matches&quot;: [&quot;&lt;all_urls&gt;&quot;],
+			// 多个JS按顺序注入
+			&quot;js&quot;: [&quot;js/jquery-1.8.3.js&quot;, &quot;js/content-script.js&quot;],
+			// 注入 css
+			&quot;css&quot;: [&quot;css/custom.css&quot;],
+			// 代码注入的时间，可选值： &quot;document_start&quot;, &quot;document_end&quot;, or &quot;document_idle&quot;，默认document_idle
+			&quot;run_at&quot;: &quot;document_start&quot;
+		}
+	],
+}
+</code></pre>
+<p>Content Scripts 可以直接使用的 API：</p>
+<ul>
+<li>i18n</li>
+<li>storage</li>
+<li>runtime:
+<ul>
+<li>connect</li>
+<li>getManifest</li>
+<li>getURL</li>
+<li>id</li>
+<li>onConnect</li>
+<li>onMessage</li>
+<li>sendMessage</li>
+</ul>
+</li>
+</ul>
+<h2 id="background-scripts">background scripts</h2>
+<p><a href="https://developer.chrome.com/docs/extensions/mv2/background_pages/"><code>background scripts</code></a> 是插件的事件处理中心，会在有任务的时候尽可能长时间地运行在后台，用来监听一些重要的事件（插件被安装、导航页被打开、Tab 被打开、Tab被跳转以及 contents scripts 传过来的事件等等），还可以进行一些类似 Tab 创建/跳转的操作，权限也较大。</p>
+<pre><code>{
+  &quot;name&quot;: &quot;Awesome Test Extension&quot;,
+  ...
+  &quot;background&quot;: {
+    &quot;scripts&quot;: [&quot;background.js&quot;],
+    &quot;persistent&quot;: false
+  },
+  ...
+}
+</code></pre>
+<p>注册 Listener Sample</p>
+<pre><code>//插件安装了后注册一个监听右键选中文本的事件 (比如选中本文后右键可以通过 Google 搜索 “xxx”)
+chrome.runtime.onInstalled.addListener(function() {
+  chrome.contextMenus.create({
+    &quot;id&quot;: &quot;sampleContextMenu&quot;,
+    &quot;title&quot;: &quot;Sample Context Menu&quot;,
+    &quot;contexts&quot;: [&quot;selection&quot;]
+  });
+});
+
+// This will run when a bookmark is created.
+chrome.bookmarks.onCreated.addListener(function() {
+  // do something
+});
+
+</code></pre>
+<h3 id="communication-between-pages-storage-message-passing">Communication between pages  &amp; Storage &amp; Message passing</h3>
+<p>插件间不同组件通信可以通过几个方法来实现</p>
+<ul>
+<li><code>chrome.extension</code>  API 下的 getViews() getBackgroundPage()...</li>
+<li><code>storage</code> API  HTML5 <code>web storage API</code></li>
+<li><code>message passing</code></li>
+</ul>
+<h4 id="storage-api">Storage API</h4>
+<p>关于 <a href="https://developer.chrome.com/docs/apps/app_storage/">Storage API</a> 有很多内容，这里主要介绍常用的的 <a href="https://developer.chrome.com/docs/extensions/reference/storage/">LocalStorage API</a></p>
+<p>使用 <code>chrome.storage.sync.*</code>存储的数据会同步到其它登录过的设备</p>
+<pre><code>chrome.storage.sync.set({key: value}, function() {
+  console.log('Value is set to ' + value);
+});
+
+chrome.storage.sync.get(['key'], function(result) {
+  console.log('Value currently is ' + result.key);
+});
+</code></pre>
+<p>使用<code>chrome.storage.local.*</code>  存储的数据只会存储在本地</p>
+<pre><code>chrome.storage.local.set({key: value}, function() {
+  console.log('Value is set to ' + value);
+});
+
+chrome.storage.local.get(['key'], function(result) {
+  console.log('Value currently is ' + result.key);
+});
+
+监听数据的变化
+</code></pre>
+<pre><code>chrome.storage.onChanged.addListener(function(changes, namespace) {
+  for (var key in changes) {
+    var storageChange = changes[key];
+    console.log('Storage key &quot;%s&quot; in namespace &quot;%s&quot; changed. ' +
+                'Old value was &quot;%s&quot;, new value is &quot;%s&quot;.',
+                key,
+                namespace,
+                storageChange.oldValue,
+                storageChange.newValue);
+  }
+});
+</code></pre>
+<h3 id="message-passing">Message passing</h3>
+<p>由于 contents scripts 的当前的 web page 而不是整个插件，所以通过 web page context 所能获取的信息/权限有限。这时需要使用各类消息机制来传递消息。</p>
+<p><a href="https://developer.chrome.com/docs/extensions/mv3/messaging/">Message passing</a>有多种方式：</p>
+<ul>
+<li>Simple one-time requests</li>
+<li>Long-lived connections</li>
+<li>Cross-extension messaging</li>
+<li>Native messaging</li>
+</ul>
+<p>这里主要介绍常用的 <code>Simple one-time requests</code></p>
+<h4 id="simple-one-time-requests-简单的一次性消息">Simple one-time requests 简单的一次性消息</h4>
+<p>简单的插件内部消息可以通过  <code>runtime.sendMessage</code> or <code>tabs.sendMessage</code> 发送一次性 JSON-serializable 消息来实现。</p>
+<p>从<code>content scripts</code> 发送到 extension (如<code>background.js</code>)</p>
+<pre><code>chrome.runtime.sendMessage({greeting: &quot;hello&quot;}, function(response) {
+  console.log(response.farewell);
+});
+</code></pre>
+<p>从 extension（比如 <code>background.js</code>）发送到 <code>content scripts</code></p>
+<pre><code>//也可以传 null 不指定 tabId
+chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+  chrome.tabs.sendMessage(tabs[0].id, {greeting: &quot;hello&quot;}, function(response) {
+    console.log(response.farewell);
+  });
+});
+</code></pre>
+<p>接收消息，此外如果多个页面都监听了消息，只有第一个调用 <code>sendResponse</code>的会成功发送。</p>
+<pre><code>chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+    console.log(sender.tab ?
+                &quot;from a content script:&quot; + sender.tab.url :
+                &quot;from the extension&quot;);
+    if (request.greeting == &quot;hello&quot;)
+      sendResponse({farewell: &quot;goodbye&quot;});
+  }
+);
+</code></pre>
+<h3 id="permission-api">Permission &amp; API</h3>
+<p>类似 app ,使用 chrome API 的时候需要在 manifest.json 申明相关权限。</p>
+<h5 id="比较常用用的一些api系列">比较常用用的一些API系列：</h5>
+<ul>
+<li>chrome.tabs</li>
+<li>chrome.runtime</li>
+<li>chrome.webRequest</li>
+<li>chrome.window</li>
+<li>chrome.storage</li>
+<li>chrome.contextMenus</li>
+<li>chrome.devtools</li>
+<li>chrome.extension</li>
+</ul>
+<h5 id="权限列表参考">权限列表参考</h5>
+<ul>
+<li><a href="https://developer.chrome.com/docs/extensions/mv3/declare_permissions/">Permission</a></li>
+<li><a href="https://developer.chrome.com/docs/extensions/reference/">API</a></li>
+</ul>
+<h2 id="ui-交互部分">UI 交互部分</h2>
+<p><a href="https://developer.chrome.com/docs/extensions/mv3/user_interface/">Design the user interface</a></p>
+<h3 id="popup">Popup</h3>
+<figure data-type="image" tabindex="3"><img src="https://developer-chrome-com.imgix.net/image/BrQidfK9jaQyIHwdw91aVpkPiib2/JVduBMXnyUorfNjFZmue.png?auto=format&amp;w=300" alt="" loading="lazy"></figure>
+<p>是一个点击右上角工具栏图标后弹出一个页面，（通过<a href="https://developer.chrome.com/docs/extensions/reference/browserAction/"><code>chrome.browserAction</code></a> 配置）也是 chrome.browserAction 重要的一个配置。可以用来做成提供给用户对插件进行配置的窗口。</p>
+<h5 id="通过-browser-action-or-page-action-来注册-popup">通过 browser action or page action 来注册 popup</h5>
+<pre><code>{
+  &quot;name&quot;: &quot;Drink Water Event&quot;,
+  ...
+  &quot;browser_action&quot;: {
+    &quot;default_popup&quot;: &quot;popup.html&quot;
+  }
+  ...
+}
+</code></pre>
+<p>也可以通过 <code>browserAction.setPopup</code> or <code>pageAction.setPopup</code> 动态设置</p>
+<pre><code>chrome.storage.local.get('signed_in', function(data) {
+  if (data.signed_in) {
+    chrome.browserAction.setPopup({popup: 'popup.html'});
+  } else {
+    chrome.browserAction.setPopup({popup: 'popup_sign_in.html'});
+  }
+});
+</code></pre>
+<h3 id="notification">Notification</h3>
+<p>全局弹窗使用可以 Chrome Notification 或 HTML5 Notification<br>
+当前页面可以用原生 <code>alert('msg')</code></p>
+<pre><code>chrome.notifications.create(null, {
+	type: 'basic',
+	iconUrl: 'img/icon.png',
+	title: 'title',
+	message: 'msg'
+});
+</code></pre>
+<h3 id="context-menu">Context menu</h3>
+<p>上下文菜单：显示在选中文字后的右键的菜单</p>
+<figure data-type="image" tabindex="4"><img src="https://developer-chrome-com.imgix.net/image/BrQidfK9jaQyIHwdw91aVpkPiib2/LhrliaEhN82maJmeNp7f.png?auto=format&amp;w=400" alt="" loading="lazy"></figure>
+<p>需要在 background.js 下创建，其中 title 中如果放的是数组的话，那么会显示二级菜单。</p>
+<pre><code>chrome.runtime.onInstalled.addListener(function() {
+  for (let key of Object.keys(kLocales)) {
+    chrome.contextMenus.create({
+      id: key,
+      title: kLocales[key],
+      type: 'normal',
+      contexts: ['selection'],
+    });
+  }
+});
+
+const kLocales = {
+  'com.au': 'Australia',
+  'com.br': 'Brazil',
+  'ca': 'Canada',
+  'cn': 'China',
+  'fr': 'France',
+  'it': 'Italy',
+  'co.in': 'India',
+  'co.jp': 'Japan',
+  'com.ms': 'Mexico',
+  'ru': 'Russia',
+  'co.za': 'South Africa',
+  'co.uk': 'United Kingdom'
+};
+</code></pre>
+<h3 id="commands">Commands</h3>
+<p>用来注册快捷键和相关的命令</p>
+<pre><code>{
+  &quot;name&quot;: &quot;Tab Flipper&quot;,
+  ...
+  &quot;commands&quot;: {
+    &quot;flip-tabs-forward&quot;: {
+      &quot;suggested_key&quot;: {
+        &quot;default&quot;: &quot;Ctrl+Shift+Right&quot;,
+        &quot;mac&quot;: &quot;Command+Shift+Right&quot;
+      },
+      &quot;description&quot;: &quot;Flip tabs forward&quot;
+    },
+    &quot;flip-tabs-backwards&quot;: {
+      &quot;suggested_key&quot;: {
+        &quot;default&quot;: &quot;Ctrl+Shift+Left&quot;,
+        &quot;mac&quot;: &quot;Command+Shift+Left&quot;
+      },
+      &quot;description&quot;: &quot;Flip tabs backwards&quot;
+    }
+  }
+  ...
+}
+</code></pre>
+<h3 id="override-pages">Override pages</h3>
+<p>用来覆盖 新Tab、历史记录、标签页这三种页面的任意一种。</p>
+<pre><code>{
+  &quot;name&quot;: &quot;Awesome Override Extension&quot;,
+  ...
+
+  &quot;chrome_url_overrides&quot; : {
+    &quot;newtab&quot;: &quot;override_page.html&quot; //or history or bookmarks
+  },
+  ...
+}
+</code></pre>
+<ul>
+<li><a href="https://developer.chrome.com/docs/extensions/reference/"> API </a></li>
+<li><a href="https://github.com/GoogleChrome/chrome-extensions-samples"> Samples </a></li>
+</ul>
+<h3 id="打包-发布">打包 &amp; 发布</h3>
+<p>插件可以在扩展程序页面（chrome://extensions/）选择<code>打包扩展程序</code>打包为 .crx 文件进行发布（需要注册成开发者），一般自用的话打开开发者模式选择<code>加载已解压的扩展程序</code>选择文件夹即可。</p>
+<h3 id="manifest-v3">Manifest V3</h3>
+<p>刚推出的新版本 <a href="https://developer.chrome.com/docs/extensions/mv3/intro/">Manifest V3</a> 主要是一些 API 的变更，v2也可以继续使用。</p>
+<h3 id="总结">总结</h3>
+<p>对于 Chrome Extensions 开发我也还在学习中，以上主要总结了常用且重要的配置、特性和 API ，还有很多其它 API 可以参考文档，<br>
+官方文档没有中文，但也写的很简洁易懂，官方 sample 更是详尽，几乎所有的 API 都有相应的 sample，建议参考。</p>
+<ul>
+<li><a href="https://developer.chrome.com/docs/extensions/mv3/">chrome-extensions-mv3</a></li>
+<li><a href="https://github.com/GoogleChrome/chrome-extensions-samples">chrome-extensions-samples</a></li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://xiejinpeng007.github.io/post/android-scoped-storage/" class="post-title gt-a-link">
+                    Android 10(Q)/11(R) 分区存储适配
+                </a>
+            </div>
+        
+
+        
+
+        
+            
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+<script>
+    // md5.min.js
+    !function(n){
+        "use strict";
+        function d(n,t){var r=(65535&n)+(65535&t);return(n>>16)+(t>>16)+(r>>16)<<16|65535&r}
+        function f(n,t,r,e,o,u){return d((c=d(d(t,n),d(e,u)))<<(f=o)|c>>>32-f,r);var c,f}
+        function l(n,t,r,e,o,u,c){return f(t&r|~t&e,n,t,o,u,c)}
+        function v(n,t,r,e,o,u,c){return f(t&e|r&~e,n,t,o,u,c)}
+        function g(n,t,r,e,o,u,c){return f(t^r^e,n,t,o,u,c)}
+        function m(n,t,r,e,o,u,c){return f(r^(t|~e),n,t,o,u,c)}
+        function i(n,t){var r,e,o,u,c;n[t>>5]|=128<<t%32,n[14+(t+64>>>9<<4)]=t;var f=1732584193,i=-271733879,a=-1732584194,h=271733878;for(r=0;r<n.length;r+=16)f=l(e=f,o=i,u=a,c=h,n[r],7,-680876936),h=l(h,f,i,a,n[r+1],12,-389564586),a=l(a,h,f,i,n[r+2],17,606105819),i=l(i,a,h,f,n[r+3],22,-1044525330),f=l(f,i,a,h,n[r+4],7,-176418897),h=l(h,f,i,a,n[r+5],12,1200080426),a=l(a,h,f,i,n[r+6],17,-1473231341),i=l(i,a,h,f,n[r+7],22,-45705983),f=l(f,i,a,h,n[r+8],7,1770035416),h=l(h,f,i,a,n[r+9],12,-1958414417),a=l(a,h,f,i,n[r+10],17,-42063),i=l(i,a,h,f,n[r+11],22,-1990404162),f=l(f,i,a,h,n[r+12],7,1804603682),h=l(h,f,i,a,n[r+13],12,-40341101),a=l(a,h,f,i,n[r+14],17,-1502002290),f=v(f,i=l(i,a,h,f,n[r+15],22,1236535329),a,h,n[r+1],5,-165796510),h=v(h,f,i,a,n[r+6],9,-1069501632),a=v(a,h,f,i,n[r+11],14,643717713),i=v(i,a,h,f,n[r],20,-373897302),f=v(f,i,a,h,n[r+5],5,-701558691),h=v(h,f,i,a,n[r+10],9,38016083),a=v(a,h,f,i,n[r+15],14,-660478335),i=v(i,a,h,f,n[r+4],20,-405537848),f=v(f,i,a,h,n[r+9],5,568446438),h=v(h,f,i,a,n[r+14],9,-1019803690),a=v(a,h,f,i,n[r+3],14,-187363961),i=v(i,a,h,f,n[r+8],20,1163531501),f=v(f,i,a,h,n[r+13],5,-1444681467),h=v(h,f,i,a,n[r+2],9,-51403784),a=v(a,h,f,i,n[r+7],14,1735328473),f=g(f,i=v(i,a,h,f,n[r+12],20,-1926607734),a,h,n[r+5],4,-378558),h=g(h,f,i,a,n[r+8],11,-2022574463),a=g(a,h,f,i,n[r+11],16,1839030562),i=g(i,a,h,f,n[r+14],23,-35309556),f=g(f,i,a,h,n[r+1],4,-1530992060),h=g(h,f,i,a,n[r+4],11,1272893353),a=g(a,h,f,i,n[r+7],16,-155497632),i=g(i,a,h,f,n[r+10],23,-1094730640),f=g(f,i,a,h,n[r+13],4,681279174),h=g(h,f,i,a,n[r],11,-358537222),a=g(a,h,f,i,n[r+3],16,-722521979),i=g(i,a,h,f,n[r+6],23,76029189),f=g(f,i,a,h,n[r+9],4,-640364487),h=g(h,f,i,a,n[r+12],11,-421815835),a=g(a,h,f,i,n[r+15],16,530742520),f=m(f,i=g(i,a,h,f,n[r+2],23,-995338651),a,h,n[r],6,-198630844),h=m(h,f,i,a,n[r+7],10,1126891415),a=m(a,h,f,i,n[r+14],15,-1416354905),i=m(i,a,h,f,n[r+5],21,-57434055),f=m(f,i,a,h,n[r+12],6,1700485571),h=m(h,f,i,a,n[r+3],10,-1894986606),a=m(a,h,f,i,n[r+10],15,-1051523),i=m(i,a,h,f,n[r+1],21,-2054922799),f=m(f,i,a,h,n[r+8],6,1873313359),h=m(h,f,i,a,n[r+15],10,-30611744),a=m(a,h,f,i,n[r+6],15,-1560198380),i=m(i,a,h,f,n[r+13],21,1309151649),f=m(f,i,a,h,n[r+4],6,-145523070),h=m(h,f,i,a,n[r+11],10,-1120210379),a=m(a,h,f,i,n[r+2],15,718787259),i=m(i,a,h,f,n[r+9],21,-343485551),f=d(f,e),i=d(i,o),a=d(a,u),h=d(h,c);return[f,i,a,h]}
+        function a(n){var t,r="",e=32*n.length;for(t=0;t<e;t+=8)r+=String.fromCharCode(n[t>>5]>>>t%32&255);return r}
+        function h(n){var t,r=[];for(r[(n.length>>2)-1]=void 0,t=0;t<r.length;t+=1)r[t]=0;var e=8*n.length;for(t=0;t<e;t+=8)r[t>>5]|=(255&n.charCodeAt(t/8))<<t%32;return r}
+        function e(n){var t,r,e="0123456789abcdef",o="";for(r=0;r<n.length;r+=1)t=n.charCodeAt(r),o+=e.charAt(t>>>4&15)+e.charAt(15&t);return o}
+        function r(n){return unescape(encodeURIComponent(n))}
+        function o(n){return a(i(h(t=r(n)),8*t.length));var t}
+        function u(n,t){return function(n,t){var r,e,o=h(n),u=[],c=[];for(u[15]=c[15]=void 0,16<o.length&&(o=i(o,8*n.length)),r=0;r<16;r+=1)u[r]=909522486^o[r],c[r]=1549556828^o[r];return e=i(u.concat(h(t)),512+8*t.length),a(i(c.concat(e),640))}(r(n),r(t))}
+        function t(n,t,r){return t?r?u(t,n):e(u(t,n)):r?o(n):e(o(n))}
+        "function"==typeof define&&define.amd?define(function(){return t}):"object"==typeof module&&module.exports?module.exports=t:n.md5=t;
+    }(this);
+</script>
+
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'ea3603bb590ba2ab51ba',
+    clientSecret: 'e82e698ee0f1db9e833f069b9c3b612ba3486927',
+    repo: 'xiejinpeng007.github.io',
+    owner: 'xiejinpeng007',
+    admin: ['xiejinpeng007'],
+    id: md5(location.pathname),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false       // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+            
+
+            
+        
+
+        
+            <script src='https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js'></script>
+
+<style>
+	div#vcomments{
+		width:100%;
+		max-width: 1000px;
+		padding: 2.5%
+	}
+</style>
+
+
+	<div id="vcomments"></div>
+
+<script>
+	new Valine({
+		el: '#vcomments',
+		appId: '',
+		appKey: '',
+		avatar: '',
+		pageSize: 5,
+		recordIp: false,
+		placeholder: 'Just Go Go',
+		visitor: false,
+	});
+</script>
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">你觉得做什么事很痛苦，那么就需要去越过它。</div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/xiejinpeng007" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Find Me At 
+<a href="https://github.com/xiejinpeng007">Github</a>
+<a href="https://juejin.im/user/1046390796976686">掘金</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://xiejinpeng007.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

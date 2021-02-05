@@ -2,14 +2,462 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://xiejinpeng007.github.io</id>
     <title>xiejinpeng&apos;s blog</title>
-    <updated>2020-09-11T10:41:11.555Z</updated>
+    <updated>2021-02-05T06:02:39.589Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://xiejinpeng007.github.io"/>
     <link rel="self" href="https://xiejinpeng007.github.io/atom.xml"/>
     <subtitle>你觉得做什么事很痛苦，那么就需要去越过它。</subtitle>
     <logo>https://xiejinpeng007.github.io/images/avatar.png</logo>
     <icon>https://xiejinpeng007.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2020, xiejinpeng&apos;s blog</rights>
+    <rights>All rights reserved 2021, xiejinpeng&apos;s blog</rights>
+    <entry>
+        <title type="html"><![CDATA[Chrome Extensions 开发简介]]></title>
+        <id>https://xiejinpeng007.github.io/post/chrome-extensions-develop-intro/</id>
+        <link href="https://xiejinpeng007.github.io/post/chrome-extensions-develop-intro/">
+        </link>
+        <updated>2021-02-05T05:56:42.000Z</updated>
+        <content type="html"><![CDATA[<h3 id="前言">前言</h3>
+<p>最近想写一个对网页进行自动填充、跳转等操作的一个脚本。联想到平时用了那么多插件，调查了一下之后发现 Chrome 插件可以做很多事情，翻译类、广告拦截类、修改页面样式类（主题、暗黑模式）、效率类（快捷键、鼠标手势）、以及一系列小工具。</p>
+<h3 id="chrome-插件是什么">Chrome 插件是什么？</h3>
+<p>Chrome 插件相信各位用的很多很熟悉了，根据名字来看，其实<code>插件/拓展</code>这个描述挺准的，Chrome Extensions 能在原本网页功能的基础上通过操作 DOM 来添加/修改 JS 、CSS 、HTML 达到功能的增加、样式的修改等目的。</p>
+<h3 id="开发-chrome-extensions-需要具备的知识">开发 Chrome Extensions 需要具备的知识</h3>
+<ul>
+<li>JavaScript HTML CSS</li>
+</ul>
+<h2 id="核心部分">核心部分</h2>
+<h3 id="manifestjson">manifest.json</h3>
+<p><code>manifes.json</code>是 Chrome 插件最重要也是唯一必须的文件，用来配置所有和插件相关的配置，必须放在根目录。其中，<code>manifest_version</code>、<code>name</code>、<code>version</code> 3个是必不可少的，description 和 icons 是推荐的。<br>
+这里是以 V2 版本为例，最新的 manifest 版本刚刚被 Google 升到了 V3。</p>
+<pre><code>{
+	// manifest 版本，最新的是 3
+	&quot;manifest_version&quot;: 2,
+	// 插件的名称
+	&quot;name&quot;: &quot;demo&quot;,
+	// 插件的版本
+	&quot;version&quot;: &quot;1.0.0&quot;,
+	// 插件描述
+	&quot;description&quot;: &quot;简单的Chrome扩展demo&quot;,
+	// 图标
+	&quot;icons&quot;:
+	{
+		&quot;16&quot;: &quot;img/icon.png&quot;,
+		&quot;48&quot;: &quot;img/icon.png&quot;,
+		&quot;128&quot;: &quot;img/icon.png&quot;
+	},
+	// 会一直常驻的后台JS或后台页面
+	&quot;background&quot;:
+	{
+		// 2种指定方式，如果指定JS，那么会自动生成一个背景页
+		&quot;page&quot;: &quot;background.html&quot;
+		//&quot;scripts&quot;: [&quot;js/background.js&quot;]
+	},
+	// 浏览器右上角图标设置，browser_action、page_action、app必须三选一
+	&quot;browser_action&quot;: 
+	{
+		&quot;default_icon&quot;: &quot;img/icon.png&quot;,
+		// 图标悬停时的标题，可选
+		&quot;default_title&quot;: &quot;这是一个示例Chrome插件&quot;,
+		&quot;default_popup&quot;: &quot;popup.html&quot;
+	},
+	// 当某些特定页面打开才显示的图标
+	/*&quot;page_action&quot;:
+	{
+		&quot;default_icon&quot;: &quot;img/icon.png&quot;,
+		&quot;default_title&quot;: &quot;我是pageAction&quot;,
+		&quot;default_popup&quot;: &quot;popup.html&quot;
+	},*/
+	// 需要直接注入页面的JS
+	&quot;content_scripts&quot;: 
+	[
+		{
+			//&quot;matches&quot;: [&quot;http://*/*&quot;, &quot;https://*/*&quot;],
+			// &quot;&lt;all_urls&gt;&quot; 表示匹配所有地址
+			&quot;matches&quot;: [&quot;&lt;all_urls&gt;&quot;],
+			// 多个JS按顺序注入
+			&quot;js&quot;: [&quot;js/jquery-1.8.3.js&quot;, &quot;js/content-script.js&quot;],
+			// JS的注入可以随便一点，但是CSS的注意就要千万小心了，因为一不小心就可能影响全局样式
+			&quot;css&quot;: [&quot;css/custom.css&quot;],
+			// 代码注入的时间，可选值： &quot;document_start&quot;, &quot;document_end&quot;, or &quot;document_idle&quot;，最后一个表示页面空闲时，默认document_idle
+			&quot;run_at&quot;: &quot;document_start&quot;
+		},
+		// 这里仅仅是为了演示content-script可以配置多个规则
+		{
+			&quot;matches&quot;: [&quot;*://*/*.png&quot;, &quot;*://*/*.jpg&quot;, &quot;*://*/*.gif&quot;, &quot;*://*/*.bmp&quot;],
+			&quot;js&quot;: [&quot;js/show-image-content-size.js&quot;]
+		}
+	],
+	// 权限申请
+	&quot;permissions&quot;:
+	[
+		&quot;contextMenus&quot;, // 右键菜单
+		&quot;tabs&quot;, // 标签
+		&quot;notifications&quot;, // 通知
+		&quot;webRequest&quot;, // web请求
+		&quot;webRequestBlocking&quot;,
+		&quot;storage&quot;, // 插件本地存储
+		&quot;http://*/*&quot;, // 可以通过executeScript或者insertCSS访问的网站
+		&quot;https://*/*&quot; // 可以通过executeScript或者insertCSS访问的网站
+	],
+	// 普通页面能够直接访问的插件资源列表，如果不设置是无法直接访问的
+	&quot;web_accessible_resources&quot;: [&quot;js/inject.js&quot;],
+	// 插件主页，这个很重要，不要浪费了这个免费广告位
+	&quot;homepage_url&quot;: &quot;https://www.baidu.com&quot;,
+	// 覆盖浏览器默认页面
+	&quot;chrome_url_overrides&quot;:
+	{
+		// 覆盖浏览器默认的新标签页
+		&quot;newtab&quot;: &quot;newtab.html&quot;
+	},
+	// Chrome40以后的插件配置页写法，如果2个都写，新版Chrome只认后面这一个
+	&quot;options_ui&quot;:
+	{
+		&quot;page&quot;: &quot;options.html&quot;,
+		// 添加一些默认的样式，推荐使用
+		&quot;chrome_style&quot;: true
+	},
+	// 向地址栏注册一个关键字以提供搜索建议，只能设置一个关键字
+	&quot;omnibox&quot;: { &quot;keyword&quot; : &quot;go&quot; },
+	// 默认语言
+	&quot;default_locale&quot;: &quot;zh_CN&quot;,
+	// devtools页面入口，注意只能指向一个HTML文件，不能是JS文件
+	&quot;devtools_page&quot;: &quot;devtools.html&quot;
+}
+</code></pre>
+<h4 id="sample">Sample</h4>
+<p>匹配不同的 url 执行不同的脚本</p>
+<pre><code>{
+    &quot;name&quot;: &quot;自动预约&quot;,
+    &quot;version&quot;: &quot;1.0&quot;,
+    &quot;description&quot;: &quot;sede.administracionespublicas&quot;,
+    &quot;permissions&quot;: [&quot;tabs&quot;,&quot;activeTab&quot;,&quot;declarativeContent&quot;,&quot;storage&quot;],
+    &quot;background&quot;: {
+      &quot;scripts&quot;: [&quot;background.js&quot;],
+      &quot;persistent&quot;: false
+    },
+    &quot;browser_action&quot;: {
+        &quot;default_popup&quot;: &quot;popup.html&quot;
+      },
+      &quot;content_scripts&quot;: [
+        {
+          &quot;matches&quot;: [&quot;https://sede.administracionespublicas/icpplustiem/index.html&quot;],
+          &quot;run_at&quot;: &quot;document_end&quot;,
+          &quot;js&quot;: [&quot;autofill_index.js&quot;]
+        },{
+          &quot;matches&quot;: [&quot;https://sede.administracionespublicas/icpplustiem/citar*&quot;],
+          &quot;run_at&quot;: &quot;document_end&quot;,
+          &quot;js&quot;: [&quot;autofill_citar.js&quot;]
+        },
+        {
+          &quot;matches&quot;: [&quot;https://sede.administracionespublicas/icpplustiem/acInfo&quot;],
+          &quot;run_at&quot;: &quot;document_end&quot;,
+          &quot;js&quot;: [&quot;autofill_acinfo.js&quot;]
+        },
+        {
+          &quot;matches&quot;: [&quot;https://sede.administracionespublicas./icpplustiem/acEntrada&quot;],
+          &quot;run_at&quot;: &quot;document_end&quot;,
+          &quot;js&quot;: [&quot;autofill_acentrada.js&quot;]
+        },
+        {
+          &quot;matches&quot;: [&quot;https://sede.administracionespublicas/icpplustiem/acValidarEntrada&quot;],
+          &quot;run_at&quot;: &quot;document_end&quot;,
+          &quot;js&quot;: [&quot;autofill_acvalidar.js&quot;]
+        },
+        {
+          &quot;matches&quot;: [&quot;https://sede.administracionespublicas.gob.es/icpplustiem/acCitar&quot;],
+          &quot;run_at&quot;: &quot;document_end&quot;,
+          &quot;js&quot;: [&quot;autofill_acCitar.js&quot;]
+        },
+        {
+          &quot;matches&quot;: [&quot;https://sede.administracionespublicas.gob.es/icpplustiem/acVerFormulario&quot;],
+          &quot;run_at&quot;: &quot;document_end&quot;,
+          &quot;js&quot;: [&quot;autofill_acVerFormulario.js&quot;]
+        }
+      ],
+    &quot;manifest_version&quot;: 2
+  }
+
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://developer-chrome-com.imgix.net/image/BrQidfK9jaQyIHwdw91aVpkPiib2/CNDAVsTnJeSskIXVnSQV.png?auto=format&amp;w=400" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="2"><img src="https://developer-chrome-com.imgix.net/image/BrQidfK9jaQyIHwdw91aVpkPiib2/466ftDp0EXB4E1XeaGh0.png?auto=format&amp;w=400" alt="和其它组件通信" loading="lazy"></figure>
+<h3 id="content-scripts">Content Scripts</h3>
+<blockquote></blockquote>
+<p>Content scripts are files that run in the context of web pages. By using the standard Document Object Model (DOM), they are able to read details of the web pages the browser visits, make changes to them and pass information to their parent extension.</p>
+<p><a href="https://developer.chrome.com/docs/extensions/mv2/content_scripts/"><code>Content Scripts</code></a> 是实现插件的拓展能力非常重要的一部分， Contents Scripts 让我们通过操作 DOM 来实现对页面动态/静态地注入 JS CSS。<br>
+Contents Scripts 和原生页面共享 DOM 但是不共享 JS（无法修改原始 JS），使用的 API 也比较有限，但可以通过和权限更高的<code>background scripts</code>通讯来实现。</p>
+<pre><code>{
+	// 需要直接注入页面的JS
+	&quot;content_scripts&quot;: 
+	[
+		{
+			//&quot;matches&quot;: [&quot;http://*/*&quot;, &quot;https://*/*&quot;],
+			// &quot;&lt;all_urls&gt;&quot; 表示匹配所有地址
+			&quot;matches&quot;: [&quot;&lt;all_urls&gt;&quot;],
+			// 多个JS按顺序注入
+			&quot;js&quot;: [&quot;js/jquery-1.8.3.js&quot;, &quot;js/content-script.js&quot;],
+			// 注入 css
+			&quot;css&quot;: [&quot;css/custom.css&quot;],
+			// 代码注入的时间，可选值： &quot;document_start&quot;, &quot;document_end&quot;, or &quot;document_idle&quot;，默认document_idle
+			&quot;run_at&quot;: &quot;document_start&quot;
+		}
+	],
+}
+</code></pre>
+<p>Content Scripts 可以直接使用的 API：</p>
+<ul>
+<li>i18n</li>
+<li>storage</li>
+<li>runtime:
+<ul>
+<li>connect</li>
+<li>getManifest</li>
+<li>getURL</li>
+<li>id</li>
+<li>onConnect</li>
+<li>onMessage</li>
+<li>sendMessage</li>
+</ul>
+</li>
+</ul>
+<h2 id="background-scripts">background scripts</h2>
+<p><a href="https://developer.chrome.com/docs/extensions/mv2/background_pages/"><code>background scripts</code></a> 是插件的事件处理中心，会在有任务的时候尽可能长时间地运行在后台，用来监听一些重要的事件（插件被安装、导航页被打开、Tab 被打开、Tab被跳转以及 contents scripts 传过来的事件等等），还可以进行一些类似 Tab 创建/跳转的操作，权限也较大。</p>
+<pre><code>{
+  &quot;name&quot;: &quot;Awesome Test Extension&quot;,
+  ...
+  &quot;background&quot;: {
+    &quot;scripts&quot;: [&quot;background.js&quot;],
+    &quot;persistent&quot;: false
+  },
+  ...
+}
+</code></pre>
+<p>注册 Listener Sample</p>
+<pre><code>//插件安装了后注册一个监听右键选中文本的事件 (比如选中本文后右键可以通过 Google 搜索 “xxx”)
+chrome.runtime.onInstalled.addListener(function() {
+  chrome.contextMenus.create({
+    &quot;id&quot;: &quot;sampleContextMenu&quot;,
+    &quot;title&quot;: &quot;Sample Context Menu&quot;,
+    &quot;contexts&quot;: [&quot;selection&quot;]
+  });
+});
+
+// This will run when a bookmark is created.
+chrome.bookmarks.onCreated.addListener(function() {
+  // do something
+});
+
+</code></pre>
+<h3 id="communication-between-pages-storage-message-passing">Communication between pages  &amp; Storage &amp; Message passing</h3>
+<p>插件间不同组件通信可以通过几个方法来实现</p>
+<ul>
+<li><code>chrome.extension</code>  API 下的 getViews() getBackgroundPage()...</li>
+<li><code>storage</code> API  HTML5 <code>web storage API</code></li>
+<li><code>message passing</code></li>
+</ul>
+<h4 id="storage-api">Storage API</h4>
+<p>关于 <a href="https://developer.chrome.com/docs/apps/app_storage/">Storage API</a> 有很多内容，这里主要介绍常用的的 <a href="https://developer.chrome.com/docs/extensions/reference/storage/">LocalStorage API</a></p>
+<p>使用 <code>chrome.storage.sync.*</code>存储的数据会同步到其它登录过的设备</p>
+<pre><code>chrome.storage.sync.set({key: value}, function() {
+  console.log('Value is set to ' + value);
+});
+
+chrome.storage.sync.get(['key'], function(result) {
+  console.log('Value currently is ' + result.key);
+});
+</code></pre>
+<p>使用<code>chrome.storage.local.*</code>  存储的数据只会存储在本地</p>
+<pre><code>chrome.storage.local.set({key: value}, function() {
+  console.log('Value is set to ' + value);
+});
+
+chrome.storage.local.get(['key'], function(result) {
+  console.log('Value currently is ' + result.key);
+});
+
+监听数据的变化
+</code></pre>
+<pre><code>chrome.storage.onChanged.addListener(function(changes, namespace) {
+  for (var key in changes) {
+    var storageChange = changes[key];
+    console.log('Storage key &quot;%s&quot; in namespace &quot;%s&quot; changed. ' +
+                'Old value was &quot;%s&quot;, new value is &quot;%s&quot;.',
+                key,
+                namespace,
+                storageChange.oldValue,
+                storageChange.newValue);
+  }
+});
+</code></pre>
+<h3 id="message-passing">Message passing</h3>
+<p>由于 contents scripts 的当前的 web page 而不是整个插件，所以通过 web page context 所能获取的信息/权限有限。这时需要使用各类消息机制来传递消息。</p>
+<p><a href="https://developer.chrome.com/docs/extensions/mv3/messaging/">Message passing</a>有多种方式：</p>
+<ul>
+<li>Simple one-time requests</li>
+<li>Long-lived connections</li>
+<li>Cross-extension messaging</li>
+<li>Native messaging</li>
+</ul>
+<p>这里主要介绍常用的 <code>Simple one-time requests</code></p>
+<h4 id="simple-one-time-requests-简单的一次性消息">Simple one-time requests 简单的一次性消息</h4>
+<p>简单的插件内部消息可以通过  <code>runtime.sendMessage</code> or <code>tabs.sendMessage</code> 发送一次性 JSON-serializable 消息来实现。</p>
+<p>从<code>content scripts</code> 发送到 extension (如<code>background.js</code>)</p>
+<pre><code>chrome.runtime.sendMessage({greeting: &quot;hello&quot;}, function(response) {
+  console.log(response.farewell);
+});
+</code></pre>
+<p>从 extension（比如 <code>background.js</code>）发送到 <code>content scripts</code></p>
+<pre><code>//也可以传 null 不指定 tabId
+chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+  chrome.tabs.sendMessage(tabs[0].id, {greeting: &quot;hello&quot;}, function(response) {
+    console.log(response.farewell);
+  });
+});
+</code></pre>
+<p>接收消息，此外如果多个页面都监听了消息，只有第一个调用 <code>sendResponse</code>的会成功发送。</p>
+<pre><code>chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+    console.log(sender.tab ?
+                &quot;from a content script:&quot; + sender.tab.url :
+                &quot;from the extension&quot;);
+    if (request.greeting == &quot;hello&quot;)
+      sendResponse({farewell: &quot;goodbye&quot;});
+  }
+);
+</code></pre>
+<h3 id="permission-api">Permission &amp; API</h3>
+<p>类似 app ,使用 chrome API 的时候需要在 manifest.json 申明相关权限。</p>
+<h5 id="比较常用用的一些api系列">比较常用用的一些API系列：</h5>
+<ul>
+<li>chrome.tabs</li>
+<li>chrome.runtime</li>
+<li>chrome.webRequest</li>
+<li>chrome.window</li>
+<li>chrome.storage</li>
+<li>chrome.contextMenus</li>
+<li>chrome.devtools</li>
+<li>chrome.extension</li>
+</ul>
+<h5 id="权限列表参考">权限列表参考</h5>
+<ul>
+<li><a href="https://developer.chrome.com/docs/extensions/mv3/declare_permissions/">Permission</a></li>
+<li><a href="https://developer.chrome.com/docs/extensions/reference/">API</a></li>
+</ul>
+<h2 id="ui-交互部分">UI 交互部分</h2>
+<p><a href="https://developer.chrome.com/docs/extensions/mv3/user_interface/">Design the user interface</a></p>
+<h3 id="popup">Popup</h3>
+<figure data-type="image" tabindex="3"><img src="https://developer-chrome-com.imgix.net/image/BrQidfK9jaQyIHwdw91aVpkPiib2/JVduBMXnyUorfNjFZmue.png?auto=format&amp;w=300" alt="" loading="lazy"></figure>
+<p>是一个点击右上角工具栏图标后弹出一个页面，（通过<a href="https://developer.chrome.com/docs/extensions/reference/browserAction/"><code>chrome.browserAction</code></a> 配置）也是 chrome.browserAction 重要的一个配置。可以用来做成提供给用户对插件进行配置的窗口。</p>
+<h5 id="通过-browser-action-or-page-action-来注册-popup">通过 browser action or page action 来注册 popup</h5>
+<pre><code>{
+  &quot;name&quot;: &quot;Drink Water Event&quot;,
+  ...
+  &quot;browser_action&quot;: {
+    &quot;default_popup&quot;: &quot;popup.html&quot;
+  }
+  ...
+}
+</code></pre>
+<p>也可以通过 <code>browserAction.setPopup</code> or <code>pageAction.setPopup</code> 动态设置</p>
+<pre><code>chrome.storage.local.get('signed_in', function(data) {
+  if (data.signed_in) {
+    chrome.browserAction.setPopup({popup: 'popup.html'});
+  } else {
+    chrome.browserAction.setPopup({popup: 'popup_sign_in.html'});
+  }
+});
+</code></pre>
+<h3 id="notification">Notification</h3>
+<p>全局弹窗使用可以 Chrome Notification 或 HTML5 Notification<br>
+当前页面可以用原生 <code>alert('msg')</code></p>
+<pre><code>chrome.notifications.create(null, {
+	type: 'basic',
+	iconUrl: 'img/icon.png',
+	title: 'title',
+	message: 'msg'
+});
+</code></pre>
+<h3 id="context-menu">Context menu</h3>
+<p>上下文菜单：显示在选中文字后的右键的菜单</p>
+<figure data-type="image" tabindex="4"><img src="https://developer-chrome-com.imgix.net/image/BrQidfK9jaQyIHwdw91aVpkPiib2/LhrliaEhN82maJmeNp7f.png?auto=format&amp;w=400" alt="" loading="lazy"></figure>
+<p>需要在 background.js 下创建，其中 title 中如果放的是数组的话，那么会显示二级菜单。</p>
+<pre><code>chrome.runtime.onInstalled.addListener(function() {
+  for (let key of Object.keys(kLocales)) {
+    chrome.contextMenus.create({
+      id: key,
+      title: kLocales[key],
+      type: 'normal',
+      contexts: ['selection'],
+    });
+  }
+});
+
+const kLocales = {
+  'com.au': 'Australia',
+  'com.br': 'Brazil',
+  'ca': 'Canada',
+  'cn': 'China',
+  'fr': 'France',
+  'it': 'Italy',
+  'co.in': 'India',
+  'co.jp': 'Japan',
+  'com.ms': 'Mexico',
+  'ru': 'Russia',
+  'co.za': 'South Africa',
+  'co.uk': 'United Kingdom'
+};
+</code></pre>
+<h3 id="commands">Commands</h3>
+<p>用来注册快捷键和相关的命令</p>
+<pre><code>{
+  &quot;name&quot;: &quot;Tab Flipper&quot;,
+  ...
+  &quot;commands&quot;: {
+    &quot;flip-tabs-forward&quot;: {
+      &quot;suggested_key&quot;: {
+        &quot;default&quot;: &quot;Ctrl+Shift+Right&quot;,
+        &quot;mac&quot;: &quot;Command+Shift+Right&quot;
+      },
+      &quot;description&quot;: &quot;Flip tabs forward&quot;
+    },
+    &quot;flip-tabs-backwards&quot;: {
+      &quot;suggested_key&quot;: {
+        &quot;default&quot;: &quot;Ctrl+Shift+Left&quot;,
+        &quot;mac&quot;: &quot;Command+Shift+Left&quot;
+      },
+      &quot;description&quot;: &quot;Flip tabs backwards&quot;
+    }
+  }
+  ...
+}
+</code></pre>
+<h3 id="override-pages">Override pages</h3>
+<p>用来覆盖 新Tab、历史记录、标签页这三种页面的任意一种。</p>
+<pre><code>{
+  &quot;name&quot;: &quot;Awesome Override Extension&quot;,
+  ...
+
+  &quot;chrome_url_overrides&quot; : {
+    &quot;newtab&quot;: &quot;override_page.html&quot; //or history or bookmarks
+  },
+  ...
+}
+</code></pre>
+<ul>
+<li><a href="https://developer.chrome.com/docs/extensions/reference/"> API </a></li>
+<li><a href="https://github.com/GoogleChrome/chrome-extensions-samples"> Samples </a></li>
+</ul>
+<h3 id="打包-发布">打包 &amp; 发布</h3>
+<p>插件可以在扩展程序页面（chrome://extensions/）选择<code>打包扩展程序</code>打包为 .crx 文件进行发布（需要注册成开发者），一般自用的话打开开发者模式选择<code>加载已解压的扩展程序</code>选择文件夹即可。</p>
+<h3 id="manifest-v3">Manifest V3</h3>
+<p>刚推出的新版本 <a href="https://developer.chrome.com/docs/extensions/mv3/intro/">Manifest V3</a> 主要是一些 API 的变更，v2也可以继续使用。</p>
+<h3 id="总结">总结</h3>
+<p>对于 Chrome Extensions 开发我也还在学习中，以上主要总结了常用且重要的配置、特性和 API ，还有很多其它 API 可以参考文档，<br>
+官方文档没有中文，但也写的很简洁易懂，官方 sample 更是详尽，几乎所有的 API 都有相应的 sample，建议参考。</p>
+<ul>
+<li><a href="https://developer.chrome.com/docs/extensions/mv3/">chrome-extensions-mv3</a></li>
+<li><a href="https://github.com/GoogleChrome/chrome-extensions-samples">chrome-extensions-samples</a></li>
+</ul>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Android 10(Q)/11(R) 分区存储适配]]></title>
         <id>https://xiejinpeng007.github.io/post/android-scoped-storage/</id>
@@ -2355,681 +2803,6 @@ Index 是一种特殊的查找表，数据库搜索引擎用来加快数据检�
 https://www.sqlite.org/lang_createtable.html<br>
 https://www.sqlite.org/withoutrowid.html<br>
 https://sqlite.org/autoinc.html</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Swagger (YAML OpenAPI) 从放弃到入门]]></title>
-        <id>https://xiejinpeng007.github.io/post/swagger-yaml-openapi-cong-fang-qi-dao-ru-men/</id>
-        <link href="https://xiejinpeng007.github.io/post/swagger-yaml-openapi-cong-fang-qi-dao-ru-men/">
-        </link>
-        <updated>2017-10-12T09:22:03.000Z</updated>
-        <content type="html"><![CDATA[<blockquote>
-<p>Swagger 是一个统一前后端用于生成文档和代码的工具，它使用 yaml / json 作为描述语言 通过 <a href="https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#exampleObject">OpenAPI Specification</a> 来描述 API，最后使用 Codegen 根据不同的配置来生成各种 language、library 的 Code、Docs.</p>
-</blockquote>
-<h5 id="其最理想的情况则是只需一份描述文件yamljson-生成-后端-前端android-ios-web的代码和文档这样的话保证了前后端的统一且需要升级改动也只需要修改-yaml-文件">其最理想的情况则是只需一份描述文件(yaml/json) 生成 后端、前端（android ios web...）的代码和文档，这样的话保证了前后端的统一，且需要升级改动也只需要修改 yaml 文件。</h5>
-<h3 id="yaml">YAML</h3>
-<p>JSON 都已经很熟悉了，虽然 Swagger 可以使用 JSON 作为描述语言，但是因为 YAML 更为简洁直观，所以更推荐 YAML。<br>
-YAML 的基本语法并不复杂，这里介绍一些基本语法：</p>
-<ul>
-<li>
-<p>yaml 文件 以<code>---</code>开始 <code>...</code>结尾</p>
-</li>
-<li>
-<p>同一级别的成员（如 list 成员）可以通过<code>&quot;- &quot;</code>来辨识</p>
-</li>
-<li>
-<p>注释以<code>#</code>开头的一行</p>
-</li>
-<li>
-<p>list:</p>
-</li>
-</ul>
-<pre><code>fruits:
-    - Apple
-    - Orange
-    - Strawberry
-    - Mango
-</code></pre>
-<ul>
-<li>key / value</li>
-</ul>
-<pre><code>martin:
-    name: Martin D'vloper
-    job: Developer
-    skill: Elite
-</code></pre>
-<ul>
-<li>list / map 混合使用</li>
-</ul>
-<pre><code>-  martin:
-    name: Martin D'vloper
-    job: Developer
-    skills:
-      - python
-      - perl
-      - pascal
--  tabitha:
-    name: Tabitha Bitumen
-    job: Developer
-    skills:
-      - lisp
-      - fortran
-      - erlang
-</code></pre>
-<ul>
-<li>list / map 的简写</li>
-</ul>
-<pre><code>martin: {name: Martin D'vloper, job: Developer, skill: Elite}
-fruits: ['Apple', 'Orange', 'Strawberry', 'Mango']
-</code></pre>
-<ul>
-<li>boolean 值的写法没有严格限制</li>
-</ul>
-<pre><code>create_key: yes
-needs_agent: no
-knows_oop: True
-likes_emacs: TRUE
-uses_cvs: false
-</code></pre>
-<ul>
-<li><code>|</code>使用换行 <code>&gt;</code>忽略换行</li>
-</ul>
-<pre><code>include_newlines: |
-            exactly as you see
-            will appear these three
-            lines of poetry
-
-ignore_newlines: &gt;
-            this is really a
-            single line of text
-            despite appearances
-</code></pre>
-<h3 id="openapi-specification">OpenAPI-Specification</h3>
-<blockquote>
-<p>OpenAPI 是一套用于描述 RESTful APIs 的规范。</p>
-<p>The OpenAPI Specification (OAS) defines a standard, language-agnostic interface to RESTful APIs which allows both humans and computers to discover and understand the capabilities of the service without access to source code, documentation, or through network traffic inspection. When properly defined, a consumer can understand and interact with the remote service with a minimal amount of implementation logic.</p>
-<p>An OpenAPI definition can then be used by documentation generation tools to display the API, code generation tools to generate servers and clients in various programming languages, testing tools, and many other use cases.</p>
-</blockquote>
-<p>只要符合 OpenAPI 规范的都可以生成各类代码、文档、工具。<br>
-目前 OpenAPI 最新 3.0.0 ,对比 2.0 对 API 结构进行了调整。<br>
-文档内容繁多请参考 <a href="https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md">OpenAPI-Specification 3.0.0</a></p>
-<p>下面是 Uber API 的 example</p>
-<pre><code># this is an example of the Uber API
-# as a demonstration of an API spec in YAML
-openapi: &quot;3.0.0&quot;
-info:
-  title: Uber API
-  description: Move your app forward with the Uber API
-  version: &quot;1.0.0&quot;
-servers:
-  - url: https://api.uber.com/v1
-paths:
-  /products:
-    get:
-      summary: Product Types
-      description: The Products endpoint returns information about the Uber products offered at a given location. The response includes the display name and other details about each product, and lists the products in the proper display order.
-      parameters:
-        - name: latitude
-          in: query
-          description: Latitude component of location.
-          required: true
-          schema:
-            type: number
-            format: double
-        - name: longitude
-          in: query
-          description: Longitude component of location.
-          required: true
-          schema:
-            type: number
-            format: double
-      security: 
-        - apikey: []
-      tags: 
-        - Products
-      responses:  
-        '200':
-          description: An array of products
-          content:
-            application/json:
-              schema:
-                $ref: &quot;#/components/schemas/ProductList&quot;
-        default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: &quot;#/components/schemas/Error&quot;
-  /estimates/price:
-    get:
-      summary: Price Estimates
-      description: The Price Estimates endpoint returns an estimated price range for each product offered at a given location. The price estimate is provided as a formatted string with the full price range and the localized currency symbol.&lt;br&gt;&lt;br&gt;The response also includes low and high estimates, and the [ISO 4217](http://en.wikipedia.org/wiki/ISO_4217) currency code for situations requiring currency conversion. When surge is active for a particular product, its surge_multiplier will be greater than 1, but the price estimate already factors in this multiplier.
-      parameters:
-        - name: start_latitude
-          in: query
-          description: Latitude component of start location.
-          required: true
-          schema:
-            type: number
-            format: double
-        - name: start_longitude
-          in: query
-          description: Longitude component of start location.
-          required: true
-          schema:
-            type: number
-            format: double
-        - name: end_latitude
-          in: query
-          description: Latitude component of end location.
-          required: true
-          schema:
-            type: number
-            format: double
-        - name: end_longitude
-          in: query
-          description: Longitude component of end location.
-          required: true
-          schema:
-            type: number
-            format: double
-      tags: 
-        - Estimates
-      responses:  
-        '200':
-          description: An array of price estimates by product
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: &quot;#/components/schemas/PriceEstimate&quot;
-        default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: &quot;#/components/schemas/Error&quot;
-  /estimates/time:
-    get:
-      summary: Time Estimates
-      description: The Time Estimates endpoint returns ETAs for all products offered at a given location, with the responses expressed as integers in seconds. We recommend that this endpoint be called every minute to provide the most accurate, up-to-date ETAs.
-      parameters:
-        - name: start_latitude
-          in: query
-          description: Latitude component of start location.
-          required: true
-          schema:
-            type: number
-            format: double
-        - name: start_longitude
-          in: query
-          description: Longitude component of start location.
-          required: true
-          schema:
-            type: number
-            format: double
-        - name: customer_uuid
-          in: query
-          schema:
-            type: string
-            format: uuid
-          description: Unique customer identifier to be used for experience customization.
-        - name: product_id
-          in: query
-          schema:
-            type: string
-          description: Unique identifier representing a specific product for a given latitude &amp; longitude.
-      tags: 
-        - Estimates
-      responses:  
-        '200':
-          description: An array of products
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: &quot;#/components/schemas/Product&quot;
-        default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: &quot;#/components/schemas/Error&quot;
-  /me:
-    get:
-      summary: User Profile
-      description: The User Profile endpoint returns information about the Uber user that has authorized with the application.
-      tags: 
-        - User
-      responses:
-        '200':
-          description: Profile information for a user
-          content:
-            application/json:
-              schema:
-                $ref: &quot;#/components/schemas/Profile&quot;
-        default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: &quot;#/components/schemas/Error&quot;
-  /history:
-    get:
-      summary: User Activity
-      description: The User Activity endpoint returns data about a user's lifetime activity with Uber. The response will include pickup locations and times, dropoff locations and times, the distance of past requests, and information about which products were requested.&lt;br&gt;&lt;br&gt;The history array in the response will have a maximum length based on the limit parameter. The response value count may exceed limit, therefore subsequent API requests may be necessary.
-      parameters:
-        - name: offset
-          in: query
-          schema:
-            type: integer
-            format: int32
-          description: Offset the list of returned results by this amount. Default is zero.
-        - name: limit
-          in: query
-          schema:
-            type: integer
-            format: int32 
-          description: Number of items to retrieve. Default is 5, maximum is 100.
-      tags: 
-        - User
-      responses:
-        '200':
-          description: History information for the given user
-          content:
-            application/json:
-              schema:
-                $ref: &quot;#/components/schemas/Activities&quot;
-        default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: &quot;#/components/schemas/Error&quot;
-components:
-  securitySchemes:
-    apikey:
-      type: apiKey
-      name: server_token
-      in: query
-  schemas:
-    Product:
-      properties:
-        product_id:
-          type: string
-          description: Unique identifier representing a specific product for a given latitude &amp; longitude. For example, uberX in San Francisco will have a different product_id than uberX in Los Angeles.
-        description:
-          type: string
-          description: Description of product.
-        display_name:
-          type: string
-          description: Display name of product.
-        capacity:
-          type: integer
-          description: Capacity of product. For example, 4 people.
-        image:
-          type: string
-          description: Image URL representing the product.
-    ProductList:
-      properties:
-        products:
-          description: Contains the list of products
-          type: array
-          items: 
-            $ref: &quot;#/components/schemas/Product&quot;
-    PriceEstimate:
-      properties:
-        product_id:
-          type: string
-          description: Unique identifier representing a specific product for a given latitude &amp; longitude. For example, uberX in San Francisco will have a different product_id than uberX in Los Angeles
-        currency_code:
-          type: string
-          description: &quot;[ISO 4217](http://en.wikipedia.org/wiki/ISO_4217) currency code.&quot;
-        display_name:
-          type: string
-          description: Display name of product.
-        estimate: 
-          type: string
-          description: Formatted string of estimate in local currency of the start location. Estimate could be a range, a single number (flat rate) or &quot;Metered&quot; for TAXI.
-        low_estimate:
-          type: number
-          description: Lower bound of the estimated price.
-        high_estimate:
-          type: number
-          description: Upper bound of the estimated price.
-        surge_multiplier:
-          type: number
-          description: Expected surge multiplier. Surge is active if surge_multiplier is greater than 1. Price estimate already factors in the surge multiplier.
-    Profile:
-      properties:
-        first_name:
-          type: string
-          description: First name of the Uber user.
-        last_name:
-          type: string
-          description: Last name of the Uber user.
-        email:
-          type: string
-          description: Email address of the Uber user
-        picture:
-          type: string
-          description: Image URL of the Uber user.
-        promo_code:
-          type: string
-          description: Promo code of the Uber user.   
-    Activity:
-      properties:
-        uuid:
-          type: string
-          description: Unique identifier for the activity
-    Activities:
-      properties:
-        offset:
-          type: integer
-          format: int32
-          description: Position in pagination.
-        limit:
-          type: integer
-          format: int32
-          description: Number of items to retrieve (100 max).
-        count:
-          type: integer
-          format: int32
-          description: Total number of items available.
-        history:
-          type: array
-          items:
-            $ref: &quot;#/components/schemas/Activity&quot;
-    Error:
-      properties:
-        code:
-          type: string
-        message:
-          type: string
-        fields:
-          type: string
-</code></pre>
-<p>这里将 OpenAPI 3.0 规范中把重点使用的 api 整理了一张思维导图（还不完善，会持续更新）</p>
-<figure data-type="image" tabindex="1"><img src="http://upload-images.jianshu.io/upload_images/1447881-03d1619fc6f6f670.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="OpenAPI 3.0.0.png" loading="lazy"></figure>
-<h3 id="swagger">Swagger</h3>
-<p>Swagger 实际上包含了一系列的工具 Editor Codegen UI ...</p>
-<ul>
-<li>Editor 用于使用 OpenAPI 编辑 yaml</li>
-<li>Codegen 用于生成不同的 language library 的代码</li>
-<li>UI 用于生成文档</li>
-</ul>
-<p>下面介绍一下 Codegen 的使用：</p>
-<ol>
-<li>
-<p>首先下载 <a href="https://oss.sonatype.org/content/repositories/snapshots/io/swagger/swagger-codegen-cli/3.0.0-SNAPSHOT/">swagger-codegen-cli.jar</a></p>
-</li>
-<li>
-<p>确保装好了 maven</p>
-</li>
-<li>
-<p>准备 swagger.yaml</p>
-</li>
-<li>
-<p>编写 config.json 配置文件<br>
-因为之前提到 Swagger 可以生成各种 lang lib 的代码，所以这里便是进行此类配置:<br>
-查看配置 help</p>
-<pre><code>java -jar swagger-codegen-cli.jar config-help -l java
-</code></pre>
-<pre><code>CONFIG OPTIONS
-     sortParamsByRequiredFlag
-         Sort method arguments to place required parameters before optional parameters. (Default: true)
-     ensureUniqueParams
-         Whether to ensure parameter names are unique in an operation (rename parameters that are not). (Default: true)
-     allowUnicodeIdentifiers
-         boolean, toggles whether unicode identifiers are allowed in names or not, default is false (Default: false)
-     modelPackage
-         package for generated models
-     apiPackage
-         package for generated api classes
-     invokerPackage
-         root package for generated code
-     groupId
-         groupId in generated pom.xml
-     artifactId
-         artifactId in generated pom.xml
-     artifactVersion
-         artifact version in generated pom.xml
-     artifactUrl
-         artifact URL in generated pom.xml
-     artifactDescription
-         artifact description in generated pom.xml
-     scmConnection
-         SCM connection in generated pom.xml
-     scmDeveloperConnection
-         SCM developer connection in generated pom.xml
-     scmUrl
-         SCM URL in generated pom.xml
-     developerName
-         developer name in generated pom.xml
-     developerEmail
-         developer email in generated pom.xml
-     developerOrganization
-         developer organization in generated pom.xml
-     developerOrganizationUrl
-         developer organization URL in generated pom.xml
-     licenseName
-         The name of the license
-     licenseUrl
-         The URL of the license
-     sourceFolder
-         source folder for generated code
-     localVariablePrefix
-         prefix for generated code members and local variables
-     serializableModel
-         boolean - toggle &quot;implements Serializable&quot; for generated models (Default: false)
-     bigDecimalAsString
-         Treat BigDecimal values as Strings to avoid precision loss. (Default: false)
-     fullJavaUtil
-         whether to use fully qualified name for classes under java.util. This option only works for Java API client (Default: false)
-     hideGenerationTimestamp
-         hides the timestamp when files were generated
-     withXml
-         whether to include support for application/xml content type. This option only works for Java API client (resttemplate) (Default: false)
-     dateLibrary
-         Option. Date library to use
-             joda - Joda (for legacy app only)
-             legacy - Legacy java.util.Date (if you really have a good reason not to use threetenbp
-             java8-localdatetime - Java 8 using LocalDateTime (for legacy app only)
-             java8 - Java 8 native JSR310 (preferred for jdk 1.8+) - note: this also sets &quot;java8&quot; to true
-             threetenbp - Backport of JSR310 (preferred for jdk &lt; 1.8)
-     java8
-         Option. Use Java8 classes instead of third party equivalents
-             true - Use Java 8 classes such as Base64
-             false - Various third party libraries as needed
-     useRxJava
-         Whether to use the RxJava adapter with the retrofit2 library. (Default: false)
-     useRxJava2
-         Whether to use the RxJava2 adapter with the retrofit2 library. (Default: false)
-     parcelableModel
-         Whether to generate models for Android that implement Parcelable with the okhttp-gson library. (Default: false)
-     usePlay24WS
-         Use Play! 2.4 Async HTTP client (Play WS API) (Default: false)
-     supportJava6
-         Whether to support Java6 with the Jersey1 library. (Default: false)
-     useBeanValidation
-         Use BeanValidation API annotations (Default: false)
-     performBeanValidation
-         Perform BeanValidation (Default: false)
-     useGzipFeature
-         Send gzip-encoded requests (Default: false)
-     useRuntimeException
-         Use RuntimeException instead of Exception (Default: false)
-     library
-         library template (sub-template) to use (Default: okhttp-gson)
-             jersey1 - HTTP client: Jersey client 1.19.4. JSON processing: Jackson 2.8.9. Enable Java6 support using '-DsupportJava6=true'. Enable gzip request encoding using '-DuseGzipFeature=true'.
-             feign - HTTP client: OpenFeign 9.4.0. JSON processing: Jackson 2.8.9
-             jersey2 - HTTP client: Jersey client 2.25.1. JSON processing: Jackson 2.8.9
-             okhttp-gson - HTTP client: OkHttp 2.7.5. JSON processing: Gson 2.8.1. Enable Parcelable models on Android using '-DparcelableModel=true'. Enable gzip request encoding using '-DuseGzipFeature=true'.
-             retrofit - HTTP client: OkHttp 2.7.5. JSON processing: Gson 2.3.1 (Retrofit 1.9.0). IMPORTANT NOTE: retrofit1.x is no longer actively maintained so please upgrade to 'retrofit2' instead.
-             retrofit2 - HTTP client: OkHttp 3.8.0. JSON processing: Gson 2.6.1 (Retrofit 2.3.0). Enable the RxJava adapter using '-DuseRxJava[2]=true'. (RxJava 1.x or 2.x)
-             resttemplate - HTTP client: Spring RestTemplate 4.3.9-RELEASE. JSON processing: Jackson 2.8.9
-             resteasy - HTTP client: Resteasy client 3.1.3.Final. JSON processing: Jackson 2.8.9
-
-</code></pre>
-<p>几个主要的配置参数：</p>
-<ul>
-<li>library，生成的代码支付的类，有jersey1、jersey2、okhttp-gson、resttemplate、resteasy、feign、retrofit、retrofit2等几种类型，我们选择的retrofit2</li>
-<li>developerName，开发者名字，会出现在代码文件里</li>
-<li>developerEmail，开发者邮箱，会出现在代码文件里</li>
-<li>developrOrganization，开发者组织，会出现在代码里</li>
-<li>invokerPackage，项目的包名</li>
-<li>apiPackage，生成的***Api.java文件的包名</li>
-<li>modelPackage，生成的数据模型java文件包名</li>
-<li>dateLibrary，时间使用的类开</li>
-<li>useRxJava，是否使用rxjava生成api接口</li>
-<li>useRxJava2，是否使用rxjava2的方式调用接口</li>
-</ul>
-</li>
-<li>
-<p>generate 生成代码<br>
-首先打印参数信息</p>
-<pre><code>java -jar swagger-codegen-cli.jar generate help
-</code></pre>
-<pre><code>NAME
-     swagger-codegen-cli generate - Generate code with chosen lang
- SYNOPSIS
-     swagger-codegen-cli generate
-             [(-a &lt;authorization&gt; | --auth &lt;authorization&gt;)]
-             [--additional-properties &lt;additional properties&gt;...]
-             [--api-package &lt;api package&gt;] [--artifact-id &lt;artifact id&gt;]
-             [--artifact-version &lt;artifact version&gt;]
-             [(-c &lt;configuration file&gt; | --config &lt;configuration file&gt;)]
-             [-D &lt;system properties&gt;...] [--git-repo-id &lt;git repo id&gt;]
-             [--git-user-id &lt;git user id&gt;] [--group-id &lt;group id&gt;]
-             [--http-user-agent &lt;http user agent&gt;]
-             (-i &lt;spec file&gt; | --input-spec &lt;spec file&gt;)
-             [--ignore-file-override &lt;ignore file override location&gt;]
-             [--import-mappings &lt;import mappings&gt;...]
-             [--instantiation-types &lt;instantiation types&gt;...]
-             [--invoker-package &lt;invoker package&gt;]
-             (-l &lt;language&gt; | --lang &lt;language&gt;)
-             [--language-specific-primitives &lt;language specific primitives&gt;...]
-             [--library &lt;library&gt;] [--model-name-prefix &lt;model name prefix&gt;]
-             [--model-name-suffix &lt;model name suffix&gt;]
-             [--model-package &lt;model package&gt;]
-             [(-o &lt;output directory&gt; | --output &lt;output directory&gt;)]
-             [--release-note &lt;release note&gt;] [--remove-operation-id-prefix]
-             [--reserved-words-mappings &lt;reserved word mappings&gt;...]
-             [(-s | --skip-overwrite)]
-             [(-t &lt;template directory&gt; | --template-dir &lt;template directory&gt;)]
-             [--type-mappings &lt;type mappings&gt;...] [(-v | --verbose)]
-OPTIONS
-     -a &lt;authorization&gt;, --auth &lt;authorization&gt;
-         adds authorization headers when fetching the swagger definitions
-         remotely. Pass in a URL-encoded string of name:header with a comma
-         separating multiple values
-     --additional-properties &lt;additional properties&gt;
-         sets additional properties that can be referenced by the mustache
-         templates in the format of name=value,name=value. You can also have
-         multiple occurrences of this option.
-     --api-package &lt;api package&gt;
-         package for generated api classes
-     --artifact-id &lt;artifact id&gt;
-         artifactId in generated pom.xml
-     --artifact-version &lt;artifact version&gt;
-         artifact version in generated pom.xml
-     -c &lt;configuration file&gt;, --config &lt;configuration file&gt;
-         Path to json configuration file. File content should be in a json
-         format {&quot;optionKey&quot;:&quot;optionValue&quot;, &quot;optionKey1&quot;:&quot;optionValue1&quot;...}
-         Supported options can be different for each language. Run
-         config-help -l {lang} command for language specific config options.
-     -D &lt;system properties&gt;
-         sets specified system properties in the format of
-         name=value,name=value (or multiple options, each with name=value)
-     --git-repo-id &lt;git repo id&gt;
-         Git repo ID, e.g. swagger-codegen.
-     --git-user-id &lt;git user id&gt;
-         Git user ID, e.g. swagger-api.
-     --group-id &lt;group id&gt;
-         groupId in generated pom.xml
-     --http-user-agent &lt;http user agent&gt;
-         HTTP user agent, e.g. codegen_csharp_api_client, default to
-         'Swagger-Codegen/{packageVersion}}/{language}'
-     -i &lt;spec file&gt;, --input-spec &lt;spec file&gt;
-         location of the swagger spec, as URL or file (required)
-     --ignore-file-override &lt;ignore file override location&gt;
-         Specifies an override location for the .swagger-codegen-ignore file.
-         Most useful on initial generation.
-     --import-mappings &lt;import mappings&gt;
-         specifies mappings between a given class and the import that should
-         be used for that class in the format of type=import,type=import. You
-         can also have multiple occurrences of this option.
-     --instantiation-types &lt;instantiation types&gt;
-         sets instantiation type mappings in the format of
-         type=instantiatedType,type=instantiatedType.For example (in Java):
-         array=ArrayList,map=HashMap. In other words array types will get
-         instantiated as ArrayList in generated code. You can also have
-         multiple occurrences of this option.
-     --invoker-package &lt;invoker package&gt;
-         root package for generated code
-     -l &lt;language&gt;, --lang &lt;language&gt;
-         client language to generate (maybe class name in classpath,
-         required)
-     --language-specific-primitives &lt;language specific primitives&gt;
-         specifies additional language specific primitive types in the format
-         of type1,type2,type3,type3. For example:
-         String,boolean,Boolean,Double. You can also have multiple
-         occurrences of this option.
-     --library &lt;library&gt;
-         library template (sub-template)
-     --model-name-prefix &lt;model name prefix&gt;
-         Prefix that will be prepended to all model names. Default is the
-         empty string.
-     --model-name-suffix &lt;model name suffix&gt;
-         Suffix that will be appended to all model names. Default is the
-         empty string.
-     --model-package &lt;model package&gt;
-         package for generated models
-     -o &lt;output directory&gt;, --output &lt;output directory&gt;
-         where to write the generated files (current dir by default)
-     --release-note &lt;release note&gt;
-         Release note, default to 'Minor update'.
-     --remove-operation-id-prefix
-         Remove prefix of operationId, e.g. config_getId =&gt; getId
-     --reserved-words-mappings &lt;reserved word mappings&gt;
-         specifies how a reserved name should be escaped to. Otherwise, the
-         default _&lt;name&gt; is used. For example id=identifier. You can also
-         have multiple occurrences of this option.
-     -s, --skip-overwrite
-         specifies if the existing files should be overwritten during the
-         generation.
-     -t &lt;template directory&gt;, --template-dir &lt;template directory&gt;
-         folder containing the template files
-     --type-mappings &lt;type mappings&gt;
-         sets mappings between swagger spec types and generated code types in
-         the format of swaggerType=generatedType,swaggerType=generatedType.
-         For example: array=List,map=Map,string=String. You can also have
-         multiple occurrences of this option.
-     -v, --verbose
-         verbose mode
-</code></pre>
-<p>几个主要参数：</p>
-<ul>
-<li>-i 表示输入的文件，editor生成的设计文件路径，如：-i ~/Desktop/swagger.yaml</li>
-<li>-o 代码生成目录，swagger codegen 把代码生成到什么地方，如：-o ~/Desktop</li>
-<li>-l 生成代码语言，我们是生成java，如：-l java</li>
-<li>-c 配置文件，配制文件路径，如：-c ~/Desktop/config.json</li>
-</ul>
-<p>最后生成代码</p>
-<pre><code>java -jar swagger-codegen-cli.jar generate -i swagger.yaml -o client -l java -c config.json
-</code></pre>
-<p>成功在 ~/Desktop 下生成了相应的 code 和 doc</p>
-<p>参考资料以及推荐阅读的资料<br>
-<a href="http://docs.ansible.com/ansible/latest/YAMLSyntax.html">http://docs.ansible.com/ansible/latest/YAMLSyntax.html</a><br>
-<a href="https://swagger.io/docs/specification/about/">https://swagger.io/docs/specification/about/</a><br>
-<a href="http://www.jianshu.com/p/c178c18aaf43">http://www.jianshu.com/p/c178c18aaf43</a><br>
-<a href="https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md">https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md</a><br>
-<a href="https://github.com/swagger-api">https://github.com/swagger-api</a><br>
-<a href="https://www.gitbook.com/book/huangwenchao/swagger/details">https://www.gitbook.com/book/huangwenchao/swagger/details</a></p>
-</li>
-</ol>
 ]]></content>
     </entry>
 </feed>
