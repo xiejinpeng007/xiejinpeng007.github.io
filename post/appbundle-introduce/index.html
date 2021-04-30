@@ -1,0 +1,469 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>AppBundle 详解和实际效果对比 | xiejinpeng&#39;s blog</title>
+
+<link rel="shortcut icon" href="https://xiejinpeng007.github.io/favicon.ico?v=1619762956884">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://xiejinpeng007.github.io/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-143163463-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        gtag('js', new Date());
+        gtag('config', 'UA-143163463-1');
+    </script>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            xiejinpeng&#39;s blog
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            目录
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            About Me
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1619762956884" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    AppBundle 详解和实际效果对比
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2021-04-30 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <blockquote>
+<p>从 2021 年 8 月起，新应用需要使用 Android App Bundle 才能在 Google Play 中发布。现在，Play Feature Delivery 或 Play Asset Delivery 支持大小超过 150 MB 的新应用。</p>
+</blockquote>
+<p>由于 Google Play 的政策要求，最近越来多的项目在调查 AppBundle 的问题，总结一下。</p>
+<h3 id="app-bundle-是什么">App Bundle 是什么</h3>
+<p>Android App Bundle 是一种发布格式，其中包含应用的所有经过编译的代码和资源，它会将 APK 生成及签名交由 Google Play 来完成。<br>
+Google 主要想通过 App Bundle 来实现优化 APK 体积、动态分发等功能，方式就是 <code>Split APKs(拆分apk)</code>。</p>
+<p>从下图可以看到, 资源被分布到了各个模块中，每个模块的组织方式都和 APK 相似，是因为最终每个模块都可以作为单独的 APK 生成。</p>
+<figure data-type="image" tabindex="1"><img src="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/38cfed3e911a43d89c6b9376fbd5a421~tplv-k3u1fbpfcp-watermark.image" alt="aab_format-2x.png" loading="lazy"></figure>
+<p>图1 的 AppBundle 包含了一个基本模块、两个功能模块和两个资源包。</p>
+<p>更详细的目录结构：</p>
+<ul>
+<li>
+<p>base/、feature1/ 和 feature2/：其中每个顶级目录都表示一个不同的应用模块。应用的基本模块始终包含在 App Bundle 的 base 目录中。不过，为每个功能模块的目录提供的名称由模块清单中的 split 属性指定。如需了解详情，请参阅功能模块清单。</p>
+</li>
+<li>
+<p>asset_pack_1/ 和 asset_pack_2/：对于需要大量图形处理的大型应用或游戏，您可以将资产模块化处理为资源包。资源包因体积上限较高而成为游戏的理想之选。您可以按照三种分发模式（即，安装时分发、快速跟进式分发和按需分发）自定义如何以及何时将各个资源包下载到设备上。所有资源包都在 Google Play 上托管并从 Google Play 提供。如需详细了解如何将资源包添加到您的 app bundle。</p>
+</li>
+<li>
+<p>BUNDLE-METADATA/：此目录包含元数据文件，其中包含对工具或应用商店有用的信息。此类元数据文件可能包含 ProGuard 映射和应用的 DEX 文件的完整列表。此目录中的文件未打包到您应用的 APK 中。</p>
+</li>
+<li>
+<p>模块协议缓冲区 (*.pb) 文件：这些文件提供了一些元数据，有助于向各个应用商店（如 Google Play）说明每个应用模块的内容。例如，BundleConfig.pb 提供了有关 bundle 本身的信息（如用于构建 app bundle 的构建工具版本），native.pb 和 resources.pb 说明了每个模块中的代码和资源，这在 Google Play 针对不同的设备配置优化 APK 时非常有用。</p>
+</li>
+<li>
+<p>manifest/：与 APK 不同，app bundle 将每个模块的 AndroidManifest.xml 文件存储在这个单独的目录中。</p>
+</li>
+<li>
+<p>dex/：与 APK 不同，app bundle 将每个模块的 DEX 文件存储在这个单独的目录中。</p>
+</li>
+<li>
+<p>res/、lib/ 和 assets/：这些目录与典型 APK 中的目录完全相同。当您上传 App Bundle 时，Google Play 会检查这些目录并且仅打包满足目标设备配置需求的文件，同时保留文件路径。</p>
+</li>
+<li>
+<p>root/：此目录存储的文件之后会重新定位到包含此目录所在模块的任意 APK 的根目录。例如，app bundle 的 base/root/ 目录可能包含您的应用使用 Class.getResource() 加载的基于 Java 的资源。这些文件之后会重新定位到您应用的基本 APK 和 Google Play 生成的每个多 APK 的根目录。此目录中的路径也会保留下来。也就是说，目录（及其子目录）也会重新定位到 APK 的根目录。</p>
+</li>
+</ul>
+<h3 id="split-apks-拆分-apk">Split APKs （拆分 apk）</h3>
+<p>AppBundle 按以上方式组织资源之后，就是为了便于拆分 APK 。<br>
+拆分 APK 可以从两个维度来考虑：</p>
+<h4 id="1-根据机型所需的资源拆分成不同的-apk">1. 根据机型所需的资源拆分成不同的 apk</h4>
+<p>由于 Android 手机类型很多需要适配不同的资源：<code>ABI (armeabi armeabi-v7a arm64-v8a x86..)</code> <code>屏幕密度</code> <code>语言</code>。最后各种资源都会被打包到 apk 里。</p>
+<figure data-type="image" tabindex="2"><img src="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/199a273660974e16a0f5cb4c44b324bc~tplv-k3u1fbpfcp-watermark.image" alt="appbundle_apk-2.png" loading="lazy"></figure>
+<p>以上面 apk 里的 <code>res</code> <code>lib</code>文件夹为例可以看到，过去我们打包的 apk 都包含了以上所有的资源，而且 so 库 + 图片布局资源 的体积在整个 apk 中占很大的比例。</p>
+<p>但实际上每一台手机从各个维度来讲都只需要一种对应的资源：例如 cpu 是 armeabi-v7a 的就只需要下载 armeabi-v7a 的 so 库；屏幕 PPI 是 400 就只需要下载 xxxhdpi 的图片布局资源 ；中文语言使用者只需要下载中文语言资源。<br>
+参考下图：</p>
+<figure data-type="image" tabindex="3"><img src="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/edea89b9fa634229b02bacdf95bf3639~tplv-k3u1fbpfcp-watermark.image" alt="appbundlesplit.gif" loading="lazy"></figure>
+<h4 id="2-根据基本功能-附加功能拆分成不同的-apk">2. 根据基本功能、附加功能拆分成不同的 apk</h4>
+<p>app 初次下载只需要下载基本功能，需要用到的时候再进行附加功能模块下载。</p>
+<p>根据上面的两个维度的考虑，Google Play 会把 AppBundle 打包成三类 APK</p>
+<ul>
+<li>
+<p>基本 APK：<br>
+此 APK 中包含了所有其他拆分 APK 都可以访问的代码和资源，并提供应用的基本功能。当用户请求下载您的应用时，会首先下载并安装该 APK。这是因为只有基本 APK 的清单才包含关于应用的服务、内容提供方、权限、平台版本要求和对系统功能的依赖性的完整声明。Google Play 会根据项目的应用模块（即基本模块）为应用生成基本 APK。如果您想减小应用的初始下载大小，请一定要注意，此模块中包含的所有代码和资源都包含在应用的基本 APK 中。</p>
+</li>
+<li>
+<p>配置 APK：<br>
+每个配置 APK 都包含针对特定屏幕密度、CPU 架构或语言的原生库和资源。当用户下载您的应用时，他们的设备只会下载并安装该设备对应的配置 APK。每个配置 APK 都是基本 APK 或功能模块 APK 的依赖项。也就是说，配置 APK 会随它们为之提供代码和资源的 APK 一起下载和安装。与基本模块和功能模块不同，您不需要为配置 APK 单独创建模块。如果您在为基本模块和功能模块组织管理配置专用的备用资源时遵循了标准实践，Google Play 会自动为您生成配置 APK。</p>
+</li>
+<li>
+<p>功能模块 APK：<br>
+每个功能模块 APK 都包含您使用功能模块进行了模块化处理的某项应用功能的代码和资源。您随后可以自定义如何以及何时将该功能下载到设备上。例如，使用 Play 核心库，可在将基本 APK 安装到设备上之后再按需安装某些功能，以向用户提供额外的功能。假设我们有一款聊天应用，它仅在用户想要拍摄并发送照片时才下载并安装该功能。由于功能模块在安装时可能不可用，因此您应将所有通用代码和资源包含在基本 APK 中。也就是说，您的功能模块应假定在安装时只有基本 APK 的代码和资源可用。Google Play 会根据项目的功能模块为应用生成功能模块 APK。</p>
+</li>
+</ul>
+<p>一个包含三个功能模块并支持多种设备配置的应用如下的 APK 之间依赖关系树如下：</p>
+<figure data-type="image" tabindex="4"><img src="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/64eb79d3e6b5445396c34cf442b514de~tplv-k3u1fbpfcp-watermark.image" alt="apk_splits_tree-2x.png" loading="lazy"></figure>
+<h3 id="构建-测试-配置-appbundle">构建、测试、配置 AppBundle</h3>
+<h4 id="构建-appbundle">构建 AppBundle</h4>
+<p>和以前打包 APK 类似，命令 assemble 换成 bundle 就可以了。如</p>
+<pre><code>./gradlew assembleProductionRelease
+ -&gt;  
+./gradlew bundleProductionRelease
+</code></pre>
+<h4 id="测试-appbundle">测试 AppBundle</h4>
+<ul>
+<li>
+<p>通过 Google Play 的测试频道部署 AppBundle<br>
+比较麻烦，需要比较正式的配置</p>
+</li>
+<li>
+<p>通过 Google Play 的内部分享频道部署 AppBundle<br>
+交付测试人员测试的话推荐这种方式，可以直接上传 .aab 分享下载，比测试频道的限制更少：<br>
+App 签名和 versionCode 这些都没有限制。<br>
+参考下图</p>
+</li>
+</ul>
+<figure data-type="image" tabindex="5"><img src="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c4eca29b074c4d9695671d4022ae1a57~tplv-k3u1fbpfcp-watermark.image" alt="internalshare-2.png" loading="lazy"></figure>
+<ul>
+<li>
+<p>使用命令行工具<code>bundletool</code></p>
+<ol>
+<li>生成 apks</li>
+</ol>
+<pre><code>//默认使用debug的签名
+bundletool build-apks --bundle=/MyApp/my_app.aab --output=/MyApp/my_app.apks
+//或指定签名
+bundletool build-apks --bundle=/MyApp/my_app.aab --output=/MyApp/my_app.apks
+</code></pre>
+</li>
+</ul>
+<p>--ks=/MyApp/keystore.jks<br>
+--ks-pass=file:/MyApp/keystore.pwd<br>
+--ks-key-alias=MyKeyAlias<br>
+--key-pass=file:/MyApp/key.pwd<br>
+```</p>
+<pre><code>2. 从 apks 部署 apk 到设备 
+
+```
+bundletool install-apks --apks=/MyApp/my_app.apks
+```
+</code></pre>
+<h5 id="生成-apks-时的一些配置">生成 apks 时的一些配置</h5>
+<p>默认生成 apks 时，所有相关的配置集都会打包到 apk，测试的时候一般只需要特定机型的 apk，有几种配置的方法：</p>
+<ul>
+<li>只生成已连接到 adb 机型的 apk</li>
+</ul>
+<pre><code>bundletool build-apks --connected-device
+--bundle=/MyApp/my_app.aab --output=/MyApp/my_app.apks
+</code></pre>
+<ul>
+<li>生成一个描述机型配置的 JSON 文件</li>
+</ul>
+<pre><code>bundletool get-device-spec --output=/tmp/device-spec.json
+</code></pre>
+<p>然后生成 apks 的时候配置一下</p>
+<pre><code>bundletool build-apks --device-spec=/MyApp/pixel2.json
+--bundle=/MyApp/my_app.aab --output=/MyApp/my_app.apks
+</code></pre>
+<p>也可以手动生成或者调整机型配置的 JSON 文件</p>
+<pre><code>{
+ &quot;supportedAbis&quot;: [&quot;arm64-v8a&quot;, &quot;armeabi-v7a&quot;],
+ &quot;supportedLocales&quot;: [&quot;en&quot;, &quot;fr&quot;],
+ &quot;screenDensity&quot;: 640,
+ &quot;sdkVersion&quot;: 27
+}
+</code></pre>
+<p>其它参数配置参考<a href="https://developer.android.com/studio/command-line/bundletool#generate_apks">文档</a></p>
+<h5 id="从-apks-中提取指定的-apk">从 APKs 中提取指定的 APK</h5>
+<p>除了只生成特定机型 APK 的APKs之外，也可以从 APKs 中提取指定的 APK，方便安装和估算 APK 大小之类的。</p>
+<p>提取指定 apk:</p>
+<pre><code>bundletool extract-apks
+--apks=/MyApp/my_existing_APK_set.apks
+--output-dir=/MyApp/my_pixel2_APK_set.apks
+--device-spec=/MyApp/bundletool/pixel2.json
+</code></pre>
+<p>估算 APK 安装到设备后大小范围 (也可手动指定配置参考<a href="https://developer.android.com/studio/command-line/bundletool#measure_size">文档</a>)</p>
+<pre><code>bundletool get-size total --apks=/MyApp/my_app.apks
+</code></pre>
+<h3 id="appbundle-原理和实际效果">AppBundle 原理和实际效果</h3>
+<p>AppBundle 技术最大的不同就是以前只打一个 APK 直接安装 ，现在打包成一个 AppBundle 再打包成 APKs，根据设备配置进行安装，下面实际来测试一下有什么不同。</p>
+<p>Android 开发人员应该都知道安装的 apk 实际上被放在了一个 APP 的私有的目录(/data/app)。<br>
+以 Demo 项目为例，直接打包 apk 后安装到模拟器:</p>
+<figure data-type="image" tabindex="6"><img src="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6c97d560add9479ca305d0ef63284c4f~tplv-k3u1fbpfcp-watermark.image" alt="apk-size-2.png" loading="lazy"></figure>
+<p>可以看到安装目录下只有一个 <code>base.apk</code> ,大小是 23.5MB<br>
+然后我再打包一个 appbundle ，用 bundletool 生成 APKs 后查看内容</p>
+<figure data-type="image" tabindex="7"><img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/e44d949881ca4102abf4bdf85dc4a85f~tplv-k3u1fbpfcp-watermark.image" alt="apks.png" loading="lazy"></figure>
+<p>可以看到中有很多根据不同维度生成的 APK，实际上 APKs 就是包含所有 split apk 的集合。</p>
+<p>下一步用命令从 APKs 从安装到模拟器后，查看安装目录。</p>
+<figure data-type="image" tabindex="8"><img src="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/391a2633f9c0456d8fa2fdb75e04d0ae~tplv-k3u1fbpfcp-watermark.image" alt="appbundle-size-2.png" loading="lazy"></figure>
+<p>可以看到安装目录里的内容不一样了，被拆分成多个 apk 进行安装。<br>
+有 base.apk split_config.en.apk split_config.x86.apk split_config.xxhdpi.apk 以及一些其他的如 so库和 dex 文件。</p>
+<ul>
+<li>base.apk  : 基础的 APK</li>
+<li>split_config.en.apk 英语语言的资源</li>
+<li>split_config.x86.apk x86架构的配置</li>
+<li>split_config.xxhdpi.apk 该设备仅需的 xxhdpi</li>
+<li>lib/x86 x86架构下用到的 so库</li>
+<li>oat/x86/base.art base.odex base.vdex 对应以前的 dex 文件</li>
+</ul>
+<p>再对比一下直接安装 apk 和经过 AppBundle 安装拆分后的总大小差异</p>
+<figure data-type="image" tabindex="9"><img src="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6b28766022854d14859000a9f9d0cf63~tplv-k3u1fbpfcp-watermark.image" alt="size-diff-2.png" loading="lazy"></figure>
+<p>可以看到两者有 16.5MB 和 (7.5MB-14.8MB) 的差异（意思是根据机型不同安装的 apk 大小范围）对于这个so库和图片资源用的不多的 APP 体积最多可以减少50%+，其它 APP 差距可能会更大，所以效果还是很明显的，并且下载和安装到设备后的体积都能得到优化。</p>
+<h5 id="动态交付play-feature-delivery">动态交付（Play Feature Delivery）：</h5>
+<p>除此之外，拆分 apk 还可以实现动态交付的功能，首次安装只下载基本的 apk，非必要的模块动态下载。（依赖于 Google Play 商店）<br>
+这个我还没有实际用过，可以参考文档 <a href="https://developer.android.com/guide/app-bundle/dynamic-delivery">Play Feature Delivery</a></p>
+<h5 id="appbundle-的限制">AppBundle 的限制</h5>
+<ul>
+<li>Android 5.0</li>
+</ul>
+<p>Android 5.0 以上才支持安装拆分 APK，所以 5.0 以下相关的特性都没办法完全利用，不过开发者也不需要太关心， Google Play 会生成相应可以使用的 APK。</p>
+<ul>
+<li>
+<p>oob 格式</p>
+<p>游戏常用的 oob 格式不再支持，推荐改为 asset_pack</p>
+</li>
+</ul>
+<h5 id="appbundle-签名替换">AppBundle 签名替换</h5>
+<p>部分项目的签名流程是在我们签名 apk 后，客户会重新签名再上传到 Google Play：<br>
+AppBundle 格式不能用 apksinger 签名，可以改用 jarsigner。<br>
+另外一个方法参考后面会提到的 Play 签名计划</p>
+<h4 id="play-应用签名计划">Play 应用签名计划</h4>
+<p>Google Play 一直有一个 Play 应用签名计划，以前不用管它，但使用了 AppBundle 的话强制要求使用。一个原因是我们上传的 AppBundle 后，Google Play 需要打包成 APKs ，所以我们需要把签名交给 Google Play.</p>
+<p><strong>Play 应用签名计划会使用两个密钥：应用签名密钥和上传密钥，上传密钥是用于验证我们上传给 Google的 .aab/.apk 的身份，应用签名密钥可以前一样给App签名的。</strong></p>
+<p>原理参考：</p>
+<figure data-type="image" tabindex="10"><img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2d8da13e668047fea2036287aba624d0~tplv-k3u1fbpfcp-watermark.image" alt="appsigning_googleplayappsigningdiagram_2x.png" loading="lazy"></figure>
+<p>其中关于应用签名密钥有两种选择：</p>
+<ol>
+<li>
+<p>上传加密后的密钥给 Google Play ，然后 Google Play 用这个密钥签名。</p>
+</li>
+<li>
+<p>上传加密后的密钥给 Google Play，但是 Google Play 会自己生成另一套密钥来给 APK 签名，我们上传的密钥只作为验证 AppBundle 使用。</p>
+<ul>
+<li>好处：万一我们的密钥丢失或被盗了，只需证明身份，那么还可以继续使用 Google Play 生成的签名，方式一的话，就只能更换签名。</li>
+<li>坏处：<br>
+1. 如果我们想在其它商店或者官网发布有自己密钥签名的 APK，那么就由于和 Google Play 的签名不一样，不能覆盖安装。<br>
+2. 一些 SDK 如我们用过的乐天 IDSDK 就需要根据证书指纹认证身份，需要更换为真实签名的指纹。</li>
+</ul>
+</li>
+</ol>
+<p>上传密钥需要用 PEPK 工具加密后上传：</p>
+<figure data-type="image" tabindex="11"><img src="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/406e76ceab564424b1b426672466effa~tplv-k3u1fbpfcp-watermark.image" alt="pepk.png" loading="lazy"></figure>
+<p>此外，刚才提到的替换签名的需求也可以通过区分上传密钥和签名来实现，将我们这边打包的 appbundle 的 密钥设置为Play签名计划里的上传密钥，将客户实际打包的密钥设置为应用签名密钥，就可以实现原来重新签名的需求。</p>
+<h3 id="总结">总结</h3>
+<p>总的来说，如果我们的 APP工程结构标准，没有用太多的黑科技的话（特殊情况可能会打包失败之类，需要专门排查），通过 AppBundle 可以很轻松地以很低的成本就获得较大的 APK 体积压缩优化，还是很划算的。并且 Google Play 强制要求了，也不用纠结用不用了。项目已经使用 AppBundle 格式一段时间了，没有遇到太大问题。<br>
+另外，通过 AppBundle 我认为以后开发 APP 时可以有一些拆分 Module 的想法。这样可以尝试 Play Feature Delivery 、 Instant App （免安装App）这些功能。</p>
+<p>参考：<br>
+<a href="https://developer.android.com/guide/app-bundle/app-bundle-format?hl=zh_cn#multi_apks">https://developer.android.com/guide/app-bundle/app-bundle-format?hl=zh_cn#multi_apks</a><br>
+<a href="https://developer.android.com/studio/command-line/bundletool">https://developer.android.com/studio/command-line/bundletool</a><br>
+<a href="https://developer.android.com/guide/app-bundle/dynamic-delivery">https://developer.android.com/guide/app-bundle/dynamic-delivery</a><br>
+<a href="https://developer.android.com/guide/app-bundle/test">https://developer.android.com/guide/app-bundle/test</a><br>
+<a href="https://support.google.com/googleplay/android-developer/answer/9842756?hl=zh-Hans#">https://support.google.com/googleplay/android-developer/answer/9842756?hl=zh-Hans#</a></p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://xiejinpeng007.github.io/post/chrome-extensions-develop-intro/" class="post-title gt-a-link">
+                    Chrome Extension 开发简介
+                </a>
+            </div>
+        
+
+        
+
+        
+            
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+<script>
+    // md5.min.js
+    !function(n){
+        "use strict";
+        function d(n,t){var r=(65535&n)+(65535&t);return(n>>16)+(t>>16)+(r>>16)<<16|65535&r}
+        function f(n,t,r,e,o,u){return d((c=d(d(t,n),d(e,u)))<<(f=o)|c>>>32-f,r);var c,f}
+        function l(n,t,r,e,o,u,c){return f(t&r|~t&e,n,t,o,u,c)}
+        function v(n,t,r,e,o,u,c){return f(t&e|r&~e,n,t,o,u,c)}
+        function g(n,t,r,e,o,u,c){return f(t^r^e,n,t,o,u,c)}
+        function m(n,t,r,e,o,u,c){return f(r^(t|~e),n,t,o,u,c)}
+        function i(n,t){var r,e,o,u,c;n[t>>5]|=128<<t%32,n[14+(t+64>>>9<<4)]=t;var f=1732584193,i=-271733879,a=-1732584194,h=271733878;for(r=0;r<n.length;r+=16)f=l(e=f,o=i,u=a,c=h,n[r],7,-680876936),h=l(h,f,i,a,n[r+1],12,-389564586),a=l(a,h,f,i,n[r+2],17,606105819),i=l(i,a,h,f,n[r+3],22,-1044525330),f=l(f,i,a,h,n[r+4],7,-176418897),h=l(h,f,i,a,n[r+5],12,1200080426),a=l(a,h,f,i,n[r+6],17,-1473231341),i=l(i,a,h,f,n[r+7],22,-45705983),f=l(f,i,a,h,n[r+8],7,1770035416),h=l(h,f,i,a,n[r+9],12,-1958414417),a=l(a,h,f,i,n[r+10],17,-42063),i=l(i,a,h,f,n[r+11],22,-1990404162),f=l(f,i,a,h,n[r+12],7,1804603682),h=l(h,f,i,a,n[r+13],12,-40341101),a=l(a,h,f,i,n[r+14],17,-1502002290),f=v(f,i=l(i,a,h,f,n[r+15],22,1236535329),a,h,n[r+1],5,-165796510),h=v(h,f,i,a,n[r+6],9,-1069501632),a=v(a,h,f,i,n[r+11],14,643717713),i=v(i,a,h,f,n[r],20,-373897302),f=v(f,i,a,h,n[r+5],5,-701558691),h=v(h,f,i,a,n[r+10],9,38016083),a=v(a,h,f,i,n[r+15],14,-660478335),i=v(i,a,h,f,n[r+4],20,-405537848),f=v(f,i,a,h,n[r+9],5,568446438),h=v(h,f,i,a,n[r+14],9,-1019803690),a=v(a,h,f,i,n[r+3],14,-187363961),i=v(i,a,h,f,n[r+8],20,1163531501),f=v(f,i,a,h,n[r+13],5,-1444681467),h=v(h,f,i,a,n[r+2],9,-51403784),a=v(a,h,f,i,n[r+7],14,1735328473),f=g(f,i=v(i,a,h,f,n[r+12],20,-1926607734),a,h,n[r+5],4,-378558),h=g(h,f,i,a,n[r+8],11,-2022574463),a=g(a,h,f,i,n[r+11],16,1839030562),i=g(i,a,h,f,n[r+14],23,-35309556),f=g(f,i,a,h,n[r+1],4,-1530992060),h=g(h,f,i,a,n[r+4],11,1272893353),a=g(a,h,f,i,n[r+7],16,-155497632),i=g(i,a,h,f,n[r+10],23,-1094730640),f=g(f,i,a,h,n[r+13],4,681279174),h=g(h,f,i,a,n[r],11,-358537222),a=g(a,h,f,i,n[r+3],16,-722521979),i=g(i,a,h,f,n[r+6],23,76029189),f=g(f,i,a,h,n[r+9],4,-640364487),h=g(h,f,i,a,n[r+12],11,-421815835),a=g(a,h,f,i,n[r+15],16,530742520),f=m(f,i=g(i,a,h,f,n[r+2],23,-995338651),a,h,n[r],6,-198630844),h=m(h,f,i,a,n[r+7],10,1126891415),a=m(a,h,f,i,n[r+14],15,-1416354905),i=m(i,a,h,f,n[r+5],21,-57434055),f=m(f,i,a,h,n[r+12],6,1700485571),h=m(h,f,i,a,n[r+3],10,-1894986606),a=m(a,h,f,i,n[r+10],15,-1051523),i=m(i,a,h,f,n[r+1],21,-2054922799),f=m(f,i,a,h,n[r+8],6,1873313359),h=m(h,f,i,a,n[r+15],10,-30611744),a=m(a,h,f,i,n[r+6],15,-1560198380),i=m(i,a,h,f,n[r+13],21,1309151649),f=m(f,i,a,h,n[r+4],6,-145523070),h=m(h,f,i,a,n[r+11],10,-1120210379),a=m(a,h,f,i,n[r+2],15,718787259),i=m(i,a,h,f,n[r+9],21,-343485551),f=d(f,e),i=d(i,o),a=d(a,u),h=d(h,c);return[f,i,a,h]}
+        function a(n){var t,r="",e=32*n.length;for(t=0;t<e;t+=8)r+=String.fromCharCode(n[t>>5]>>>t%32&255);return r}
+        function h(n){var t,r=[];for(r[(n.length>>2)-1]=void 0,t=0;t<r.length;t+=1)r[t]=0;var e=8*n.length;for(t=0;t<e;t+=8)r[t>>5]|=(255&n.charCodeAt(t/8))<<t%32;return r}
+        function e(n){var t,r,e="0123456789abcdef",o="";for(r=0;r<n.length;r+=1)t=n.charCodeAt(r),o+=e.charAt(t>>>4&15)+e.charAt(15&t);return o}
+        function r(n){return unescape(encodeURIComponent(n))}
+        function o(n){return a(i(h(t=r(n)),8*t.length));var t}
+        function u(n,t){return function(n,t){var r,e,o=h(n),u=[],c=[];for(u[15]=c[15]=void 0,16<o.length&&(o=i(o,8*n.length)),r=0;r<16;r+=1)u[r]=909522486^o[r],c[r]=1549556828^o[r];return e=i(u.concat(h(t)),512+8*t.length),a(i(c.concat(e),640))}(r(n),r(t))}
+        function t(n,t,r){return t?r?u(t,n):e(u(t,n)):r?o(n):e(o(n))}
+        "function"==typeof define&&define.amd?define(function(){return t}):"object"==typeof module&&module.exports?module.exports=t:n.md5=t;
+    }(this);
+</script>
+
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'ea3603bb590ba2ab51ba',
+    clientSecret: 'e82e698ee0f1db9e833f069b9c3b612ba3486927',
+    repo: 'xiejinpeng007.github.io',
+    owner: 'xiejinpeng007',
+    admin: ['xiejinpeng007'],
+    id: md5(location.pathname),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false       // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+            
+
+            
+        
+
+        
+            <script src='https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js'></script>
+
+<style>
+	div#vcomments{
+		width:100%;
+		max-width: 1000px;
+		padding: 2.5%
+	}
+</style>
+
+
+	<div id="vcomments"></div>
+
+<script>
+	new Valine({
+		el: '#vcomments',
+		appId: '',
+		appKey: '',
+		avatar: '',
+		pageSize: 5,
+		recordIp: false,
+		placeholder: 'Just Go Go',
+		visitor: false,
+	});
+</script>
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">你觉得做什么事很痛苦，那么就需要去越过它。</div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/xiejinpeng007" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Find Me At 
+<a href="https://github.com/xiejinpeng007">Github</a>
+<a href="https://juejin.im/user/1046390796976686">掘金</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://xiejinpeng007.github.io/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>
